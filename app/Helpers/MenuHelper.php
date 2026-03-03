@@ -14,24 +14,14 @@ class MenuHelper
                 'name' => 'Dashboard',
                 'path' => '/',
             ],
-            // [
-            //     'icon' => 'calendar',
-            //     'name' => 'Calendar',
-            //     'path' => '/calendar',
-            // ],
-            // [
-            //     'icon' => 'user-profile',
-            //     'name' => 'User Profile',
-            //     'path' => '/profile',
-            // ],
             [
                 'name' => 'Menu Input',
                 'icon' => 'forms',
                 'subItems' => [
                     ['icon' => 'user-profile', 'name' => 'Setup User', 'path' => '/profile', 'pro' => false],
-                    ['name' => 'Saldo Awal Buku', 'path' => '/form-elements', 'pro' => false],
-                    ['name' => 'Setup Anggaran', 'path' => '/form-elements', 'pro' => false],
-                    ['name' => 'Transaksi', 'path' => '/form-elements', 'pro' => false],
+                    ['name' => 'Saldo Awal Buku', 'path' => '/saldo-awal-buku', 'pro' => false],
+                    ['name' => 'Setup Anggaran', 'path' => '/setup-anggaran', 'pro' => false],
+                    ['name' => 'Transaksi', 'path' => '/transaksi', 'pro' => false],
                 ],
             ],
             [

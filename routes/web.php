@@ -58,6 +58,10 @@ Route::get('/profile', function () {
     return view('pages.profile', ['title' => 'Profile']);
 })->name('profile');
 
+Route::get('/saldo-awal-buku', function () {
+    return view('pages.saldo', ['title' => 'Saldo Awal Buku']);
+})->name('saldo-awal-buku');
+
 // // form pages
 // Route::get('/form-elements', function () {
 //     return view('pages.form.form-elements', ['title' => 'Form Elements']);
