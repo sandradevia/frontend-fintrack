@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Helpers;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class MenuHelper
 {
@@ -10,25 +12,23 @@ class MenuHelper
             [
                 'icon' => 'dashboard',
                 'name' => 'Dashboard',
-                'subItems' => [
-                    ['name' => 'Ecommerce', 'path' => '/'],
-                ],
+                'path' => '/',
             ],
-            [
-                'icon' => 'calendar',
-                'name' => 'Calendar',
-                'path' => '/calendar',
-            ],
-            [
-                'icon' => 'user-profile',
-                'name' => 'User Profile',
-                'path' => '/profile',
-            ],
+            // [
+            //     'icon' => 'calendar',
+            //     'name' => 'Calendar',
+            //     'path' => '/calendar',
+            // ],
+            // [
+            //     'icon' => 'user-profile',
+            //     'name' => 'User Profile',
+            //     'path' => '/profile',
+            // ],
             [
                 'name' => 'Menu Input',
                 'icon' => 'forms',
                 'subItems' => [
-                    ['icon' => 'user-profile', 'name' => 'Setup User', 'path' => '/form-elements', 'pro' => false],
+                    ['icon' => 'user-profile', 'name' => 'Setup User', 'path' => '/profile', 'pro' => false],
                     ['name' => 'Saldo Awal Buku', 'path' => '/form-elements', 'pro' => false],
                     ['name' => 'Setup Anggaran', 'path' => '/form-elements', 'pro' => false],
                     ['name' => 'Transaksi', 'path' => '/form-elements', 'pro' => false],
@@ -69,57 +69,68 @@ class MenuHelper
         ];
     }
 
-    public static function getOthersItems()
-    {
-        return [
-            [
-                'icon' => 'charts',
-                'name' => 'Charts',
-                'subItems' => [
-                    ['name' => 'Line Chart', 'path' => '/line-chart', 'pro' => false],
-                    ['name' => 'Bar Chart', 'path' => '/bar-chart', 'pro' => false]
-                ],
-            ],
-            [
-                'icon' => 'ui-elements',
-                'name' => 'UI Elements',
-                'subItems' => [
-                    ['name' => 'Alerts', 'path' => '/alerts', 'pro' => false],
-                    ['name' => 'Avatar', 'path' => '/avatars', 'pro' => false],
-                    ['name' => 'Badge', 'path' => '/badge', 'pro' => false],
-                    ['name' => 'Buttons', 'path' => '/buttons', 'pro' => false],
-                    ['name' => 'Images', 'path' => '/image', 'pro' => false],
-                    ['name' => 'Videos', 'path' => '/videos', 'pro' => false],
-                ],
-            ],
-            [
-                'icon' => 'authentication',
-                'name' => 'Authentication',
-                'subItems' => [
-                    ['name' => 'Sign In', 'path' => '/signin', 'pro' => false],
-                    ['name' => 'Sign Up', 'path' => '/signup', 'pro' => false],
-                ],
-            ],
-        ];
-    }
+    // public static function getOthersItems()
+    // {
+    //     return [
+    //         [
+    //             'icon' => 'charts',
+    //             'name' => 'Charts',
+    //             'subItems' => [
+    //                 ['name' => 'Line Chart', 'path' => '/line-chart', 'pro' => false],
+    //                 ['name' => 'Bar Chart', 'path' => '/bar-chart', 'pro' => false]
+    //             ],
+    //         ],
+    //         [
+    //             'icon' => 'ui-elements',
+    //             'name' => 'UI Elements',
+    //             'subItems' => [
+    //                 ['name' => 'Alerts', 'path' => '/alerts', 'pro' => false],
+    //                 ['name' => 'Avatar', 'path' => '/avatars', 'pro' => false],
+    //                 ['name' => 'Badge', 'path' => '/badge', 'pro' => false],
+    //                 ['name' => 'Buttons', 'path' => '/buttons', 'pro' => false],
+    //                 ['name' => 'Images', 'path' => '/image', 'pro' => false],
+    //                 ['name' => 'Videos', 'path' => '/videos', 'pro' => false],
+    //             ],
+    //         ],
+    //         [
+    //             'icon' => 'authentication',
+    //             'name' => 'Authentication',
+    //             'subItems' => [
+    //                 ['name' => 'Sign In', 'path' => '/signin', 'pro' => false],
+    //                 ['name' => 'Sign Up', 'path' => '/signup', 'pro' => false],
+    //             ],
+    //         ],
+    //     ];
+    // }
 
     public static function getMenuGroups()
     {
+        $items = self::getMainNavItems();
+
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        if ($user?->hasRole('super_admin')) {
+            $items = array_merge($items, self::getSuperAdminItems());
+        }
+
         return [
             [
                 'title' => 'Menu',
-                'items' => self::getMainNavItems()
+                'items' => $items,
             ],
-            [
-                'title' => 'Others',
-                'items' => self::getOthersItems()
-            ]
         ];
     }
 
-    public static function isActive($path)
+    public static function getSuperAdminItems()
     {
-        return request()->is(ltrim($path, '/'));
+        return [
+            [
+                'icon' => 'task', // icon yang sudah ada di getIconSvg
+                'name' => 'Kelola Dapur',
+                'path' => '/kelola-dapur',
+            ],
+        ];
     }
 
     public static function getIconSvg($iconName)
