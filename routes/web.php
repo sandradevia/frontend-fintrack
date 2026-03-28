@@ -3,65 +3,43 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\AnggaranController;
+use App\Http\Controllers\DashboardController;
 
 
-Route::get('/signin', [LoginController::class, 'index'])->name('signin');
-Route::post('/signin', [LoginController::class, 'authenticate'])->name('signin.authenticate');
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
-// Alias default Laravel auth middleware
-Route::get('/login', fn () => redirect()->route('signin'))->name('login');
-
-/*
-|--------------------------------------------------------------------------
-| DASHBOARD (PROTECTED)
-|--------------------------------------------------------------------------
-| Kita buat 2 route dashboard: admin & super admin
-*/
-Route::middleware('auth')->group(function () {
-
-    // Default / -> arahkan sesuai role
-    Route::get('/', function () {
-        $user = Auth::user();
-
-        // Kalau pakai kolom role
-        if (($user->role ?? null) === 'super_admin') {
-            return redirect()->route('super.dashboard');
-        }
-
-        return redirect()->route('admin.dashboard');
-    })->name('dashboard');
-
-    // Admin dashboard
-    
+Route::get('/', function () {
+    return redirect()->route('signin');
 });
-Route::get('/admin', function () {
-        return view('pages.dashboard.ecommerce', ['title' => 'Dashboard Admin']);
-    })->name('admin.dashboard');
 
-    // Super admin dashboard (bisa pakai view yang sama dulu)
-    Route::get('/super', function () {
-        return view('pages.dashboard.ecommerce', ['title' => 'Dashboard Super Admin']);
-    })->name('super.dashboard');
+    Route::get('/signin', [LoginController::class, 'index'])->name('signin');
+    Route::post('/signin', [LoginController::class, 'authenticate'])->name('signin.authenticate');
 
-    // Super admin only
-    Route::get('/kelola-dapur', function () {
-        return view('super_admin.kelola-dapur', ['title' => 'Kelola Dapur']);
-    })->name('kelola-dapur')->middleware('role:super_admin'); // butuh Spatie
-// // calender pages
-// Route::get('/calendar', function () {
-//     return view('pages.calender', ['title' => 'Calendar']);
-// })->name('calendar');
+    Route::middleware('auth')->group(function () {
 
-// // profile pages
-Route::get('/profile', function () {
-    return view('pages.profile', ['title' => 'Profile']);
-})->name('profile');
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::get('/saldo-awal-buku', function () {
-    return view('pages.saldo', ['title' => 'Saldo Awal Buku']);
-})->name('saldo-awal-buku');
+    Route::get('/dashboard/admin', [DashboardController::class, 'admin'])
+        ->name('admin.dashboard');
 
+    Route::get('/dashboard/super-admin', [DashboardController::class, 'superAdmin'])
+        ->name('super.dashboard');
+
+});
+
+// // // profile pages
+// Route::get('/profile', function () {
+//     return view('pages.profile', ['title' => 'Profile']);
+// })->name('profile');
+
+// Route::get('/saldo-awal-buku', function () {
+//     return view('pages.saldo', ['title' => 'Saldo Awal Buku']);
+// })->name('saldo-awal-buku');
+
+// Route::prefix('anggaran')->group(function () {
+//     Route::get('/bahan', [AnggaranController::class, 'bahan'])->name('anggaran-bahan');
+//     Route::get('/operasional', [AnggaranController::class, 'operasional'])->name('anggaran-operasional');
+//     Route::get('/insentif', [AnggaranController::class, 'insentif'])->name('anggaran-insentif');
+// });
 // // form pages
 // Route::get('/form-elements', function () {
 //     return view('pages.form.form-elements', ['title' => 'Form Elements']);

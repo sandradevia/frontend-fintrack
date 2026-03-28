@@ -10,14 +10,16 @@ class LoginController extends Controller
 {
     public function index()
     {
-        return view('pages.auth.signin', ['title' => 'Sign In']);
+        return view('pages.auth.signin', [
+            'title' => 'Sign In'
+        ]);
     }
 
     public function authenticate(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required','email'],
-            'password' => ['required'],
+            'username' => ['required', 'string'],
+            'password' => ['required', 'string'],
         ]);
 
         if (Auth::attempt($credentials)) {
@@ -25,24 +27,25 @@ class LoginController extends Controller
 
             $user = Auth::user();
 
-            // Support: Spatie role ATAU kolom role
-            $isSuperAdmin =
-                (method_exists($user, 'hasRole') && call_user_func([$user, 'hasRole'], 'super_admin'))
-                || (($user->role ?? null) === 'super_admin');
+            $isSuperAdmin = ($user->role ?? null) === 'super_admin';
+            if ($isSuperAdmin) {
+                return redirect()->route('super.dashboard');
+            }
 
-            return $isSuperAdmin
-                ? redirect()->route('super.dashboard')
-                : redirect()->route('admin.dashboard');
+            return redirect()->route('admin.dashboard');
         }
 
         return back()
-            ->withErrors(['email' => 'Email atau password salah.'])
-            ->onlyInput('email');
+            ->withErrors([
+                'username' => 'Username atau password salah.'
+            ])
+            ->onlyInput('username');
     }
 
     public function logout(Request $request)
     {
         Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
