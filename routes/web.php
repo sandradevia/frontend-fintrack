@@ -1,30 +1,83 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\AnggaranController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AnggaranController;
+use App\Http\Controllers\AwalBukuController;
+use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\DapurController;
 
-
+// ================= AUTH =================
 Route::get('/', function () {
     return redirect()->route('signin');
 });
 
-    Route::get('/signin', [LoginController::class, 'index'])->name('signin');
-    Route::post('/signin', [LoginController::class, 'authenticate'])->name('signin.authenticate');
+Route::get('/signin', [LoginController::class, 'index'])->name('signin');
+Route::post('/signin', [LoginController::class, 'authenticate'])->name('signin.authenticate');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-    Route::middleware('auth')->group(function () {
 
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+// ================= ADMIN =================
+Route::middleware(['auth', 'role:admin|super_admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
 
-    Route::get('/dashboard/admin', [DashboardController::class, 'admin'])
-        ->name('admin.dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'admin'])
+            ->name('dashboard');
 
-    Route::get('/dashboard/super-admin', [DashboardController::class, 'superAdmin'])
-        ->name('super.dashboard');
+        Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
+        Route::post('/profile', [AdminController::class, 'updateProfile'])->name('admin.update');
 
+        Route::get('/anggaran/bahan', [AnggaranController::class, 'bahan'])->name('anggaran.bahan');
+        Route::get('/anggaran/operasional', [AnggaranController::class, 'operasional'])->name('anggaran.operasional');
+        Route::get('/anggaran/insentif', [AnggaranController::class, 'insentif'])->name('anggaran.insentif');
+
+        Route::resource('/awal-buku', AwalBukuController::class);
+        Route::resource('/transaksi', TransaksiController::class);
+
+        // 🔥 KHUSUS SUPER ADMIN
+        Route::middleware('role:super_admin')->group(function () {
+            Route::get('/kelola-dapur', [DapurController::class, 'index'])
+                ->name('kelola-dapur');
+        });
 });
+
+
+// ================= SUPER ADMIN =================
+Route::middleware(['auth', 'role:super_admin'])
+    ->prefix('super')
+    ->name('super.')
+    ->group(function () {
+
+        Route::get('/dashboard', [DashboardController::class, 'superAdmin'])
+            ->name('dashboard');
+});
+    // Route::middleware('auth', 'admin')->group(function () {
+
+    // Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    // Route::get('/dashboard/admin', [DashboardController::class, 'admin'])
+    //     ->name('admin.dashboard');
+
+    // Route::get('/dashboard/super-admin', [DashboardController::class, 'superAdmin'])
+    //     ->name('super.dashboard');
+        
+// ====== TAMBAHAN ADMIN ======
+
+    // // Anggaran Admin
+    // Route::get('/admin/anggaran', [AnggaranController::class, 'index'])
+    //     ->name('admin.anggaran');
+
+    // Route::get('/admin/anggaran/create', [AnggaranController::class, 'create'])
+    //     ->name('admin.anggaran.create');
+
+    // Route::post('/admin/anggaran', [AnggaranController::class, 'store'])
+    //     ->name('admin.anggaran.store');
+
+
 
 // // // profile pages
 // Route::get('/profile', function () {

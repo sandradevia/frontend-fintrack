@@ -27,19 +27,25 @@ class LoginController extends Controller
 
             $user = Auth::user();
 
-            $isSuperAdmin = ($user->role ?? null) === 'super_admin';
-            if ($isSuperAdmin) {
+            
+            if ($user->hasRole('super_admin')) {
                 return redirect()->route('super.dashboard');
             }
 
-            return redirect()->route('admin.dashboard');
+            if ($user->hasRole('admin')) {
+                return redirect()->route('admin.dashboard');
+            }
+
+            // fallback
+            Auth::logout();
+            return back()->withErrors([
+                'username' => 'Role tidak dikenali.'
+            ]);
         }
 
-        return back()
-            ->withErrors([
-                'username' => 'Username atau password salah.'
-            ])
-            ->onlyInput('username');
+        return back()->withErrors([
+            'username' => 'Username atau password salah.'
+        ])->onlyInput('username');
     }
 
     public function logout(Request $request)

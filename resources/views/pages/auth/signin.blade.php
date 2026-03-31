@@ -1,6 +1,31 @@
 @extends('layouts.fullscreen-layout')
 
 @section('content')
+<style>
+    /* Animasi Muncul dari Bawah */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Animasi Melayang (Floating) */
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+
+    /* Animasi Background Bergerak */
+    @keyframes blob {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(30px, -50px) scale(1.1); }
+        66% { transform: translate(-20px, 20px) scale(0.9); }
+    }
+
+    .animate-fade-up { animation: fadeInUp 0.8s ease-out forwards; }
+    .animate-float { animation: float 5s ease-in-out infinite; }
+    .animate-blob { animation: blob 7s infinite; }
+    .delay-200 { animation-delay: 0.2s; }
+</style>    
     <div class="relative z-1 bg-white p-6 sm:p-0 dark:bg-gray-900">
         <div class="relative flex h-screen w-full flex-col justify-center sm:p-0 lg:flex-row dark:bg-gray-900">
             <!-- Form -->
@@ -122,7 +147,7 @@
                     <x-common.common-grid-shape />
                     <div class="flex max-w-xs flex-col items-center">
                         <a href="/" class="mb-4 block">
-                            <img src="" alt="Logo" />
+                            <img src="/images/logo/kapuaz.png" alt="Logo" />
                         </a>
                         <p class="text-center text-gray-400 dark:text-white/60">
                             KAPUAZ - Aplikasi Pelaporan Keuangan Gizi untuk memudahkan pengelolaan data keuangan gizi Anda dengan efisien dan akurat.

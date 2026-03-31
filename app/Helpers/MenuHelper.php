@@ -1,107 +1,103 @@
 <?php
 
 namespace App\Helpers;
+
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 class MenuHelper
 {
-    public static function getMainNavItems()
+    public static function getMenu()
     {
-        return [
+        $user = Auth::user();
+
+        $isSuperAdmin = $user && $user->hasRole('super_admin');
+        $isAdmin = $user && $user->hasRole(['admin', 'super_admin']);
+
+        $items = [
+
             [
                 'icon' => 'dashboard',
                 'name' => 'Dashboard',
-                'path' => '/',
+                'route' => $isSuperAdmin
+                    ? 'super.dashboard'
+                    : 'admin.dashboard',
             ],
+
             [
                 'name' => 'Menu Input',
                 'icon' => 'forms',
                 'subItems' => [
-                    ['icon' => 'user-profile', 'name' => 'Setup User', 'path' => '/profile', 'pro' => false],
-                    ['name' => 'Saldo Awal Buku', 'path' => '/saldo-awal-buku', 'pro' => false],
-                    ['name' => 'Setup Anggaran', 'path' => '/setup-anggaran', 'pro' => false],
-                    ['name' => 'Transaksi', 'path' => '/transaksi', 'pro' => false],
+
+                    [
+                        'icon' => 'user-profile',
+                        'name' => 'Profile',
+                        'route' => 'admin.profile',
+                    ],
+
+                    [
+                        'name' => 'Saldo Awal Buku',
+                        'route' => 'admin.awal-buku.index',
+                    ],
+
+                    [
+                        'name' => 'Anggaran',
+                        'subItems' => [
+                            ['name' => 'Bahan', 'route' => 'admin.anggaran.bahan'],
+                            ['name' => 'Operasional', 'route' => 'admin.anggaran.operasional'],
+                            ['name' => 'Insentif', 'route' => 'admin.anggaran.insentif'],
+                        ],
+                    ],
+
+                    [
+                        'name' => 'Transaksi',
+                        'route' => 'admin.transaksi.index',
+                    ],
                 ],
             ],
+
             [
                 'name' => 'Cetak Buku',
                 'icon' => 'tables',
                 'subItems' => [
-                    ['name' => 'Buku Kas Umum (BKU)', 'path' => '/basic-tables', 'pro' => false],
-                    ['name' => 'BP - Kas', 'path' => '/basic-tables', 'pro' => false],
-                    ['name' => 'BP - Bahan Baku', 'path' => '/basic-tables', 'pro' => false],
-                    ['name' => 'BP - Operasional', 'path' => '/basic-tables', 'pro' => false],
-                    ['name' => 'BP - Insentif Fasilitas', 'path' => '/basic-tables', 'pro' => false],
+                    ['name' => 'BKU', 'route' => 'admin.bku'],
+                    ['name' => 'BP Kas', 'route' => 'admin.bp.kas'],
+                    ['name' => 'BP Bahan', 'route' => 'admin.bp.bahan'],
+                    ['name' => 'BP Operasional', 'route' => 'admin.bp.operasional'],
+                    ['name' => 'BP Insentif', 'route' => 'admin.bp.insentif'],
                 ],
             ],
+
             [
                 'name' => 'Cetak Laporan',
                 'icon' => 'pages',
                 'subItems' => [
-                    ['name' => 'LP Anggaran', 'path' => '/blank', 'pro' => false],
-                    ['name' => 'SP Tanggung Jawab', 'path' => '/blank', 'pro' => false],
-                    ['name' => 'BAP Sisa Dana', 'path' => '/blank', 'pro' => false],
-                    ['name' => 'Daftar Kominatif', 'path' => '/blank', 'pro' => false],
-                    ['name' => 'Catatan Pengeluaran', 'path' => '/basic-tables', 'pro' => false], 
+                    ['name' => 'LP Anggaran', 'route' => 'admin.laporan.anggaran'],
+                    ['name' => 'SP Tanggung Jawab', 'route' => 'admin.laporan.spj'],
+                    ['name' => 'BAP Sisa Dana', 'route' => 'admin.laporan.bap'],
+                    ['name' => 'Daftar Kominatif', 'route' => 'admin.laporan.kominatif'],
+                    ['name' => 'Catatan Pengeluaran', 'route' => 'admin.laporan.catatan'],
                 ],
             ],
+
             [
                 'name' => 'Barang Persediaan',
                 'icon' => 'pages',
                 'subItems' => [
-                    ['name' => 'Input Barang', 'path' => '/blank', 'pro' => false],
-                    ['name' => 'Penerimaan Barang', 'path' => '/blank', 'pro' => false],
-                    ['name' => 'Pengeluaran Barang', 'path' => '/blank', 'pro' => false],
-                    ['name' => 'Laporan Stok Barang', 'path' => '/blank', 'pro' => false],
+                    ['name' => 'Input Barang', 'route' => 'admin.barang.input'],
+                    ['name' => 'Penerimaan Barang', 'route' => 'admin.barang.masuk'],
+                    ['name' => 'Pengeluaran Barang', 'route' => 'admin.barang.keluar'],
+                    ['name' => 'Laporan Stok Barang', 'route' => 'admin.barang.laporan'],
                 ],
             ],
         ];
-    }
 
-    // public static function getOthersItems()
-    // {
-    //     return [
-    //         [
-    //             'icon' => 'charts',
-    //             'name' => 'Charts',
-    //             'subItems' => [
-    //                 ['name' => 'Line Chart', 'path' => '/line-chart', 'pro' => false],
-    //                 ['name' => 'Bar Chart', 'path' => '/bar-chart', 'pro' => false]
-    //             ],
-    //         ],
-    //         [
-    //             'icon' => 'ui-elements',
-    //             'name' => 'UI Elements',
-    //             'subItems' => [
-    //                 ['name' => 'Alerts', 'path' => '/alerts', 'pro' => false],
-    //                 ['name' => 'Avatar', 'path' => '/avatars', 'pro' => false],
-    //                 ['name' => 'Badge', 'path' => '/badge', 'pro' => false],
-    //                 ['name' => 'Buttons', 'path' => '/buttons', 'pro' => false],
-    //                 ['name' => 'Images', 'path' => '/image', 'pro' => false],
-    //                 ['name' => 'Videos', 'path' => '/videos', 'pro' => false],
-    //             ],
-    //         ],
-    //         [
-    //             'icon' => 'authentication',
-    //             'name' => 'Authentication',
-    //             'subItems' => [
-    //                 ['name' => 'Sign In', 'path' => '/signin', 'pro' => false],
-    //                 ['name' => 'Sign Up', 'path' => '/signup', 'pro' => false],
-    //             ],
-    //         ],
-    //     ];
-    // }
-
-    public static function getMenuGroups()
-    {
-        $items = self::getMainNavItems();
-
-        /** @var \App\Models\User|null $user */
-        $user = Auth::user();
-
-        if ($user?->hasRole('super_admin')) {
-            $items = array_merge($items, self::getSuperAdminItems());
+        // 🔥 KHUSUS SUPER ADMIN
+        if ($isSuperAdmin) {
+            $items[] = [
+                'icon' => 'task',
+                'name' => 'Kelola Dapur',
+                'route' => 'admin.kelola-dapur',
+            ];
         }
 
         return [
@@ -111,18 +107,6 @@ class MenuHelper
             ],
         ];
     }
-
-    public static function getSuperAdminItems()
-    {
-        return [
-            [
-                'icon' => 'task', // icon yang sudah ada di getIconSvg
-                'name' => 'Kelola Dapur',
-                'path' => '/kelola-dapur',
-            ],
-        ];
-    }
-
     public static function getIconSvg($iconName)
     {
         $icons = [

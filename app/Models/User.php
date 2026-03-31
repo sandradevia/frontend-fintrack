@@ -6,40 +6,29 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-// ⬇️ Tambahkan ini
 use Spatie\Permission\Traits\HasRoles;
-
+/**
+ * @method bool hasRole(string|array|\Spatie\Permission\Models\Role|\Illuminate\Support\Collection $roles, string|null $guard = null)
+ */
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles; 
+    use HasFactory, Notifiable, HasRoles;
+
+    protected $guard_name = 'web';
 
     protected $fillable = [
         'name',
         'email',
         'password',
-        'role',
     ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
 
     public function isSuperAdmin()
     {
-        return $this->role === 'super_admin';
+        return $this->hasRole('super_admin');
     }
 
     public function isAdmin()
     {
-        return $this->role === 'admin';
+        return $this->hasRole('admin') || $this->hasRole('super_admin');
     }
 }

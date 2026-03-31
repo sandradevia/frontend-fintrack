@@ -9,11 +9,10 @@
     <title>{{ $title ?? 'Dashboard' }} | KAPUAZ - Aplikasi Pelaporan Keuangan Gizi</title>
 
     <!-- Scripts -->
+    @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <!-- Alpine.js -->
-    {{-- <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script> --}}
-
+    
     <!-- Theme Store -->
     <script>
         document.addEventListener('alpine:init', () => {
@@ -127,12 +126,12 @@
             <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
                 @yield('content')
             </div>
+            @livewireScripts
         </div>
 
     </div>
 
 </body>
-
 @stack('scripts')
 
 </html>
