@@ -21,6 +21,7 @@ class UserSeeder extends Seeder
             'username' => 'superadmin',
             'email' => 'superadmin@gmail.com',
             'password' => Hash::make('password'),
+            'dapur_id' => null, // Super Admin tidak terkait dengan dapur tertentu
         ]);
 
         $superAdmin->assignRole($superAdminRole);
@@ -31,6 +32,7 @@ class UserSeeder extends Seeder
             'username' => 'admin',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('password'),
+            'dapur_id' => 1,
         ]);
 
         $admin->assignRole($adminRole);

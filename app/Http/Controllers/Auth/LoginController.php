@@ -5,13 +5,15 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Dapur;
 
 class LoginController extends Controller
 {
     public function index()
     {
         return view('pages.auth.signin', [
-            'title' => 'Sign In'
+            'title' => 'Sign In',
+            'dapur' => Dapur::all()
         ]);
     }
 
@@ -27,25 +29,51 @@ class LoginController extends Controller
 
             $user = Auth::user();
 
-            
+            // 👑 SUPER ADMIN
             if ($user->hasRole('super_admin')) {
-                return redirect()->route('super.dashboard');
+                return response()->json([
+                    'status' => 'success',
+                    'role' => 'super_admin'
+                ]);
             }
 
+            // 👤 ADMIN
             if ($user->hasRole('admin')) {
-                return redirect()->route('admin.dashboard');
+
+                session([
+                    'dapur_id' => $user->dapur_id
+                ]);
+
+                return response()->json([
+                    'status' => 'success',
+                    'role' => 'admin',
+                    'redirect' => route('admin.dashboard')
+                ]);
             }
 
-            // fallback
             Auth::logout();
-            return back()->withErrors([
-                'username' => 'Role tidak dikenali.'
-            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Role tidak dikenali'
+            ], 403);
         }
 
-        return back()->withErrors([
-            'username' => 'Username atau password salah.'
-        ])->onlyInput('username');
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Username atau password salah'
+        ], 401);
+    }
+
+    public function pilihDapur($id)
+    {
+        session([
+            'dapur_id' => $id
+        ]);
+
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
 
     public function logout(Request $request)

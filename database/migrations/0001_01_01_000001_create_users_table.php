@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('username')->unique();
             $table->string('email')->unique()->nullable();
+            $table->foreignId('dapur_id')->nullable()->constrained('dapur');
             $table->string('role')->default('admin');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

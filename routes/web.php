@@ -29,6 +29,7 @@ Route::get('/', function () {
 
 Route::get('/signin', [LoginController::class, 'index'])->name('signin');
 Route::post('/signin', [LoginController::class, 'authenticate'])->name('signin.authenticate');
+Route::post('/pilih-dapur/{id}', [LoginController::class, 'pilihDapur'])->name('pilih.dapur')->middleware('web');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
