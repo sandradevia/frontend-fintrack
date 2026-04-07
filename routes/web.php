@@ -4,10 +4,10 @@ use App\Http\Controllers\BpKasController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AnggaranController;
 use App\Http\Controllers\AwalBukuController;
 use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\DapurController;
 use App\Http\Controllers\BkuController;
 use App\Http\Controllers\BpOperasionalController;
 use App\Http\Controllers\BpInsentifController;
@@ -42,8 +42,8 @@ Route::middleware(['auth', 'role:admin|super_admin'])
         Route::get('/dashboard', [DashboardController::class, 'admin'])
             ->name('dashboard');
 
-        Route::get('/profile', [AdminController::class, 'profile'])->name('profile.profile');
-        Route::post('/profile', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
+        Route::get('/profile', [DapurController::class, 'index'])->name('profile.profile');
+        Route::put('/profile/{id}/update', [DapurController::class, 'update'])->name('profile.update');
 
         Route::get('/anggaran/bahan', [AnggaranController::class, 'bahan'])->name('anggaran.bahan');
         Route::get('/anggaran/operasional', [AnggaranController::class, 'operasional'])->name('anggaran.operasional');
