@@ -10,10 +10,11 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 
-    <!-- Alpine.js -->
+    {{-- Alpine.js dimatiin --}}
     {{-- <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script> --}}
-
+    
     <!-- Theme Store -->
     <script>
         document.addEventListener('alpine:init', () => {
@@ -81,12 +82,16 @@
             const savedTheme = localStorage.getItem('theme');
             const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             const theme = savedTheme || systemTheme;
+
+            const html = document.documentElement;
+            const body = document.body;
+
             if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-                document.body.classList.add('dark', 'bg-gray-900');
+                html.classList.add('dark');
+                if (body) body.classList.add('dark', 'bg-gray-900'); // ✅ aman
             } else {
-                document.documentElement.classList.remove('dark');
-                document.body.classList.remove('dark', 'bg-gray-900');
+                html.classList.remove('dark');
+                if (body) body.classList.remove('dark', 'bg-gray-900'); // ✅ aman
             }
         })();
     </script>
@@ -109,6 +114,8 @@ window.addEventListener('resize', checkMobile);">
     {{-- preloader end --}}
 
     @yield('content')
+
+    @livewireScripts
 
 </body>
 

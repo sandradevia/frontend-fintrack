@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TransaksiController extends Controller
 {
@@ -11,7 +12,16 @@ class TransaksiController extends Controller
      */
     public function index()
     {
-        //
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(403, 'User tidak ditemukan');
+        }
+
+        return view('admin.transaksi.transaksi', [
+            'title' => 'Transaksi',
+            'user' => $user,
+        ]);    
     }
 
     /**

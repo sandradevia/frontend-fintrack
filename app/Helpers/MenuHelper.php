@@ -31,7 +31,7 @@ class MenuHelper
                     [
                         'icon' => 'user-profile',
                         'name' => 'Profile',
-                        'route' => 'admin.profile',
+                        'route' => 'admin.profile.profile',
                     ],
 
                     [
@@ -41,16 +41,12 @@ class MenuHelper
 
                     [
                         'name' => 'Anggaran',
-                        'subItems' => [
-                            ['name' => 'Bahan', 'route' => 'admin.anggaran.bahan'],
-                            ['name' => 'Operasional', 'route' => 'admin.anggaran.operasional'],
-                            ['name' => 'Insentif', 'route' => 'admin.anggaran.insentif'],
-                        ],
+                        'route' => 'admin.anggaran.bahan',
                     ],
 
                     [
                         'name' => 'Transaksi',
-                        'route' => 'admin.transaksi.index',
+                        'route' => 'admin.transaksi.transaksi',
                     ],
                 ],
             ],
@@ -59,11 +55,11 @@ class MenuHelper
                 'name' => 'Cetak Buku',
                 'icon' => 'tables',
                 'subItems' => [
-                    ['name' => 'BKU', 'route' => 'admin.bku'],
-                    ['name' => 'BP Kas', 'route' => 'admin.bp.kas'],
-                    ['name' => 'BP Bahan', 'route' => 'admin.bp.bahan'],
-                    ['name' => 'BP Operasional', 'route' => 'admin.bp.operasional'],
-                    ['name' => 'BP Insentif', 'route' => 'admin.bp.insentif'],
+                    ['name' => 'BKU', 'route' => 'admin.bku.index'],
+                    ['name' => 'BP Kas', 'route' => 'admin.bp-kas.index'],
+                    // ['name' => 'BP Bahan', 'route' => 'admin.bp-bahan.index'],
+                    ['name' => 'BP Operasional', 'route' => 'admin.bp-operasional.index'],
+                    ['name' => 'BP Insentif', 'route' => 'admin.bp-insentif.index'],
                 ],
             ],
 
@@ -71,11 +67,11 @@ class MenuHelper
                 'name' => 'Cetak Laporan',
                 'icon' => 'pages',
                 'subItems' => [
-                    ['name' => 'LP Anggaran', 'route' => 'admin.laporan.anggaran'],
-                    ['name' => 'SP Tanggung Jawab', 'route' => 'admin.laporan.spj'],
-                    ['name' => 'BAP Sisa Dana', 'route' => 'admin.laporan.bap'],
-                    ['name' => 'Daftar Kominatif', 'route' => 'admin.laporan.kominatif'],
-                    ['name' => 'Catatan Pengeluaran', 'route' => 'admin.laporan.catatan'],
+                    ['name' => 'LP Anggaran', 'route' => 'admin.lp-anggaran.index'],
+                    ['name' => 'SP Tanggung Jawab', 'route' => 'admin.sp-tanggungjawab.index'],
+                    ['name' => 'BAP Sisa Dana', 'route' => 'admin.bap-sisadana.index'],
+                    ['name' => 'Daftar Kominatif', 'route' => 'admin.daftar-nominatif.index'],
+                    ['name' => 'Catatan Pengeluaran', 'route' => 'admin.catatan-pengeluaran.index'],
                 ],
             ],
 
@@ -83,22 +79,22 @@ class MenuHelper
                 'name' => 'Barang Persediaan',
                 'icon' => 'pages',
                 'subItems' => [
-                    ['name' => 'Input Barang', 'route' => 'admin.barang.input'],
-                    ['name' => 'Penerimaan Barang', 'route' => 'admin.barang.masuk'],
-                    ['name' => 'Pengeluaran Barang', 'route' => 'admin.barang.keluar'],
-                    ['name' => 'Laporan Stok Barang', 'route' => 'admin.barang.laporan'],
+                    ['name' => 'Input Barang', 'route' => 'admin.input-barang.index'],
+                    ['name' => 'Penerimaan Barang', 'route' => 'admin.penerimaan-barang.index'],
+                    ['name' => 'Pengeluaran Barang', 'route' => 'admin.pengeluaran-barang.index'],
+                    ['name' => 'Laporan Stok Barang', 'route' => 'admin.laporan-stock.index'],
                 ],
             ],
         ];
 
         // 🔥 KHUSUS SUPER ADMIN
-        if ($isSuperAdmin) {
-            $items[] = [
-                'icon' => 'task',
-                'name' => 'Kelola Dapur',
-                'route' => 'admin.kelola-dapur',
-            ];
-        }
+        // if ($isSuperAdmin) {
+        //     $items[] = [
+        //         'icon' => 'task',
+        //         'name' => 'Kelola Dapur',
+        //         'route' => 'super.kelola-dapur.index',
+        //     ];
+        // }
 
         return [
             [

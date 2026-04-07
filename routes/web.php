@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BpKasController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
@@ -7,7 +8,19 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AnggaranController;
 use App\Http\Controllers\AwalBukuController;
 use App\Http\Controllers\TransaksiController;
-use App\Http\Controllers\DapurController;
+use App\Http\Controllers\BkuController;
+use App\Http\Controllers\BpOperasionalController;
+use App\Http\Controllers\BpInsentifController;
+use App\Http\Controllers\LpAnggaranController;
+use App\Http\Controllers\SpTanggungjawabController;
+use App\Http\Controllers\BapSisadanaController;
+use App\Http\Controllers\DaftarNominatifController;
+use App\Http\Controllers\CatatanPengeluaranController;
+use App\Http\Controllers\InputBarangController;
+use App\Http\Controllers\PenerimaanBarangController;
+use App\Http\Controllers\PengeluaranBarangController;
+use App\Http\Controllers\LaporanStockController;
+use App\Http\Controllers\KelolaDapurController;
 
 // ================= AUTH =================
 Route::get('/', function () {
@@ -28,21 +41,59 @@ Route::middleware(['auth', 'role:admin|super_admin'])
         Route::get('/dashboard', [DashboardController::class, 'admin'])
             ->name('dashboard');
 
-        Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
-        Route::post('/profile', [AdminController::class, 'updateProfile'])->name('admin.update');
+        Route::get('/profile', [AdminController::class, 'profile'])->name('profile.profile');
+        Route::post('/profile', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
 
         Route::get('/anggaran/bahan', [AnggaranController::class, 'bahan'])->name('anggaran.bahan');
         Route::get('/anggaran/operasional', [AnggaranController::class, 'operasional'])->name('anggaran.operasional');
         Route::get('/anggaran/insentif', [AnggaranController::class, 'insentif'])->name('anggaran.insentif');
 
         Route::resource('/awal-buku', AwalBukuController::class);
-        Route::resource('/transaksi', TransaksiController::class);
+        Route::get('/transaksi', [TransaksiController::class, 'index'])->name('transaksi.transaksi');
 
-        // 🔥 KHUSUS SUPER ADMIN
-        Route::middleware('role:super_admin')->group(function () {
-            Route::get('/kelola-dapur', [DapurController::class, 'index'])
-                ->name('kelola-dapur');
-        });
+        Route::get('/bku', [BkuController::class, 'index'])->name('bku.index');
+
+        Route::get('/bpkas', [BpkasController::class, 'index'])->name('bp-kas.index');
+
+        // BP OPERASIONAL
+        Route::get('/bp-operasional', [BpOperasionalController::class, 'index'])->name('bp-operasional.index');
+
+        // BP INSENTIF
+        Route::get('/bp-insentif', [BpInsentifController::class, 'index'])->name('bp-insentif.index');
+
+        // LP ANGGARAN
+        Route::get('/lp-anggaran', [LpAnggaranController::class, 'index'])->name('lp-anggaran.index');
+
+        // SP TANGGUNG JAWAB
+        Route::get('/sp-tanggungjawab', [SpTanggungjawabController::class, 'index'])->name('sp-tanggungjawab.index');
+
+        // BAP SISA DANA
+        Route::get('/bap-sisadana', [BapSisadanaController::class, 'index'])->name('bap-sisadana.index');
+
+        // DAFTAR NOMINATIF
+        Route::get('/daftar-nominatif', [DaftarNominatifController::class, 'index'])->name('daftar-nominatif.index');
+
+        // CATATAN PENGELUARAN
+        Route::get('/catatan-pengeluaran', [CatatanPengeluaranController::class, 'index'])->name('catatan-pengeluaran.index');
+
+        // INPUT BARANG
+        Route::get('/input-barang', [InputBarangController::class, 'index'])->name('input-barang.index');
+
+        // PENERIMAAN BARANG
+        Route::get('/penerimaan-barang', [PenerimaanBarangController::class, 'index'])->name('penerimaan-barang.index');
+
+        // PENGELUARAN BARANG
+        Route::get('/pengeluaran-barang', [PengeluaranBarangController::class, 'index'])->name('pengeluaran-barang.index');
+
+        // LAPORAN STOCK
+        Route::get('/laporan-stock', [LaporanStockController::class, 'index'])->name('laporan-stock.index');
+
+
+        // // 🔥 KHUSUS SUPER ADMIN
+        // Route::middleware('role:super_admin')->group(function () {
+        //     Route::get('/kelola-dapur', [KelolaDapurController::class, 'index'])
+        //         ->name('super.kelola-dapur.index');
+        // });
 });
 
 

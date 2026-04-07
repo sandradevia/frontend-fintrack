@@ -36,7 +36,7 @@
             <h2 class="mb-4 text-lg font-bold uppercase"> {{ $activeTab }}</h2>
             <div class="overflow-x-auto">
                 <table class="min-w-full">
-                    <thead class="bg-gray-100 dark:bg-gray-800 border-b-2 border-blue-600"">
+                    <thead class="bg-gray-100 dark:bg-gray-800 border-b-2 border-blue-600">
                         <tr class="divide-x divide-gray-200 dark:divide-white/[0.05]">
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">NO</th>
                             @if($activeTab == 'bahan')

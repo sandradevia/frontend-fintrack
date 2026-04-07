@@ -141,8 +141,8 @@
                                             <ul class="mt-2 space-y-1 ml-9">
                                                 @foreach ($item['subItems'] as $subItem)
                                                     <li>
-                                                        <a href="{{ isset($item['route']) ? route($item['route']) : '#' }}" class="menu-dropdown-item"
-                                                            :class="isActive('{{ $item['route'] ?? '' }}') ?
+                                                        <a href="{{ isset($subItem['route']) ? route($subItem['route']) : '#' }}" class="menu-dropdown-item"
+                                                                :class="isActive('{{ $subItem['route'] ?? '' }}') ?
                                                                 'menu-dropdown-item-active' :
                                                                 'menu-dropdown-item-inactive'">
                                                             {{ $subItem['name'] }}
