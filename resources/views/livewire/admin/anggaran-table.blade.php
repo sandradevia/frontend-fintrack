@@ -1,142 +1,303 @@
-<div> {{-- SATU DIV UTAMA SEBAGAI PEMBUNGKUS (ROOT) --}}
-    <div class="space-y-6">
-        {{-- Tab Navigation --}}
-        <div class="rounded-2xl border border-gray-200 bg-white p-2 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div class="grid grid-cols-1 gap-2 md:grid-cols-3">
-                
-                <button type="button" wire:click="setTab('bahan')" 
-                    class="flex items-center gap-3 rounded-xl border {{ $activeTab == 'bahan' ? 'border-blue-100 bg-blue-50 dark:border-blue-900/40 dark:bg-blue-900/20' : 'border-transparent bg-white' }} px-4 py-4 transition">
-                    <div class="flex h-11 w-11 items-center justify-center rounded-xl {{ $activeTab == 'bahan' ? 'bg-blue-600' : 'bg-gray-400' }} text-white">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10Z" /></svg>
-                    </div>
-                    <div class="text-left font-semibold {{ $activeTab == 'bahan' ? 'text-blue-700' : 'text-gray-700' }}">ANGGARAN BAHAN MAKANAN</div>
-                </button>
+<div>
+<div class="space-y-5">
 
-                <button type="button" wire:click="setTab('operasional')" 
-                    class="flex items-center gap-3 rounded-xl border {{ $activeTab == 'operasional' ? 'border-emerald-100 bg-emerald-50 dark:border-emerald-900/40 dark:bg-emerald-900/20' : 'border-transparent bg-white' }} px-4 py-4 transition">
-                    <div class="flex h-11 w-11 items-center justify-center rounded-xl {{ $activeTab == 'operasional' ? 'bg-emerald-500' : 'bg-gray-400' }} text-white">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M3 10h18M7 15h1m4 0h5M6 5h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" /></svg>
-                    </div>
-                    <div class="text-left font-semibold {{ $activeTab == 'operasional' ? 'text-emerald-700' : 'text-gray-700' }}">ANGGARAN OPERASIONAL</div>
-                </button>
+    {{-- ── SUMMARY CARDS ── --}}
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
 
-                <button type="button" wire:click="setTab('insentif')" 
-                    class="flex items-center gap-3 rounded-xl border {{ $activeTab == 'insentif' ? 'border-amber-100 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-900/20' : 'border-transparent bg-white' }} px-4 py-4 transition">
-                    <div class="flex h-11 w-11 items-center justify-center rounded-xl {{ $activeTab == 'insentif' ? 'bg-amber-500' : 'bg-gray-400' }} text-white">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3Z" /></svg>
-                    </div>
-                    <div class="text-left font-semibold {{ $activeTab == 'insentif' ? 'text-amber-700' : 'text-gray-700' }}">ANGGARAN INSENTIF FASILITAS</div>
-                </button>
-
-            </div>
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Total RAB Bahan</p>
+            <p class="mt-1 text-2xl font-bold text-blue-700 dark:text-blue-400">Rp 342,8 jt</p>
+            <p class="mt-0.5 text-xs text-gray-400">22 hari distribusi</p>
         </div>
 
-        {{-- Tabel --}}
-        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <h2 class="mb-4 text-lg font-bold uppercase"> {{ $activeTab }}</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full">
-                    <thead class="bg-gray-100 dark:bg-gray-800 border-b-2 border-blue-600">
-                        <tr class="divide-x divide-gray-200 dark:divide-white/[0.05]">
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">NO</th>
-                            @if($activeTab == 'bahan')
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">HARI/TANGGAL</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">JUMLAH PAKET MBG</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">KB & TK</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">SD 1-3</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">SD 4-6</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">SMP</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">SMA</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">BALITA</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">BUMIL</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">BUSUI</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">HARGA SATUAN PAKET MBG</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">HARGA SATUAN PAKET MBG2</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">RENCANA ANGGARAN BIAYA (RAB)</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">AKSI</th>
-                            @elseif($activeTab == 'operasional')
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">HARI/TANGGAL</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">RENCANA ANGGARAN BIAYA (RAB)</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">KETERANGAN</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">AKSI</th>
-                            @elseif($activeTab == 'insentif')
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">HARI/TANGGAL</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">JUMLAH PAKET MBG</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">HARGA SATUAN PAKET MBG</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">RENCANA ANGGARAN BIAYA (RAB)</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500">AKSI</th>
-                            @endif
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                        @forelse ($items as $index => $item)
-                            <tr wire:key="row-{{ $activeTab }}-{{ $index }}"> {{-- CRITICAL: wire:key harus unik per baris dan per tab --}}
-                                <td class="px-4 py-3 text-sm text-gray-500">{{ $loop->iteration }}</td>
-                                @if($activeTab == 'bahan')
-                                    {{-- <td class="px-4 py-3 text-sm font-medium">{{ $item['tanggal'] }}</td> --}}
-                                    {{-- <td class="px-4 py-3 text-sm">{{ $item['jumlah'] }}</td>
-                                    <td class="px-4 py-3 text-sm">Rp {{ number_format($item['harga'], 0, ',', '.') }}</td> --}}
-                                @elseif($activeTab == 'operasional')
-                                    {{-- <td class="px-4 py-3 text-sm font-medium">{{ $item['nama'] }}</td>
-                                    <td class="px-4 py-3 text-sm">{{ $item['kategori'] }}</td>
-                                    <td class="px-4 py-3 text-sm">Rp {{ number_format($item['nominal'], 0, ',', '.') }}</td> --}}
-                                @elseif($activeTab == 'insentif')
-                                    {{-- <td class="px-4 py-3 text-sm font-medium">{{ $item['petugas'] }}</td>
-                                    <td class="px-4 py-3 text-sm">{{ $item['jabatan'] }}</td>
-                                    <td class="px-4 py-3 text-sm">Rp {{ number_format($item['jumlah'], 0, ',', '.') }}</td> --}}
-                                @endif
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="10" class="px-4 py-10 text-center text-gray-400">Data {{ $activeTab }} belum tersedia.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                    <tfoot class="bg-gray-100/80 dark:bg-gray-800/90 border-t-2 border-gray-200 dark:border-white/[0.05] backdrop-blur-sm">
-                        <tr class="divide-x divide-gray-200/50 dark:divide-white/[0.03]">
-                            {{-- Label Total (Menggabungkan kolom No dan Hari/Tanggal) --}}
-                            <td colspan="2" class="px-4 py-4 text-center">
-                                <span class="text-xs font-black uppercase tracking-widest text-gray-700 dark:text-gray-200">TOTAL</span>
-                            </td>
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Total RAB Operasional</p>
+            <p class="mt-1 text-2xl font-bold text-emerald-700 dark:text-emerald-400">Rp 10,0 jt</p>
+            <p class="mt-0.5 text-xs text-gray-400">5 pos pengeluaran</p>
+        </div>
 
-                            @if($activeTab == 'bahan')
-                                {{-- Total Jumlah Paket MBG (Berwarna Biru Tipis) --}}
-                                <td class="px-4 py-4 text-center bg-blue-100/50 dark:bg-blue-900/30">
-                                    <span class="text-sm font-black text-blue-800 dark:text-blue-400">36864</span>
-                                </td>
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Total RAB Insentif</p>
+            <p class="mt-1 text-2xl font-bold text-amber-700 dark:text-amber-400">Rp 18,5 jt</p>
+            <p class="mt-0.5 text-xs text-gray-400">4 jenis fasilitas</p>
+        </div>
 
-                                {{-- Total Kolom Kategori (Looping agar presisi) --}}
-                                @php
-                                    // Contoh data statis, nanti ganti dengan $totalKbTk, dsb dari Livewire
-                                    $totals = [0, 8508, 8184, 13128, 0, 4404, 648, 1992];
-                                @endphp
-                                @foreach($totals as $total)
-                                    <td class="px-3 py-4 text-center">
-                                        <span class="text-xs font-bold text-gray-800 dark:text-gray-200">{{ number_format($total, 0, ',', '.') }}</span>
-                                    </td>
-                                @endforeach
+    </div>
 
-                                {{-- Kolom Kosong (Satuan 1 & 2 biasanya tidak ditotal) --}}
-                                <td class="px-4 py-4 bg-gray-50/50 dark:bg-gray-900/50"></td>
-                                <td class="px-4 py-4 bg-gray-50/50 dark:bg-gray-900/50"></td>
+    {{-- ── TAB NAVIGATION ── --}}
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
 
-                                {{-- Grand Total RAB (Berwarna Hijau & Sticky Right) --}}
-                                <td class="px-4 py-4 text-right bg-emerald-100/50 dark:bg-emerald-900/40 sticky right-0 z-20 shadow-[-4px_0_10px_rgba(0,0,0,0.05)]">
-                                    <div class="flex flex-col">
-                                        <span class="text-[10px] font-black text-emerald-800 dark:text-emerald-500 uppercase leading-none">Grand Total</span>
-                                        <span class="text-sm font-black text-emerald-700 dark:text-emerald-400">Rp 342.816.000</span>
-                                    </div>
-                                </td>
+        {{-- Tab: Bahan --}}
+        <button type="button" wire:click="setTab('bahan')"
+            class="group flex items-center gap-3 rounded-2xl border p-4 text-left transition-all duration-200
+            {{ $activeTab == 'bahan'
+                ? 'border-blue-300 bg-blue-50 shadow-sm dark:border-blue-700 dark:bg-blue-900/20'
+                : 'border-gray-100 bg-white hover:border-blue-100 hover:bg-blue-50/50 dark:border-gray-800 dark:bg-gray-900' }}">
 
-                            @elseif($activeTab == 'operasional')
-                                {{-- Sesuaikan jumlah colspan untuk tab lain --}}
-                                <td class="px-4 py-4 text-right bg-emerald-100/50 dark:bg-emerald-900/40 font-black text-emerald-700 uppercase">Rp 10.000.000</td>
-                                <td class="bg-gray-50/50 dark:bg-gray-900/50"></td>
-                            @endif
-                        </tr>
-                    </tfoot>
-                </table>
+            <div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl transition-colors duration-200
+                {{ $activeTab == 'bahan' ? 'bg-blue-600' : 'bg-gray-100 group-hover:bg-blue-100 dark:bg-gray-800' }}">
+                <svg class="h-5 w-5 {{ $activeTab == 'bahan' ? 'text-white' : 'text-gray-400 group-hover:text-blue-500' }}"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 2.3c-.6.6-.2 1.7.7 1.7H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
             </div>
+
+            <div class="min-w-0 flex-1">
+                <p class="text-[11px] font-bold uppercase tracking-wide
+                    {{ $activeTab == 'bahan' ? 'text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-300' }}">
+                    Bahan Makanan
+                </p>
+                <p class="mt-0.5 text-xs text-gray-400">22 entri · Rp 342,8 jt</p>
+            </div>
+
+            @if($activeTab == 'bahan')
+            <span class="flex-shrink-0 rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold text-white">Aktif</span>
+            @endif
+        </button>
+
+        {{-- Tab: Operasional --}}
+        <button type="button" wire:click="setTab('operasional')"
+            class="group flex items-center gap-3 rounded-2xl border p-4 text-left transition-all duration-200
+            {{ $activeTab == 'operasional'
+                ? 'border-emerald-300 bg-emerald-50 shadow-sm dark:border-emerald-700 dark:bg-emerald-900/20'
+                : 'border-gray-100 bg-white hover:border-emerald-100 hover:bg-emerald-50/50 dark:border-gray-800 dark:bg-gray-900' }}">
+
+            <div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl transition-colors duration-200
+                {{ $activeTab == 'operasional' ? 'bg-emerald-600' : 'bg-gray-100 group-hover:bg-emerald-100 dark:bg-gray-800' }}">
+                <svg class="h-5 w-5 {{ $activeTab == 'operasional' ? 'text-white' : 'text-gray-400 group-hover:text-emerald-500' }}"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+            </div>
+
+            <div class="min-w-0 flex-1">
+                <p class="text-[11px] font-bold uppercase tracking-wide
+                    {{ $activeTab == 'operasional' ? 'text-emerald-700 dark:text-emerald-300' : 'text-gray-600 dark:text-gray-300' }}">
+                    Operasional
+                </p>
+                <p class="mt-0.5 text-xs text-gray-400">5 entri · Rp 10,0 jt</p>
+            </div>
+
+            @if($activeTab == 'operasional')
+            <span class="flex-shrink-0 rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white">Aktif</span>
+            @endif
+        </button>
+
+        {{-- Tab: Insentif --}}
+        <button type="button" wire:click="setTab('insentif')"
+            class="group flex items-center gap-3 rounded-2xl border p-4 text-left transition-all duration-200
+            {{ $activeTab == 'insentif'
+                ? 'border-amber-300 bg-amber-50 shadow-sm dark:border-amber-700 dark:bg-amber-900/20'
+                : 'border-gray-100 bg-white hover:border-amber-100 hover:bg-amber-50/50 dark:border-gray-800 dark:bg-gray-900' }}">
+
+            <div class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl transition-colors duration-200
+                {{ $activeTab == 'insentif' ? 'bg-amber-500' : 'bg-gray-100 group-hover:bg-amber-100 dark:bg-gray-800' }}">
+                <svg class="h-5 w-5 {{ $activeTab == 'insentif' ? 'text-white' : 'text-gray-400 group-hover:text-amber-500' }}"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zM12 2a10 10 0 100 20A10 10 0 0012 2z" />
+                </svg>
+            </div>
+
+            <div class="min-w-0 flex-1">
+                <p class="text-[11px] font-bold uppercase tracking-wide
+                    {{ $activeTab == 'insentif' ? 'text-amber-700 dark:text-amber-300' : 'text-gray-600 dark:text-gray-300' }}">
+                    Insentif Fasilitas
+                </p>
+                <p class="mt-0.5 text-xs text-gray-400">4 entri · Rp 18,5 jt</p>
+            </div>
+
+            @if($activeTab == 'insentif')
+            <span class="flex-shrink-0 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white">Aktif</span>
+            @endif
+        </button>
+
+    </div>
+
+    {{-- ── TABLE CARD ── --}}
+    <div class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+
+        {{-- Table header --}}
+        <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-800">
+            <div>
+                <h2 class="text-sm font-bold uppercase tracking-wide text-gray-800 dark:text-white">
+                    @if($activeTab == 'bahan') Anggaran Bahan Makanan
+                    @elseif($activeTab == 'operasional') Anggaran Operasional
+                    @else Anggaran Insentif Fasilitas
+                    @endif
+                </h2>
+                <p class="mt-0.5 text-xs text-gray-400">
+                    @if($activeTab == 'bahan') Data distribusi harian per kategori penerima
+                    @elseif($activeTab == 'operasional') Rincian pengeluaran operasional dapur
+                    @else Rincian insentif per fasilitas
+                    @endif
+                </p>
+            </div>
+            <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold
+                {{ $activeTab == 'bahan' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' :
+                   ($activeTab == 'operasional' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' :
+                   'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300') }}">
+                {{ count($items) }} entri
+            </span>
+        </div>
+
+        {{-- Table --}}
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+
+                {{-- THEAD --}}
+                <thead>
+                    <tr class="border-b-2
+                        {{ $activeTab == 'bahan' ? 'border-blue-500' :
+                           ($activeTab == 'operasional' ? 'border-emerald-500' : 'border-amber-500') }}">
+
+                        <th class="bg-gray-50 px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60 dark:text-gray-500">No</th>
+
+                        @if($activeTab == 'bahan')
+                            <th class="bg-gray-50 px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">Hari / Tanggal</th>
+                            <th class="bg-gray-50 px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">Jml Paket</th>
+                            <th class="bg-gray-50 px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">KB & TK</th>
+                            <th class="bg-gray-50 px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">SD 1-3</th>
+                            <th class="bg-gray-50 px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">SD 4-6</th>
+                            <th class="bg-gray-50 px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">SMP</th>
+                            <th class="bg-gray-50 px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">SMA</th>
+                            <th class="bg-gray-50 px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">Balita</th>
+                            <th class="bg-gray-50 px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">Bumil</th>
+                            <th class="bg-gray-50 px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">Busui</th>
+                            <th class="bg-gray-50 px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">Harga Satuan</th>
+                            <th class="bg-gray-50 px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">RAB</th>
+                            <th class="bg-gray-50 px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">Aksi</th>
+
+                        @elseif($activeTab == 'operasional')
+                            <th class="bg-gray-50 px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">Hari / Tanggal</th>
+                            <th class="bg-gray-50 px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">RAB</th>
+                            <th class="bg-gray-50 px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">Keterangan</th>
+                            <th class="bg-gray-50 px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">Aksi</th>
+
+                        @elseif($activeTab == 'insentif')
+                            <th class="bg-gray-50 px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">Hari / Tanggal</th>
+                            <th class="bg-gray-50 px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">Jml Paket</th>
+                            <th class="bg-gray-50 px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">Harga Satuan</th>
+                            <th class="bg-gray-50 px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">RAB</th>
+                            <th class="bg-gray-50 px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:bg-gray-800/60">Aksi</th>
+                        @endif
+
+                    </tr>
+                </thead>
+
+                {{-- TBODY --}}
+                <tbody class="divide-y divide-gray-50 dark:divide-gray-800/60">
+                    @forelse ($items as $index => $item)
+                        <tr wire:key="row-{{ $activeTab }}-{{ $index }}"
+                            class="transition-colors hover:bg-gray-50/70 dark:hover:bg-gray-800/30">
+
+                            <td class="px-4 py-3 text-xs text-gray-400">{{ $loop->iteration }}</td>
+
+                            @if($activeTab == 'bahan')
+                                <td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ $item['tanggal'] ?? '-' }}</td>
+                                <td class="px-4 py-3 text-right">
+                                    <span class="inline-flex items-center rounded-lg bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                        {{ number_format($item['jumlah_paket'] ?? 0, 0, ',', '.') }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['kb_tk'] ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['sd_1_3'] ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['sd_4_6'] ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['smp'] ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['sma'] ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['balita'] ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['bumil'] ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['busui'] ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-500 dark:text-gray-500">Rp {{ number_format($item['harga_satuan'] ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-4 py-3 text-right text-sm font-semibold text-blue-700 dark:text-blue-400">Rp {{ number_format($item['rab'] ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-4 py-3 text-center">
+                                    <button class="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-blue-50 hover:text-blue-600 dark:bg-gray-800 dark:text-gray-300">Edit</button>
+                                </td>
+
+                            @elseif($activeTab == 'operasional')
+                                <td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ $item['tanggal'] ?? '-' }}</td>
+                                <td class="px-4 py-3 text-right text-sm font-semibold text-emerald-700 dark:text-emerald-400">Rp {{ number_format($item['rab'] ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{{ $item['keterangan'] ?? '-' }}</td>
+                                <td class="px-4 py-3 text-center">
+                                    <button class="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-emerald-50 hover:text-emerald-600 dark:bg-gray-800 dark:text-gray-300">Edit</button>
+                                </td>
+
+                            @elseif($activeTab == 'insentif')
+                                <td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ $item['tanggal'] ?? '-' }}</td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['jumlah_paket'] ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-500">Rp {{ number_format($item['harga_satuan'] ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-4 py-3 text-right text-sm font-semibold text-amber-700 dark:text-amber-400">Rp {{ number_format($item['rab'] ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-4 py-3 text-center">
+                                    <button class="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-amber-50 hover:text-amber-600 dark:bg-gray-800 dark:text-gray-300">Edit</button>
+                                </td>
+                            @endif
+
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="15" class="px-4 py-14 text-center">
+                                <div class="flex flex-col items-center gap-2">
+                                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
+                                        <svg class="h-6 w-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                                    </div>
+                                    <p class="text-sm text-gray-400">Data <span class="font-medium">{{ $activeTab }}</span> belum tersedia.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+
+                {{-- TFOOT --}}
+                <tfoot>
+                    <tr class="border-t-2
+                        {{ $activeTab == 'bahan' ? 'border-blue-200 dark:border-blue-800' :
+                           ($activeTab == 'operasional' ? 'border-emerald-200 dark:border-emerald-800' :
+                           'border-amber-200 dark:border-amber-800') }}">
+
+                        @if($activeTab == 'bahan')
+                            <td colspan="2" class="bg-gray-50 px-4 py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-500 dark:bg-gray-800/50">Total</td>
+                            <td class="bg-blue-50/60 px-4 py-4 text-right dark:bg-blue-900/20">
+                                <span class="text-sm font-black text-blue-700 dark:text-blue-400">36.864</span>
+                            </td>
+                            @php $totals = [0, 8508, 8184, 13128, 0, 4404, 648, 1992]; @endphp
+                            @foreach($totals as $total)
+                                <td class="bg-gray-50/60 px-3 py-4 text-right text-xs font-bold text-gray-700 dark:bg-gray-800/30 dark:text-gray-300">
+                                    {{ number_format($total, 0, ',', '.') }}
+                                </td>
+                            @endforeach
+                            <td class="bg-gray-50/60 px-4 py-4 dark:bg-gray-800/30"></td>
+                            <td class="bg-emerald-50/60 px-4 py-4 text-right dark:bg-emerald-900/20">
+                                <div class="flex flex-col items-end">
+                                    <span class="text-[9px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-500">Grand Total</span>
+                                    <span class="text-sm font-black text-emerald-700 dark:text-emerald-400">Rp 342.816.000</span>
+                                </div>
+                            </td>
+                            <td class="bg-gray-50/60 px-4 py-4 dark:bg-gray-800/30"></td>
+
+                        @elseif($activeTab == 'operasional')
+                            <td colspan="2" class="bg-gray-50 px-4 py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-500 dark:bg-gray-800/50">Total</td>
+                            <td class="bg-emerald-50/60 px-4 py-4 text-right dark:bg-emerald-900/20">
+                                <span class="text-sm font-black text-emerald-700 dark:text-emerald-400">Rp 10.000.000</span>
+                            </td>
+                            <td class="bg-gray-50/60 px-4 py-4 dark:bg-gray-800/30"></td>
+                            <td class="bg-gray-50/60 px-4 py-4 dark:bg-gray-800/30"></td>
+
+                        @elseif($activeTab == 'insentif')
+                            <td colspan="4" class="bg-gray-50 px-4 py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-500 dark:bg-gray-800/50">Total</td>
+                            <td class="bg-amber-50/60 px-4 py-4 text-right dark:bg-amber-900/20">
+                                <span class="text-sm font-black text-amber-700 dark:text-amber-400">Rp 18.500.000</span>
+                            </td>
+                            <td class="bg-gray-50/60 px-4 py-4 dark:bg-gray-800/30"></td>
+                        @endif
+
+                    </tr>
+                </tfoot>
+
+            </table>
         </div>
     </div>
+
+</div>
 </div>

@@ -4,32 +4,6 @@
     <x-common.page-breadcrumb pageTitle="Saldo Barang" />
 
     <div class="grid grid-cols-1 gap-6">
-        @php
-    $items = [
-        [
-            'no' => 1,
-            'nama_barang' => 'Kertas A4 80gr',
-            'satuan' => 'Rim',
-            'saldo_awal' => '50',
-            'harga_beli' => '55.000',
-        ],
-        [
-            'no' => 2,
-            'nama_barang' => 'Tinta Printer Black',
-            'satuan' => 'Botol',
-            'saldo_awal' => '10',
-            'harga_beli' => '95.000',
-        ],
-        [
-            'no' => 3,
-            'nama_barang' => 'Flashdisk 32GB',
-            'satuan' => 'Pcs',
-            'saldo_awal' => '15',
-            'harga_beli' => '120.000',
-        ],
-    ];
-@endphp
-
 <div class="mt-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 lg:p-6">
     <div class="mb-4">
         <h2 class="text-lg font-bold text-gray-800 dark:text-white">TABEL BARANG & SALDO AWAL</h2>
@@ -60,7 +34,7 @@
                 @foreach ($items as $item)
                     <tr>
                         <td class="px-6 py-3.5">
-                            <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $item['no'] }}</p>
+                            <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $loop->iteration }}</p>
                         </td>
                         <td class="px-6 py-3.5">
                             <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">
@@ -71,7 +45,7 @@
                             <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $item['satuan'] }}</p>
                         </td>
                         <td class="px-6 py-3.5">
-                            <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $item['saldo_awal'] }}</p>
+                            {{-- <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ $item['saldo_awal'] }}</p> --}}
                         </td>
                         <td class="px-6 py-3.5">
                             <p class="text-gray-500 text-theme-sm dark:text-gray-400">

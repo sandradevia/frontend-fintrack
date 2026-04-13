@@ -29,7 +29,9 @@ Route::get('/', function () {
 
 Route::get('/signin', [LoginController::class, 'index'])->name('signin');
 Route::post('/signin', [LoginController::class, 'authenticate'])->name('signin.authenticate');
-Route::post('/pilih-dapur/{id}', [LoginController::class, 'pilihDapur'])->name('pilih.dapur')->middleware('web');
+
+Route::post('/pilih-dapur/{id}', [LoginController::class, 'pilihDapur']);
+
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
@@ -79,9 +81,14 @@ Route::middleware(['auth', 'role:admin|super_admin'])
 
         // INPUT BARANG
         Route::get('/input-barang', [InputBarangController::class, 'index'])->name('input-barang.index');
+        Route::post('/input-barang', [InputBarangController::class, 'store'])->name('input-barang.store');
+        Route::delete('/input-barang/{barang}', [InputBarangController::class, 'destroy'])->name('input-barang.destroy');
+        Route::put('/input-barang/{barang}', [InputBarangController::class, 'update'])->name('input-barang.update');
+
 
         // PENERIMAAN BARANG
         Route::get('/penerimaan-barang', [PenerimaanBarangController::class, 'index'])->name('penerimaan-barang.index');
+        Route::post('/penerimaan-barang', [PenerimaanBarangController::class, 'store'])->name('penerimaan-barang.store');
 
         // PENGELUARAN BARANG
         Route::get('/pengeluaran-barang', [PengeluaranBarangController::class, 'index'])->name('pengeluaran-barang.index');

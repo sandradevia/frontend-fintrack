@@ -20,49 +20,31 @@ class LoginController extends Controller
     public function authenticate(Request $request)
     {
         $credentials = $request->validate([
-            'username' => ['required', 'string'],
-            'password' => ['required', 'string'],
+            'username' => ['required'],
+            'password' => ['required'],
         ]);
 
         if (Auth::attempt($credentials)) {
+
             $request->session()->regenerate();
 
             $user = Auth::user();
 
             // 👑 SUPER ADMIN
             if ($user->hasRole('super_admin')) {
-                return response()->json([
-                    'status' => 'success',
-                    'role' => 'super_admin'
-                ]);
+                return redirect()->route('signin')
+                    ->with('step', 'dapur');
             }
 
             // 👤 ADMIN
-            if ($user->hasRole('admin')) {
+            session([
+                'dapur_id' => $user->dapur_id
+            ]);
 
-                session([
-                    'dapur_id' => $user->dapur_id
-                ]);
-
-                return response()->json([
-                    'status' => 'success',
-                    'role' => 'admin',
-                    'redirect' => route('admin.dashboard')
-                ]);
-            }
-
-            Auth::logout();
-
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Role tidak dikenali'
-            ], 403);
+            return redirect()->route('admin.dashboard');
         }
 
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Username atau password salah'
-        ], 401);
+        return back()->with('error', 'Username atau password salah');
     }
 
     public function pilihDapur($id)
@@ -71,9 +53,7 @@ class LoginController extends Controller
             'dapur_id' => $id
         ]);
 
-        return response()->json([
-            'status' => 'success'
-        ]);
+        return redirect()->route('admin.dashboard');
     }
 
     public function logout(Request $request)
@@ -85,4 +65,11 @@ class LoginController extends Controller
 
         return redirect()->route('signin');
     }
+
+    // public function showPilihDapur()
+    // {
+    //     return view('pages.auth.pilih-dapur', [
+    //         'dapur' => Dapur::all()
+    //     ]);
+    // }
 }

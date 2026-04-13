@@ -1,586 +1,532 @@
 @extends('layouts.fullscreen-layout')
 
 @section('content')
+
 <style>
-    * { box-sizing: border-box; }
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-    .login-outer {
-        min-height: 100vh;
-        background: #f0f4fa;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-        font-family: 'Inter', sans-serif;
-    }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* FLOATING BLOBS */
-    .bg-blobs span {
-        position: absolute;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.08);
-        animation: floatBlob 18s infinite ease-in-out;
-    }
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #0f172a;
+    min-height: 100vh;
+}
 
-    .bg-blobs span:nth-child(1){
-        width: 300px; height: 300px;
-        left: 10%; top: 70%;
-    }
-    .bg-blobs span:nth-child(2){
-        width: 200px; height: 200px;
-        left: 70%; top: 80%;
-        animation-delay: 4s;
-    }
-    .bg-blobs span:nth-child(3){
-        width: 250px; height: 250px;
-        left: 50%; top: 60%;
-        animation-delay: 8s;
-    }
+/* ── BACKGROUND ── */
+.kp-outer {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    position: relative;
+    overflow: hidden;
+}
 
-    @keyframes floatBlob {
-        0% { transform: translateY(0) scale(1);}
-        50% { transform: translateY(-80px) scale(1.1);}
-        100% { transform: translateY(0) scale(1);}
-    }
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.22;
+    animation: float 6s ease-in-out infinite;
+    pointer-events: none;
+}
+.orb1 { width: 340px; height: 340px; background: #3b82f6; top: -100px; left: -100px; animation-delay: 0s; }
+.orb2 { width: 260px; height: 260px; background: #f59e0b; bottom: -80px; right: -80px; animation-delay: 2s; }
+.orb3 { width: 200px; height: 200px; background: #22c55e; bottom: 60px; left: 35%; animation-delay: 4s; }
+.orb4 { width: 160px; height: 160px; background: #f97316; top: 30px; right: 28%; animation-delay: 1s; }
 
+@keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%       { transform: translateY(-22px) scale(1.06); }
+}
 
-    .dark .login-outer {
-        background: #0f172a;
-    }
+/* ── PARTICLES ── */
+.particles { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.particle {
+    position: absolute;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    animation: rise linear infinite;
+}
+@keyframes rise {
+    0%   { transform: translateY(100vh) translateX(0); opacity: 0.7; }
+    100% { transform: translateY(-20px) translateX(30px); opacity: 0; }
+}
 
-    .login-card {
-        display: flex;
-        width: 100%;
-        max-width: 860px;
-        min-height: 520px;
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 20px 60px rgba(12, 68, 124, 0.12);
-        border: 0.5px solid rgba(55, 138, 221, 0.2);
-    }
+/* ── CARD ── */
+.kp-card {
+    width: 100%;
+    max-width: 880px;
+    display: flex;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 40px 90px rgba(0,0,0,0.55);
+    position: relative;
+    z-index: 2;
+}
 
-    /* LEFT */
-    .left-panel {
-        flex: 1;
-        background: #fff;
-        padding: 44px 40px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
+/* ── LEFT PANEL ── */
+.kp-left {
+    flex: 1;
+    background: rgba(15,23,42,0.88);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-right: none;
+    padding: 48px 44px;
+    color: white;
+    backdrop-filter: blur(24px);
+}
 
-    .dark .left-panel {
-        background: #1e293b;
-    }
+/* ── STEPS ── */
+.step-panel { display: none; }
+.step-panel.active {
+    display: block;
+    animation: fadeUp 0.35s ease;
+}
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
 
-    .back-link {
-        font-size: 13px;
-        color: #64748b;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        margin-bottom: 28px;
-        transition: color 0.2s;
-    }
+/* ── BADGE ── */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+.badge-blue  { background: rgba(59,130,246,0.15);  color: #60a5fa;  border: 1px solid rgba(59,130,246,0.3);  }
+.badge-green { background: rgba(34,197,94,0.15);   color: #4ade80;  border: 1px solid rgba(34,197,94,0.3);   }
+.badge-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: blink 1.4s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
 
-    .back-link:hover { color: #185FA5; }
+/* ── TYPOGRAPHY ── */
+.form-title {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #ffffff 40%, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.form-sub { font-size: 13px; color: #64748b; margin-bottom: 30px; }
 
-    .step-dots {
-        display: flex;
-        gap: 6px;
-        margin-bottom: 22px;
-    }
+/* ── FORM ── */
+.field-group { margin-bottom: 20px; }
+.field-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    color: #94a3b8;
+    margin-bottom: 7px;
+    text-transform: uppercase;
+}
+.field-input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05);
+    color: white;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.field-input:focus {
+    border-color: #3b82f6;
+    background: rgba(59,130,246,0.08);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
+}
+.field-input::placeholder { color: #475569; }
 
-    .step-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 3px;
-        background: #e2e8f0;
-        transition: width 0.3s, background 0.3s;
-    }
+/* ── BUTTON ── */
+.btn-login {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 6px;
+}
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(59,130,246,0.45);
+}
+.btn-login:active { transform: translateY(0); }
+.btn-login::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 2.4s infinite;
+}
+@keyframes shimmer {
+    0%      { transform: translateX(-100%); }
+    60%,100%{ transform: translateX(100%); }
+}
 
-    .step-dot.active {
-        width: 22px;
-        background: #185FA5;
-    }
+/* ── DIVIDER ── */
+.divider { height: 1px; background: rgba(255,255,255,0.07); margin: 26px 0; }
 
-    .badge-system {
-        display: inline-flex;
-        align-items: center;
-        background: #EFF6FF;
-        color: #185FA5;
-        font-size: 12px;
-        padding: 4px 12px;
-        border-radius: 20px;
-        margin-bottom: 18px;
-        font-weight: 500;
-    }
+/* ── DAPUR CARD ── */
+.dapur-form { margin: 0; padding: 0; }
+.dapur-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    cursor: pointer;
+    transition: background 0.25s, border-color 0.25s, transform 0.25s;
+    width: 100%;
+    text-align: left;
+    color: white;
+    font-family: inherit;
+}
+.dapur-card:hover {
+    background: rgba(59,130,246,0.14);
+    border-color: rgba(59,130,246,0.4);
+    transform: translateX(7px);
+}
 
-    .badge-system .pulse {
-        display: inline-block;
-        width: 7px;
-        height: 7px;
-        background: #FAC775;
-        border-radius: 50%;
-        margin-right: 7px;
-        animation: pulse 2s infinite;
-    }
+.dapur-icon {
+    width: 42px; height: 42px;
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.d-blue   { background: rgba(59,130,246,0.2);  color: #60a5fa; }
+.d-green  { background: rgba(34,197,94,0.2);   color: #4ade80; }
+.d-amber  { background: rgba(245,158,11,0.2);  color: #fbbf24; }
+.d-orange { background: rgba(249,115,22,0.2);  color: #fb923c; }
 
-    @keyframes pulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.4; transform: scale(0.65); }
-    }
+.dapur-name { font-weight: 600; font-size: 13px; line-height: 1.3; }
+.dapur-loc  { font-size: 11px; color: #64748b; margin-top: 2px; }
 
-    .form-title {
-        font-size: 24px;
-        font-weight: 600;
-        color: #0f172a;
-        margin-bottom: 4px;
-    }
+.dapur-arrow {
+    margin-left: auto;
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: background 0.2s;
+}
+.dapur-card:hover .dapur-arrow { background: rgba(59,130,246,0.3); }
 
-    .dark .form-title { color: #f1f5f9; }
+.back-link {
+    font-size: 12px;
+    color: #475569;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+    padding: 0;
+    transition: color 0.2s;
+    display: inline-block;
+}
+.back-link:hover { color: #94a3b8; }
 
-    .form-sub {
-        font-size: 14px;
-        color: #64748b;
-        margin-bottom: 28px;
-    }
+/* ── RIGHT PANEL ── */
+.kp-right {
+    width: 300px;
+    flex-shrink: 0;
+    background: linear-gradient(160deg, #1e3a8a 0%, #1e40af 50%, #1d4ed8 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 44px 28px;
+    position: relative;
+    overflow: hidden;
+}
 
-    .field-group { margin-bottom: 16px; }
+.kp-right::before {
+    content: '';
+    position: absolute;
+    width: 220px; height: 220px;
+    border: 32px solid rgba(255,255,255,0.06);
+    border-radius: 50%;
+    top: -70px; right: -70px;
+    animation: spin 20s linear infinite;
+}
+.kp-right::after {
+    content: '';
+    position: absolute;
+    width: 160px; height: 160px;
+    border: 22px solid rgba(255,255,255,0.04);
+    border-radius: 50%;
+    bottom: -50px; left: -50px;
+    animation: spin 15s linear infinite reverse;
+}
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
-    .field-label {
-        display: block;
-        font-size: 13px;
-        color: #475569;
-        margin-bottom: 6px;
-        font-weight: 500;
-    }
+.logo-box {
+    width: 82px; height: 82px;
+    border-radius: 22px;
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 800;
+    color: white;
+    margin-bottom: 20px;
+    position: relative; z-index: 1;
+    animation: pulse-logo 3s ease-in-out infinite;
+}
+@keyframes pulse-logo {
+    0%,100%{ box-shadow: 0 0 0 0 rgba(96,165,250,0); }
+    50%    { box-shadow: 0 0 0 16px rgba(96,165,250,0.1); }
+}
 
-    .dark .field-label { color: #94a3b8; }
+.logo-name {
+    font-size: 24px; font-weight: 800;
+    color: white; letter-spacing: 3px;
+    margin-bottom: 8px;
+    position: relative; z-index: 1;
+}
+.logo-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    text-align: center; line-height: 1.6;
+    position: relative; z-index: 1;
+}
 
-    .field-input {
-        width: 100%;
-        padding: 10px 14px;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        font-size: 14px;
-        background: #f8fafc;
-        color: #0f172a;
-        outline: none;
-        transition: border-color 0.2s, box-shadow 0.2s;
-    }
+.pills-row {
+    display: flex; flex-direction: column; gap: 9px;
+    margin-top: 32px; width: 100%;
+    position: relative; z-index: 1;
+}
+.pill {
+    display: flex; align-items: center; gap: 9px;
+    padding: 9px 13px;
+    border-radius: 10px;
+    font-size: 12px; font-weight: 500;
+    color: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    animation: slideIn 0.5s ease both;
+}
+.pill:nth-child(1){ animation-delay: 0.1s; }
+.pill:nth-child(2){ animation-delay: 0.2s; }
+.pill:nth-child(3){ animation-delay: 0.3s; }
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+.pill-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%; flex-shrink: 0;
+}
+.pd-green  { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
+.pd-amber  { background: #f59e0b; box-shadow: 0 0 6px #f59e0b88; }
+.pd-orange { background: #f97316; box-shadow: 0 0 6px #f9731688; }
 
-    .dark .field-input {
-        background: #0f172a;
-        border-color: #334155;
-        color: #f1f5f9;
-    }
+/* ── ALERT ERROR ── */
+.alert-error {
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: #fca5a5;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
 
-    .field-input:focus {
-        border-color: #378ADD;
-        box-shadow: 0 0 0 3px rgba(55, 138, 221, 0.12);
-    }
-
-    .btn-primary {
-        width: 100%;
-        padding: 11px;
-        background: #185FA5;
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        margin-top: 6px;
-        transition: background 0.2s, transform 0.1s;
-        position: relative;
-        overflow: hidden;
-        letter-spacing: 0.2px;
-    }
-
-    .btn-primary:hover { background: #0C447C; }
-    .btn-primary:active { transform: scale(0.98); }
-
-    .btn-primary .ripple {
-        position: absolute;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.3);
-        transform: scale(0);
-        animation: ripple 0.55s linear;
-        pointer-events: none;
-    }
-
-    @keyframes ripple {
-        to { transform: scale(4); opacity: 0; }
-    }
-
-    /* DAPUR STEP */
-    .dapur-card {
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 13px 16px;
-        cursor: pointer;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        background: #fff;
-        transition: border-color 0.2s, background 0.2s, transform 0.2s;
-    }
-
-    .dark .dapur-card {
-        background: #1e293b;
-        border-color: #334155;
-    }
-
-    .dapur-card:hover {
-        border-color: #378ADD;
-        background: #EFF6FF;
-        transform: translateX(5px);
-    }
-
-    .dark .dapur-card:hover {
-        background: #1e3a5f;
-    }
-
-    .dapur-icon {
-        width: 40px;
-        height: 40px;
-        background: #EFF6FF;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .dapur-name {
-        font-size: 14px;
-        font-weight: 600;
-        color: #0f172a;
-    }
-
-    .dark .dapur-name { color: #f1f5f9; }
-
-    .dapur-loc {
-        font-size: 12px;
-        color: #64748b;
-        margin-top: 2px;
-    }
-
-    .dapur-arrow {
-        margin-left: auto;
-        color: #378ADD;
-        font-size: 18px;
-        opacity: 0;
-        transition: opacity 0.2s, transform 0.2s;
-    }
-
-    .dapur-card:hover .dapur-arrow {
-        opacity: 1;
-        transform: translateX(3px);
-    }
-
-    /* STEP TRANSITIONS */
-    .step-panel { display: none; }
-
-    .step-panel.active {
-        display: flex;
-        flex-direction: column;
-        animation: slideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-
-    @keyframes slideIn {
-        from { opacity: 0; transform: translateX(18px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-
-    .step-panel.back-anim {
-        animation: slideInLeft 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-
-    @keyframes slideInLeft {
-        from { opacity: 0; transform: translateX(-18px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-
-    /* RIGHT */
-    .right-panel {
-        width: 280px;
-        background: #0C447C;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 40px 28px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .right-panel::before {
-        content: '';
-        position: absolute;
-        width: 240px;
-        height: 240px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.05);
-        top: -70px;
-        right: -70px;
-    }
-
-    .right-panel::after {
-        content: '';
-        position: absolute;
-        width: 180px;
-        height: 180px;
-        border-radius: 50%;
-        background: rgba(250, 199, 117, 0.12);
-        bottom: -50px;
-        left: -50px;
-    }
-
-    .logo-ring {
-        width: 72px;
-        height: 72px;
-        border-radius: 50%;
-        background: #FAC775;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 18px;
-        position: relative;
-        z-index: 1;
-        animation: float 3s ease-in-out infinite;
-    }
-
-    @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-8px); }
-    }
-
-    .right-app-name {
-        font-size: 18px;
-        font-weight: 700;
-        color: #fff;
-        letter-spacing: 1.5px;
-        position: relative;
-        z-index: 1;
-        margin-bottom: 10px;
-    }
-
-    .right-tagline {
-        font-size: 13px;
-        color: rgba(255,255,255,0.55);
-        text-align: center;
-        line-height: 1.6;
-        position: relative;
-        z-index: 1;
-    }
-
-    .dots-deco {
-        display: flex;
-        flex-direction: column;
-        gap: 7px;
-        position: absolute;
-        bottom: 100px;
-        right: 24px;
-        z-index: 1;
-    }
-
-    .dots-deco span {
-        display: block;
-        width: 7px;
-        height: 7px;
-        background: rgba(250, 199, 117, 0.45);
-        border-radius: 50%;
-    }
-
-    .dots-deco span:nth-child(1) { animation: pulse 2s 0s infinite; }
-    .dots-deco span:nth-child(2) { animation: pulse 2s 0.3s infinite; }
-    .dots-deco span:nth-child(3) { animation: pulse 2s 0.6s infinite; }
-
-    .yellow-bar {
-        width: 40px;
-        height: 3px;
-        background: #FAC775;
-        border-radius: 2px;
-        margin: 14px auto 0;
-        position: relative;
-        z-index: 1;
-    }
-
-    @media (max-width: 640px) {
-        .right-panel { display: none; }
-        .login-card { max-width: 440px; }
-    }
-
-    [x-cloak] { display: none !important; }
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+    .kp-right  { display: none; }
+    .kp-left   { padding: 36px 28px; }
+    .kp-card   { border-radius: 20px; }
+}
 </style>
 
-<div class="login-outer dark:bg-gray-950">
-    
-    <div class="login-card">
+<div class="kp-outer">
 
-        <!-- LEFT PANEL -->
-        <div class="left-panel">
-            {{-- <a href="/" class="back-link">← Kembali</a> --}}
+    {{-- Background orbs --}}
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+    <div class="orb orb4"></div>
 
-            <!-- STEP: LOGIN -->
-            <div id="step-login" class="step-panel active">
-                <div class="step-dots">
-                    <div class="step-dot active"></div>
-                    <div class="step-dot"></div>
+    {{-- Particles (rendered by JS) --}}
+    <div class="particles" id="particles"></div>
+
+    <div class="kp-card">
+
+        {{-- ══ LEFT PANEL ══ --}}
+        <div class="kp-left">
+
+            {{-- ── STEP 1 : LOGIN ── --}}
+            <div id="step-login" class="step-panel {{ session('step') ? '' : 'active' }}">
+
+                <div class="badge badge-blue">
+                    <span class="badge-dot"></span>
+                    Sistem Aktif
                 </div>
 
-                <div class="badge-system">
-                    <span class="pulse"></span>
-                    Sistem Keuangan Gizi
+                <h1 class="form-title">Selamat Datang</h1>
+                <p class="form-sub">Masuk untuk mengelola sistem keuangan gizi</p>
+
+                @if ($errors->any())
+                <div class="alert-error">
+                    {{ $errors->first() }}
                 </div>
+                @endif
 
-                <h1 class="form-title">Masuk</h1>
-                <p class="form-sub">Masuk untuk mengelola data keuangan</p>
+                <form method="POST" action="/signin">
+                    @csrf
 
-                <form id="form-login">
                     <div class="field-group">
                         <label class="field-label">Username</label>
-                        <input type="text" name="username" class="field-input" placeholder="Masukkan username">
+                        <input
+                            type="text"
+                            name="username"
+                            class="field-input"
+                            placeholder="Masukkan username"
+                            value="{{ old('username') }}"
+                            required
+                            autocomplete="username">
                     </div>
 
                     <div class="field-group">
                         <label class="field-label">Password</label>
-                        <input type="password" name="password" class="field-input" placeholder="••••••••">
+                        <input
+                            type="password"
+                            name="password"
+                            class="field-input"
+                            placeholder="••••••••"
+                            required
+                            autocomplete="current-password">
                     </div>
 
-                    <button type="submit" class="btn-primary">
-                        Masuk
+                    <button type="submit" class="btn-login">
+                        Masuk ke Sistem →
                     </button>
                 </form>
+
+                <div class="divider"></div>
+                <p style="font-size:12px; color:#475569; text-align:center;">
+                    KAPUAZ &copy; {{ date('Y') }} &mdash; Sistem Keuangan Gizi
+                </p>
             </div>
 
-            <!-- STEP: PILIH DAPUR -->
-            <div id="step-dapur" class="step-panel">
-                <div class="step-dots">
-                    <div class="step-dot"></div>
-                    <div class="step-dot active"></div>
+            {{-- ── STEP 2 : PILIH DAPUR ── --}}
+            <div id="step-dapur" class="step-panel {{ session('step') == 'dapur' ? 'active' : '' }}">
+
+                <div class="badge badge-green">
+                    <span class="badge-dot"></span>
+                    Pilih Lokasi
                 </div>
 
                 <h1 class="form-title">Pilih Dapur</h1>
-                <p class="form-sub">Pilih lokasi dapur untuk melanjutkan</p>
+                <p class="form-sub">Pilih dapur yang akan dikelola sesi ini</p>
 
-                @foreach($dapur as $d)
-                <div class="dapur-card" onclick="selectDapur({{ $d->id }})">
-                    <div class="dapur-icon">
-                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
-                                      stroke="#185FA5" stroke-width="1.5"
-                                      stroke-linecap="round" stroke-linejoin="round"/>
-                                <polyline points="9 22 9 12 15 12 15 22"
-                                          stroke="#185FA5" stroke-width="1.5"
-                                          stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                    </div>
-                    <div>
-                        <div class="dapur-name">{{ $d->nama_lembaga }}</div>
-                        <div class="dapur-loc">{{ $d->alamat }}</div>
-                    </div>
-                    <div class="dapur-arrow">→</div>
-                </div>
+                @php
+                    $iconColors = ['d-blue', 'd-green', 'd-amber', 'd-orange'];
+                @endphp
+
+                @foreach($dapur as $i => $d)
+                <form class="dapur-form" method="POST" action="{{ url('/pilih-dapur/'.$d->id) }}">
+                    @csrf
+                    <button type="submit" class="dapur-card">
+                        <div class="dapur-icon {{ $iconColors[$i % 4] }}">
+                            {{ strtoupper(substr($d->nama_lembaga, 0, 1)) }}
+                        </div>
+                        <div>
+                            <div class="dapur-name">{{ $d->nama_lembaga }}</div>
+                            <div class="dapur-loc">{{ $d->alamat }}</div>
+                        </div>
+                        <div class="dapur-arrow">→</div>
+                    </button>
+                </form>
                 @endforeach
 
-                <button @click="backToLogin()"
-                        class="back-link" style="margin-top: 14px;">
-                    ← Kembali ke login
-                </button>
+                <div class="divider"></div>
+
+                <form method="POST" action="/logout" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="back-link">← Kembali / Ganti Akun</button>
+                </form>
             </div>
+
         </div>
 
-        <!-- RIGHT PANEL -->
-        <div class="right-panel">
-            <div class="logo-ring">
-                <svg width="34" height="34" fill="none" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#0C447C"/>
-                    <path d="M8 12l3 3 5-5" stroke="#fff" stroke-width="1.8"
-                          stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+        {{-- ══ RIGHT PANEL ══ --}}
+        <div class="kp-right">
+
+            <div class="logo-box">KP</div>
+            <div class="logo-name">KAPUAZ</div>
+            <div class="logo-sub">Sistem Keuangan Gizi<br>Terintegrasi</div>
+
+            <div class="pills-row">
+                <div class="pill">
+                    <span class="pill-dot pd-green"></span>
+                    Data Keuangan Real-time
+                </div>
+                <div class="pill">
+                    <span class="pill-dot pd-amber"></span>
+                    Multi-Dapur Terpusat
+                </div>
+                <div class="pill">
+                    <span class="pill-dot pd-orange"></span>
+                    Laporan Gizi Akurat
+                </div>
             </div>
-            <div class="right-app-name">KAPUAZ</div>
-            <div class="right-tagline">Aplikasi Pelaporan<br>Keuangan Gizi</div>
-            <div class="yellow-bar"></div>
-            <div class="dots-deco">
-                <span></span><span></span><span></span>
-            </div>
+
         </div>
 
     </div>
 </div>
 
 <script>
-const form = document.getElementById('form-login');
-const stepLogin = document.getElementById('step-login');
-const stepDapur = document.getElementById('step-dapur');
-
-form.addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const username = form.querySelector('input[type=text]').value;
-    const password = form.querySelector('input[type=password]').value;
-
-    fetch('/signin', {
-        method: 'POST',
-        credentials: 'same-origin', // 🔥 tambahin ini juga biar konsisten
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
-        },
-        body: JSON.stringify({ username, password })
-    })
-    .then(res => res.json())
-    .then(res => {
-
-        console.log(res);
-
-        // 👑 SUPER ADMIN → tampil pilih dapur
-        if (res.role === 'super_admin') {
-            stepLogin.classList.remove('active');
-            stepDapur.classList.add('active');
-        }
-
-        // 👤 ADMIN → langsung dashboard
-        else if (res.role === 'admin') {
-            window.location.href = res.redirect;
-        }
-
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Login gagal');
-    });
-});
-
-function selectDapur(id) {
-    fetch('/pilih-dapur/' + id, {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-            'Accept': 'application/json'
-        }
-    })
-    .then(res => {
-        console.log('STATUS:', res.status);
-        if (!res.ok) throw new Error('Request gagal');
-        return res.json();
-    })
-    .then(res => {
-        if (res.status === 'success') {
-            window.location.href = '/admin/dashboard';
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Gagal pilih dapur');
-    });
-}
+(function () {
+    /* ── Particle generator ── */
+    const container = document.getElementById('particles');
+    const colors = ['#3b82f6', '#f59e0b', '#22c55e', '#f97316'];
+    for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.cssText = [
+            `left:${Math.random() * 100}%`,
+            `bottom:0`,
+            `background:${colors[i % 4]}`,
+            `animation-duration:${4 + Math.random() * 6}s`,
+            `animation-delay:${Math.random() * 6}s`,
+            `opacity:${0.3 + Math.random() * 0.45}`,
+        ].join(';');
+        container.appendChild(p);
+    }
+})();
 </script>
+
 @endsection

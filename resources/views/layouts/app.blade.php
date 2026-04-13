@@ -8,19 +8,17 @@
 
     <title>{{ $title ?? 'Dashboard' }} | KAPUAZ - Aplikasi Pelaporan Keuangan Gizi</title>
 
-    <!-- Scripts -->
+    <!-- Styles -->
     @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    
-    <!-- Theme Store -->
+    <!-- Theme & Sidebar Store -->
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.store('theme', {
                 init() {
                     const savedTheme = localStorage.getItem('theme');
-                    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' :
-                        'light';
+                    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
                     this.theme = savedTheme || systemTheme;
                     this.updateTheme();
                 },
@@ -33,6 +31,7 @@
                 updateTheme() {
                     const html = document.documentElement;
                     const body = document.body;
+
                     if (this.theme === 'dark') {
                         html.classList.add('dark');
                         body.classList.add('dark', 'bg-gray-900');
@@ -44,20 +43,17 @@
             });
 
             Alpine.store('sidebar', {
-                // Initialize based on screen size
-                isExpanded: window.innerWidth >= 1280, // true for desktop, false for mobile
+                isExpanded: window.innerWidth >= 1280,
                 isMobileOpen: false,
                 isHovered: false,
 
                 toggleExpanded() {
                     this.isExpanded = !this.isExpanded;
-                    // When toggling desktop sidebar, ensure mobile menu is closed
                     this.isMobileOpen = false;
                 },
 
                 toggleMobileOpen() {
                     this.isMobileOpen = !this.isMobileOpen;
-                    // Don't modify isExpanded when toggling mobile menu
                 },
 
                 setMobileOpen(val) {
@@ -65,7 +61,6 @@
                 },
 
                 setHovered(val) {
-                    // Only allow hover effects on desktop when sidebar is collapsed
                     if (window.innerWidth >= 1280 && !this.isExpanded) {
                         this.isHovered = val;
                     }
@@ -74,41 +69,43 @@
         });
     </script>
 
-    <!-- Apply dark mode immediately to prevent flash -->
+    <!-- Prevent Dark Mode Flash -->
     <script>
         (function() {
             const savedTheme = localStorage.getItem('theme');
             const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             const theme = savedTheme || systemTheme;
+
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
                 document.body.classList.add('dark', 'bg-gray-900');
-            } else {
-                document.documentElement.classList.remove('dark');
-                document.body.classList.remove('dark', 'bg-gray-900');
             }
         })();
     </script>
-    
+
 </head>
 
 <body
-    x-data="{ 'loaded': true}"
-    x-init="$store.sidebar.isExpanded = window.innerWidth >= 1280;
-    const checkMobile = () => {
-        if (window.innerWidth < 1280) {
-            $store.sidebar.setMobileOpen(false);
-            $store.sidebar.isExpanded = false;
-        } else {
-            $store.sidebar.isMobileOpen = false;
-            $store.sidebar.isExpanded = true;
-        }
-    };
-    window.addEventListener('resize', checkMobile);">
+    x-data="{ loaded: true }"
+    x-init="
+        $store.sidebar.isExpanded = window.innerWidth >= 1280;
 
-    {{-- preloader --}}
+        const checkMobile = () => {
+            if (window.innerWidth < 1280) {
+                $store.sidebar.setMobileOpen(false);
+                $store.sidebar.isExpanded = false;
+            } else {
+                $store.sidebar.isMobileOpen = false;
+                $store.sidebar.isExpanded = true;
+            }
+        };
+
+        window.addEventListener('resize', checkMobile);
+    "
+>
+
+    {{-- Preloader --}}
     <x-common.preloader/>
-    {{-- preloader end --}}
 
     <div class="min-h-screen xl:flex">
         @include('layouts.backdrop')
@@ -119,19 +116,23 @@
                 'xl:ml-[290px]': $store.sidebar.isExpanded || $store.sidebar.isHovered,
                 'xl:ml-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
                 'ml-0': $store.sidebar.isMobileOpen
-            }">
-            <!-- app header start -->
+            }"
+        >
+            {{-- Header --}}
             @include('layouts.app-header')
-            <!-- app header end -->
+
             <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
                 @yield('content')
             </div>
-            @livewireScripts(['alpine' => false])
-        </div>
 
+        </div>
     </div>
 
+    <!-- Scripts -->
+    @livewireScripts
+
 </body>
+
 @stack('scripts')
 
 </html>
