@@ -1,28 +1,7 @@
 <div>
 <div class="space-y-5">
 
-    {{-- ── SUMMARY CARDS ── --}}
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-
-        <div class="rounded-2xl border border-gray-100 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Total RAB Bahan</p>
-            <p class="mt-1 text-2xl font-bold text-blue-700 dark:text-blue-400">Rp 342,8 jt</p>
-            <p class="mt-0.5 text-xs text-gray-400">22 hari distribusi</p>
-        </div>
-
-        <div class="rounded-2xl border border-gray-100 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Total RAB Operasional</p>
-            <p class="mt-1 text-2xl font-bold text-emerald-700 dark:text-emerald-400">Rp 10,0 jt</p>
-            <p class="mt-0.5 text-xs text-gray-400">5 pos pengeluaran</p>
-        </div>
-
-        <div class="rounded-2xl border border-gray-100 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-            <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Total RAB Insentif</p>
-            <p class="mt-1 text-2xl font-bold text-amber-700 dark:text-amber-400">Rp 18,5 jt</p>
-            <p class="mt-0.5 text-xs text-gray-400">4 jenis fasilitas</p>
-        </div>
-
-    </div>
+    
 
     {{-- ── TAB NAVIGATION ── --}}
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -48,7 +27,9 @@
                     {{ $activeTab == 'bahan' ? 'text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-300' }}">
                     Bahan Makanan
                 </p>
-                <p class="mt-0.5 text-xs text-gray-400">22 entri · Rp 342,8 jt</p>
+                {{-- <p class="mt-0.5 text-xs text-gray-400"> 
+                    Rp {{ number_format($totalGlobalRab ?? 0,0,',','.') }}
+                </p> --}}
             </div>
 
             @if($activeTab == 'bahan')
@@ -77,7 +58,7 @@
                     {{ $activeTab == 'operasional' ? 'text-emerald-700 dark:text-emerald-300' : 'text-gray-600 dark:text-gray-300' }}">
                     Operasional
                 </p>
-                <p class="mt-0.5 text-xs text-gray-400">5 entri · Rp 10,0 jt</p>
+                {{-- <p class="mt-0.5 text-xs text-gray-400">5 entri · Rp 10,0 jt</p> --}}
             </div>
 
             @if($activeTab == 'operasional')
@@ -106,7 +87,7 @@
                     {{ $activeTab == 'insentif' ? 'text-amber-700 dark:text-amber-300' : 'text-gray-600 dark:text-gray-300' }}">
                     Insentif Fasilitas
                 </p>
-                <p class="mt-0.5 text-xs text-gray-400">4 entri · Rp 18,5 jt</p>
+                {{-- <p class="mt-0.5 text-xs text-gray-400">4 entri · Rp 18,5 jt</p> --}}
             </div>
 
             @if($activeTab == 'insentif')

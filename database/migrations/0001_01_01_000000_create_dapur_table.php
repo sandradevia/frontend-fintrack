@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('nama_yayasan')->nullable();
             $table->string('ketua_yayasan')->nullable();
             $table->string('nomor_rekening')->nullable();
-            $table->string('tanggal_pelaporan')->nullable();
             $table->string('tempat_pelaporan')->nullable();
             $table->timestamps();
         });

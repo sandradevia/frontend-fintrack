@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('anggota_id')->references('id')->on('anggota')->cascadeOnDelete();
             $table->date('tanggal_keluar');
             $table->integer('jumlah');
-            $table->string('satuan');
             $table->timestamps();
         });
     }

@@ -31,4 +31,14 @@ class Dapur extends Model
     {
         return $this->hasOne(Periode::class)->where('is_active', true);
     }
+
+    public function anggaranBahan()
+    {
+        return $this->hasMany(AnggaranBahan::class);
+    }
+
+    public function dapur()
+    {
+        return $this->belongsTo(Dapur::class);
+    }
 }

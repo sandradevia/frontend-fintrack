@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('akuns', function (Blueprint $table) {
+        Schema::create('stok_awal', function (Blueprint $table) {
             $table->id();
-            $table->string('kode')->unique();
-            $table->string('nama_akun');
-            $table->timestamps();
+            $table->foreignId('barang_id')->references('id')->on('barang')->cascadeOnDelete();
+            $table->foreignId('dapur_id')->references('id')->on('dapur')->cascadeOnDelete();
+            $table->integer('jumlah');
         });
     }
 
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('akuns');
+        Schema::dropIfExists('stok_awal');
     }
 };

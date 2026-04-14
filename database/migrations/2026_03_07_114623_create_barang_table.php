@@ -14,13 +14,9 @@ return new class extends Migration
         Schema::create('barang', function (Blueprint $table) {
             $table->id();
             $table->foreignId('dapur_id')->references('id')->on('dapur')->cascadeOnDelete();
-
-            $table->string('nama');
+            $table->string('nama_barang');
             $table->string('satuan');
-
-            $table->integer('stok')->default(0);
-            $table->decimal('harga_beli', 15, 2)->default(0);
-
+            $table->string('supplier');
             $table->timestamps();
         });
     }
