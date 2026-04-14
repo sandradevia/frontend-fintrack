@@ -82,8 +82,8 @@ Route::middleware(['auth', 'role:admin|super_admin'])
         // INPUT BARANG
         Route::get('/input-barang', [InputBarangController::class, 'index'])->name('input-barang.index');
         Route::post('/input-barang', [InputBarangController::class, 'store'])->name('input-barang.store');
-        Route::delete('/input-barang/{barang}', [InputBarangController::class, 'destroy'])->name('input-barang.destroy');
-        Route::put('/input-barang/{barang}', [InputBarangController::class, 'update'])->name('input-barang.update');
+        Route::delete('/input-barang/{id}', [InputBarangController::class, 'destroy'])->name('input-barang.destroy');
+        Route::put('/input-barang/{id}', [InputBarangController::class, 'update'])->name('input-barang.update');
 
 
         // PENERIMAAN BARANG
