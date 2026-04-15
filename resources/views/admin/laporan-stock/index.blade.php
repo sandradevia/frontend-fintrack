@@ -45,35 +45,30 @@
                 {{-- BODY --}}
                 <tbody id="tableBody">
 
-                    {{-- CONTOH DATA --}}
-                    <tr>
-                        <td class="border px-3 py-2 text-center">1</td>
-                        <td class="border px-3 py-2">Beras premium</td>
-                        <td class="border px-3 py-2 text-center">kg</td>
-                        <td class="border px-3 py-2 text-right">12</td>
-                        <td class="border px-3 py-2 text-right text-green-600">1000</td>
-                        <td class="border px-3 py-2 text-right text-red-500">10</td>
-                        <td class="border px-3 py-2 text-right">1002</td>
-                        <td class="border px-3 py-2 text-right">15000</td>
-                        <td class="border px-3 py-2 text-right jumlah">15030000</td>
-                    </tr>
+@foreach ($items as $i => $item)
+<tr>
+    <td class="border px-3 py-2 text-center">{{ $i + 1 }}</td>
 
-                    <tr>
-                        <td class="border px-3 py-2 text-center">2</td>
-                        <td class="border px-3 py-2">Beras jagung</td>
-                        <td class="border px-3 py-2 text-center">kg</td>
-                        <td class="border px-3 py-2 text-right">8</td>
-                        <td class="border px-3 py-2 text-right">0</td>
-                        <td class="border px-3 py-2 text-right">0</td>
-                        <td class="border px-3 py-2 text-right">8</td>
-                        <td class="border px-3 py-2 text-right">17000</td>
-                        <td class="border px-3 py-2 text-right jumlah">136000</td>
-                    </tr>
+    <td class="border px-3 py-2">{{ $item['nama_barang'] }}</td>
+    <td class="border px-3 py-2 text-center">{{ $item['satuan'] }}</td>
 
-                </tbody>
+    <td class="border px-3 py-2 text-right">{{ $item['saldo_awal'] }}</td>
+    <td class="border px-3 py-2 text-right text-green-600">{{ $item['masuk'] }}</td>
+    <td class="border px-3 py-2 text-right text-red-500">{{ $item['keluar'] }}</td>
+    <td class="border px-3 py-2 text-right">{{ $item['saldo_akhir'] }}</td>
+
+    <td class="border px-3 py-2 text-right">{{ number_format($item['harga_beli'], 0, ',', '.') }}</td>
+
+    <td class="border px-3 py-2 text-right text-blue-600">
+        {{ number_format($item['jumlah_nilai'], 0, ',', '.') }}
+    </td>
+</tr>
+@endforeach
+
+</tbody>
 
                 {{-- 🔷 TOTAL --}}
-                <tfoot>
+                {{-- <tfoot>
                     <tr class="bg-gray-100 font-semibold">
                         <td colspan="3" class="border px-3 py-2 text-center">
                             TOTAL
@@ -85,7 +80,7 @@
                         <td class="border px-3 py-2"></td>
                         <td class="border px-3 py-2 text-right text-blue-600" id="totalJumlah">0</td>
                     </tr>
-                </tfoot>
+                </tfoot> --}}
 
             </table>
         </div>

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('barang_keluars', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('barang_id')->references('id')->on('dapur')->cascadeOnDelete();
+            $table->foreignId('barang_id')->references('id')->on('barang')->cascadeOnDelete();
             $table->foreignId('anggota_id')->references('id')->on('anggota')->cascadeOnDelete();
             $table->date('tanggal_keluar');
             $table->integer('jumlah');

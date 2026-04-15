@@ -87,11 +87,25 @@ Route::middleware(['auth', 'role:admin|super_admin'])
 
 
         // PENERIMAAN BARANG
-        Route::get('/penerimaan-barang', [PenerimaanBarangController::class, 'index'])->name('penerimaan-barang.index');
-        Route::post('/penerimaan-barang', [PenerimaanBarangController::class, 'store'])->name('penerimaan-barang.store');
+        Route::prefix('penerimaan-barang')->name('penerimaan-barang.')->group(function () {
 
-        // PENGELUARAN BARANG
-        Route::get('/pengeluaran-barang', [PengeluaranBarangController::class, 'index'])->name('pengeluaran-barang.index');
+            Route::get('/', [PenerimaanBarangController::class, 'index'])->name('index');
+            Route::post('/', [PenerimaanBarangController::class, 'store'])->name('store');
+
+            Route::get('/{id}/edit', [PenerimaanBarangController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [PenerimaanBarangController::class, 'update'])->name('update');
+            Route::delete('/{id}', [PenerimaanBarangController::class, 'destroy'])->name('destroy');
+
+        });
+
+        Route::prefix('pengeluaran-barang')->name('pengeluaran-barang.')->group(function () {
+            Route::get('/', [PengeluaranBarangController::class, 'index'])->name('index');
+            Route::post('/', [PengeluaranBarangController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [PengeluaranBarangController::class, 'edit'])->name('edit');
+            Route::get('/stok/{barang_id}', [PengeluaranBarangController::class, 'getStok']);
+            Route::put('/{id}', [PengeluaranBarangController::class, 'update'])->name('update');
+            Route::delete('/{id}', [PengeluaranBarangController::class, 'destroy'])->name('destroy');
+        });
 
         // LAPORAN STOCK
         Route::get('/laporan-stock', [LaporanStockController::class, 'index'])->name('laporan-stock.index');

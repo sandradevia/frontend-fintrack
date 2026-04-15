@@ -2,92 +2,79 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use App\Models\Transaksi;
+use App\Models\User;
+use App\Models\Jurnal;
 use App\Models\BarangMasuk;
 use App\Models\BarangKeluar;
 
 class DashboardController extends Controller
 {
     public function admin()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        if (!$user || !$user->hasRole(['admin', 'super_admin'])) {
-            abort(403, 'Anda tidak memiliki akses ke halaman admin.');
-        }
-
-        // // ========================
-        // // 🔹 DATA KEUANGAN
-        // // ========================
-        // $chartKeuangan = Transaksi::select(
-        //         DB::raw('MONTH(tanggal) as bulan'),
-        //         DB::raw('SUM(pemasukan) as pemasukan'),
-        //         DB::raw('SUM(pengeluaran) as pengeluaran')
-        //     )
-        //     ->groupBy('bulan')
-        //     ->orderBy('bulan')
-        //     ->get();
-
-        // // ========================
-        // // 🔹 DATA STOK
-        // // ========================
-        // $stokData = DB::table('barang_masuk')
-        //     ->select(
-        //         DB::raw('MONTH(tanggal) as bulan'),
-        //         DB::raw('SUM(jumlah) as masuk'),
-        //         DB::raw('0 as keluar')
-        //     )
-        //     ->groupBy('bulan')
-
-        //     ->unionAll(
-        //         DB::table('barang_keluar')
-        //             ->select(
-        //                 DB::raw('MONTH(tanggal) as bulan'),
-        //                 DB::raw('0 as masuk'),
-        //                 DB::raw('SUM(jumlah) as keluar')
-        //             )
-        //             ->groupBy('bulan')
-        //     )
-        //     ->get()
-        //     ->groupBy('bulan')
-        //     ->map(function ($items) {
-        //         return [
-        //             'bulan' => $items[0]->bulan,
-        //             'masuk' => $items->sum('masuk'),
-        //             'keluar' => $items->sum('keluar'),
-        //         ];
-        //     })
-        //     ->values();
-
-        // // ========================
-        // // 🔹 TOTAL STOK
-        // // ========================
-        // $totalStok = BarangMasuk::sum('jumlah') - BarangKeluar::sum('jumlah');
-
-        // // ========================
-        // // 🔹 RETURN VIEW
-        // // ========================
-        return view('pages.dashboard.admin', [
-            'title' => 'Dashboard Admin',
-            // 'chartKeuangan' => $chartKeuangan,
-            // 'stokData' => $stokData,
-            // 'totalStok' => $totalStok,
-        ]);
+    if (!$user || !$user->hasRole(['admin', 'super_admin'])) {
+        abort(403);
     }
 
-    public function superAdmin()
-    {
-        $user = Auth::user();
+    // =====================
+    // TOTAL DASHBOARD
+    // =====================
+    $totalTransaksi = Transaksi::count();
+    $totalKaryawan = User::count();
 
-        if (!$user || !$user->hasRole('super_admin')) {
-            abort(403, 'Anda tidak memiliki akses ke halaman super admin.');
-        }
+    $totalAnggaran = Jurnal::selectRaw('COALESCE(SUM(debit - kredit),0) as total')
+        ->value('total');
 
-        return view('pages.dashboard.super_admin', [
-            'title' => 'Dashboard Super Admin',
-        ]);
+    // =====================
+    // STOK MASUK (HARIAN 12 HARI TERAKHIR)
+    // =====================
+    $stokMasuk = BarangMasuk::selectRaw('
+            DATE(tanggal_masuk) as hari,
+            SUM(jumlah) as total
+        ')
+        ->where('tanggal_masuk', '>=', now()->subDays(11))
+        ->groupByRaw('DATE(tanggal_masuk)')
+        ->orderBy('hari')
+        ->pluck('total', 'hari');
+
+    // =====================
+    // STOK KELUAR (HARIAN 12 HARI TERAKHIR)
+    // =====================
+    $stokKeluar = BarangKeluar::selectRaw('
+            DATE(tanggal_keluar) as hari,
+            SUM(jumlah) as total
+        ')
+        ->where('tanggal_keluar', '>=', now()->subDays(11))
+        ->groupByRaw('DATE(tanggal_keluar)')
+        ->orderBy('hari')
+        ->pluck('total', 'hari');
+
+    // =====================
+    // FORMAT 12 HARI (WAJIB SUPAYA RAPI)
+    // =====================
+    $hari = [];
+    $dataMasuk = [];
+    $dataKeluar = [];
+
+    for ($i = 11; $i >= 0; $i--) {
+        $date = now()->subDays($i)->format('Y-m-d');
+
+        $hari[] = now()->subDays($i)->format('d M');
+
+        $dataMasuk[] = $stokMasuk[$date] ?? 0;
+        $dataKeluar[] = $stokKeluar[$date] ?? 0;
     }
+
+    return view('pages.dashboard.admin', compact(
+        'totalTransaksi',
+        'totalKaryawan',
+        'totalAnggaran',
+        'hari',
+        'dataMasuk',
+        'dataKeluar'
+    ));
+}
 }

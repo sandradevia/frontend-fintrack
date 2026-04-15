@@ -25,7 +25,7 @@
       <div class="flex items-end justify-between mt-5">
         <div>
           <span class="text-sm text-gray-500 dark:text-gray-400">Total Transaksi</span>
-          <h4 class="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">{{ $totalTransaksi ?? 0 }}</h4>
+          <h4 class="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">{{ $totalAnggaran ?? 0 }}</h4>
         </div>
 
         <span

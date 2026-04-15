@@ -23,87 +23,90 @@
         <hr>
 
         {{-- FORM --}}
-        <form class="grid grid-cols-1 md:grid-cols-6 gap-4" onsubmit="return false;">
+        <div>
+            <h2 class="text-lg font-semibold mb-4">Tambah Data Pengeluaran</h2>
+        <form id="formPengeluaran" class="grid grid-cols-1 md:grid-cols-6 gap-4">
 
-            {{-- Tanggal --}}
-            <div>
-                <label class="text-sm text-gray-600">Tanggal</label>
-                <input type="date"
-                    class="w-full border rounded-lg px-3 py-2">
-            </div>
+        @csrf
 
-            {{-- Petugas --}}
-            <div>
-                <label class="text-sm text-gray-600">Petugas</label>
-                <input type="text" placeholder="Contoh: Budi"
-                    class="w-full border rounded-lg px-3 py-2">
-            </div>
+        {{-- Tanggal --}}
+        <div>
+            <label class="text-sm text-gray-600">Tanggal</label>
+            <input type="date" name="tanggal_keluar"
+                class="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200"
+                        value="{{ old('tanggal_masuk', date('Y-m-d')) }}">
+        </div>
 
-            {{-- Barang --}}
-            <div>
-                <label class="text-sm text-gray-600">Barang</label>
-                <select id="barang" onchange="pilihBarang()"
-                    class="w-full border rounded-lg px-3 py-2">
-                    <option value="">-- Pilih Barang --</option>
+        {{-- Petugas --}}
+        <div>
+            <label class="text-sm text-gray-600">Petugas</label>
+            <select name="anggota_id"
+                class="w-full border rounded-lg px-3 py-2">
+                <option value="">-- Pilih Petugas --</option>
+                @foreach($anggota as $a)
+                    <option value="{{ $a->id }}">{{ $a->nama }}</option>
+                @endforeach
+            </select>
+        </div>
 
-                    <option data-satuan="kg" data-stok="50">
-                        Beras premium (Stok: 50)
+        {{-- Barang --}}
+        <div>
+            <label class="text-sm text-gray-600">Barang</label>
+            <select id="barang" onchange="pilihBarang()" class="w-full border rounded-lg px-3 py-2">
+                <option value="">-- Pilih Barang --</option>
+
+                @foreach ($barang as $b)
+                    <option
+                        value="{{ $b->id }}"
+                        data-satuan="{{ $b->satuan }}"
+                        data-stok="{{ optional($b->stok)->stok ?? 0 }}">
+                        {{ $b->nama_barang }}
                     </option>
+                @endforeach
+            </select>
+        </div>
 
-                    <option data-satuan="ltr" data-stok="30">
-                        Minyak goreng (Stok: 30)
-                    </option>
+        {{-- Volume --}}
+        <div>
+            <label class="text-sm text-gray-600">Volume</label>
+            <input type="number" name="jumlah" id="jumlah"
+                class="w-full border rounded-lg px-3 py-2">
+        </div>
 
-                    <option data-satuan="kg" data-stok="20">
-                        Telur ayam (Stok: 20)
-                    </option>
-                </select>
-            </div>
+        {{-- Satuan --}}
+        <div>
+                    <label class="text-sm text-gray-600">Satuan</label>
 
-            {{-- Volume --}}
-            <div>
-                <label class="text-sm text-gray-600">Volume</label>
-                <input type="number" id="volume"
-                    class="w-full border rounded-lg px-3 py-2">
-            </div>
+                    <select name="satuan" id="satuan"
+                        class="w-full border rounded-lg px-3 py-2 bg-white focus:ring focus:ring-blue-200">
 
-            {{-- Satuan --}}
-            <div>
-                <label class="text-sm text-gray-600">Satuan</label>
-                <select id="satuan"
-                    class="w-full border rounded-lg px-3 py-2">
-                    <option>kg</option>
-                    <option>ltr</option>
-                    <option>pcs</option>
-                    <option>pak</option>
-                    <option>papan</option>
-                </select>
-            </div>
-            {{-- BARIS STOK + BUTTON --}}
-            <div class="md:col-span-6 flex justify-between items-center mt-2">
-
-                {{-- INFO STOK --}}
-                <div class="text-sm text-gray-500">
-                    Stok tersedia: 
-                    <span id="stok" class="font-semibold">-</span>
+                        <option value="">-- Pilih Satuan --</option>
+                        <option value="kg">Kilogram (kg)</option>
+                        <option value="gram">Gram (g)</option>
+                        <option value="liter">Liter (L)</option>
+                        <option value="ml">Mililiter (ml)</option>
+                        <option value="pcs">Pieces (pcs)</option>
+                        <option value="pack">Pack</option>
+                        <option value="dus">Dus</option>
+                        <option value="karung">Karung</option>
+                    </select>
                 </div>
 
-                {{-- BUTTON --}}
-                <div class="flex gap-2">
-                    <button type="reset"
-                        class="px-4 py-2 border rounded-lg text-gray-600">
-                        Reset
-                    </button>
+        {{-- STOK INFO --}}
+        <div class="md:col-span-6 flex justify-between items-center mt-2">
 
-                    <button type="button" onclick="tambahData()"
-                        class="px-5 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg">
-                        Simpan
-                    </button>
+            {{-- <div class="text-sm text-gray-500">
+                Stok tersedia:
+                <span id="stok" class="font-semibold">-</span>
+            </div> --}}
+        </div>
+        <div class="md:col-span-7 flex justify-end gap-2 mt-2">
+                    <button type="reset" class="px-4 py-2 border rounded-lg text-gray-600">Reset</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">Simpan</button>
                 </div>
 
-            </div>
-        </form>
-
+    </form>
+        </div>
     </div>
 
     {{-- 🔷 TABEL --}}
@@ -128,7 +131,20 @@
                 </thead>
 
                 <tbody id="tableBody">
-                    {{-- Data akan masuk via JS --}}
+                    @foreach ($items as $item)
+                        <tr id="row-{{ $item->id }}" class="hover:bg-gray-50">
+                            <td class="border px-3 py-2 text-center">{{ $loop->iteration }}</td>
+                            <td class="border px-3 py-2">{{ $item->tanggal_keluar }}</td>
+                            <td class="border px-3 py-2">{{ $item->anggota->nama ?? '-' }}</td>
+                            <td class="border px-3 py-2">{{ $item->barang->nama_barang ?? '-' }}</td>
+                            <td class="border px-3 py-2 text-center">{{ $item->jumlah }}</td>
+                            <td class="border px-3 py-2 text-center">{{ $item->barang->satuan ?? '-' }}</td>
+
+                            <td class="border px-3 py-2 text-center">
+                                <button onclick="hapusRow({{ $item->id }})" class="text-red-500">Hapus</button>
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -142,54 +158,134 @@
 let stokAktif = 0;
 let no = 1;
 
+/* =========================
+   PILIH BARANG (GET STOK REALTIME)
+========================= */
+// 
 function pilihBarang() {
     let select = document.getElementById('barang');
     let selected = select.options[select.selectedIndex];
 
+    if (!selected.value) return;
+
     let satuan = selected.getAttribute('data-satuan');
     let stok = selected.getAttribute('data-stok');
 
-    document.getElementById('satuan').value = satuan || '';
-    document.getElementById('stok').innerText = stok || '-';
-
     stokAktif = parseFloat(stok) || 0;
+
+    console.log("STOK:", stokAktif);
+
+    // kalau kamu tidak pakai tampilan stok, STOP di sini
 }
 
+
+/* =========================
+   TAMBAH DATA (CREATE PENGELUARAN)
+========================= */
 function tambahData() {
 
-    let tanggal = document.querySelector('input[type="date"]').value;
-    let petugas = document.querySelector('input[type="text"]').value;
-    let barang = document.getElementById('barang').value;
-    let volume = document.getElementById('volume').value;
-    let satuan = document.getElementById('satuan').value;
+    const tanggal = document.querySelector('input[name="tanggal_keluar"]').value;
+    const anggota = document.querySelector('select[name="anggota_id"]').value;
+    const barang = document.getElementById('barang').value;
+    const jumlah = document.getElementById('jumlah').value;
 
-    if (volume > stokAktif) {
+    // VALIDASI FIELD
+    if (!tanggal || !anggota || !barang || !jumlah) {
+        alert('❌ Lengkapi semua data');
+        return;
+    }
+
+    // VALIDASI STOK
+    if (parseInt(jumlah) > stokAktif) {
         alert('❌ Stok tidak cukup!');
         return;
     }
 
-    let table = document.getElementById('tableBody');
+    fetch('/admin/pengeluaran-barang', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+            tanggal_keluar: tanggal,
+            anggota_id: anggota,
+            barang_id: barang,
+            jumlah: jumlah
+        })
+    })
+    .then(res => res.json())
+    .then(res => {
 
-    let row = `
-        <tr class="hover:bg-gray-50">
-            <td class="border px-3 py-2 text-center">${no++}</td>
-            <td class="border px-3 py-2">${tanggal}</td>
-            <td class="border px-3 py-2">${petugas}</td>
-            <td class="border px-3 py-2">${barang}</td>
-            <td class="border px-3 py-2 text-center">${volume}</td>
-            <td class="border px-3 py-2 text-center">${satuan}</td>
-            <td class="border px-3 py-2 text-center">
-                <button onclick="hapusRow(this)" class="text-red-500">Hapus</button>
-            </td>
-        </tr>
-    `;
+        if (res.status !== 'success') {
+            alert(res.message || 'Gagal menyimpan data');
+            return;
+        }
 
-    table.innerHTML += row;
+        let item = res.item;
+
+        let row = `
+            <tr id="row-${item.id}" class="hover:bg-gray-50">
+                <td class="border px-3 py-2 text-center">${no++}</td>
+                <td class="border px-3 py-2">${item.tanggal_keluar}</td>
+                <td class="border px-3 py-2">${item.anggota?.nama ?? '-'}</td>
+                <td class="border px-3 py-2">${item.barang?.nama_barang ?? '-'}</td>
+                <td class="border px-3 py-2 text-center">${item.jumlah}</td>
+                <td class="border px-3 py-2 text-center">${item.barang?.satuan ?? '-'}</td>
+                <td class="border px-3 py-2 text-center space-x-2">
+                    <button onclick="hapusRow(${item.id})" class="text-red-500">Hapus</button>
+                </td>
+            </tr>
+        `;
+
+        document.getElementById('tableBody')
+            .insertAdjacentHTML('beforeend', row);
+
+        // 🔥 refresh stok setelah insert
+        pilihBarang();
+
+        // reset form
+        document.querySelector('input[name="tanggal_keluar"]').value = '';
+        document.getElementById('jumlah').value = '';
+    })
+    .catch(err => console.error("CREATE ERROR:", err));
 }
 
-function hapusRow(btn) {
-    btn.closest('tr').remove();
+
+/* =========================
+   DELETE DATA (BACKEND)
+========================= */
+function hapusRow(id) {
+
+    if (!confirm('Yakin hapus data ini?')) return;
+
+    fetch(`/admin/pengeluaran-barang/${id}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: new URLSearchParams({
+            _method: 'DELETE'
+        })
+    })
+    .then(res => res.json())
+    .then(res => {
+
+        if (res.status === 'success') {
+            document.getElementById(`row-${id}`).remove();
+
+            // update stok realtime
+            pilihBarang();
+        }
+    })
+    .catch(err => console.error("DELETE ERROR:", err));
 }
+document.getElementById('formPengeluaran').addEventListener('submit', function (e) {
+    e.preventDefault();
+    tambahData();
+});
 </script>
 
 @endsection

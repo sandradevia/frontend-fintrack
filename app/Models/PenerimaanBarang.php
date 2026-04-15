@@ -13,22 +13,20 @@ class PenerimaanBarang extends Model
 
     protected $fillable = [
         'barang_id',
+        'tanggal_masuk',
         'jumlah',
         'harga_beli',
-        'supplier',
-        'tanggal_masuk',
-        'total_harga',
     ];
 
-    // RELASI → Barang
+    // RELASI: barang_masuks -> barang
     public function barang()
     {
-        return $this->belongsTo(Barang::class);
+        return $this->belongsTo(Barang::class, 'barang_id');
     }
 
-    // RELASI → Anggota
-    public function anggota()
+    // OPTIONAL: accessor total harga (tidak disimpan di DB)
+    public function getTotalHargaAttribute()
     {
-        return $this->belongsTo(Anggota::class);
+        return $this->jumlah * $this->harga_beli;
     }
 }
