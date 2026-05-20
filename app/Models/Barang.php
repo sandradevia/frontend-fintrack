@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\StokAwal;
+use App\Models\StokBarang;
 use App\Models\PenerimaanBarang;
 use App\Models\PengeluaranBarang;
+use App\Models\Dapur;
 
 class Barang extends Model
 {
@@ -18,30 +20,33 @@ class Barang extends Model
         'dapur_id',
     ];
 
-    // RELASI ke stok_awal
-    public function stokAwal()
-    {
-        return $this->hasOne(StokAwal::class);
-    }
-
-    // RELASI ke dapur (kalau ada model Dapur)
+    // 🔥 RELASI DAPUR
     public function dapur()
     {
-        return $this->belongsTo(Dapur::class);
+        return $this->belongsTo(Dapur::class, 'dapur_id');
     }
 
+    // 🔥 STOK AWAL
+    public function stokAwal()
+    {
+        return $this->hasOne(StokAwal::class, 'barang_id');
+    }
+
+    // 🔥 STOK BERJALAN
     public function stok()
     {
         return $this->hasOne(StokBarang::class, 'barang_id');
     }
 
+    // 🔥 PENERIMAAN
     public function penerimaan()
-{
-    return $this->hasMany(PenerimaanBarang::class, 'barang_id');
-}
+    {
+        return $this->hasMany(PenerimaanBarang::class, 'barang_id');
+    }
 
-public function pengeluaran()
-{
-    return $this->hasMany(PengeluaranBarang::class, 'barang_id');
-}
+    // 🔥 PENGELUARAN
+    public function pengeluaran()
+    {
+        return $this->hasMany(PengeluaranBarang::class, 'barang_id');
+    }
 }

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->year('tahun_anggaran');
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
-            $table->string('tanggal_pelaporan')->nullable();
+            $table->date('tanggal_pelaporan')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
                 });

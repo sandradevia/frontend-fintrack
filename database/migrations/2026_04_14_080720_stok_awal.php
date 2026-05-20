@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('barang_id')->references('id')->on('barang')->cascadeOnDelete();
             $table->foreignId('dapur_id')->references('id')->on('dapur')->cascadeOnDelete();
             $table->integer('jumlah');
+            $table->timestamps();
         });
     }
 

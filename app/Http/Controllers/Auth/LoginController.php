@@ -32,28 +32,58 @@ class LoginController extends Controller
 
             // 👑 SUPER ADMIN
             if ($user->hasRole('super_admin')) {
+
                 return redirect()->route('signin')
                     ->with('step', 'dapur');
             }
 
-            // 👤 ADMIN
+            // 👤 ADMIN BIASA
             session([
-                'dapur_id' => $user->dapur_id
+                'is_superadmin' => false,
+                'dapur_id' => $user->dapur_id,
+                'dapur_nama' => optional($user->dapur)->nama_lembaga
             ]);
 
             return redirect()->route('admin.dashboard');
         }
 
-        return back()->with('error', 'Username atau password salah');
+        return back()->withErrors([
+            'login' => 'Username atau password salah'
+        ]);
     }
 
+    /**
+     * 👑 PILIH DAPUR KHUSUS SUPER ADMIN
+     */
     public function pilihDapur($id)
     {
+        $dapur = Dapur::findOrFail($id);
+
         session([
-            'dapur_id' => $id
+            'is_superadmin' => false,
+            'dapur_id' => $dapur->id,
+            'dapur_nama' => $dapur->nama_lembaga
         ]);
 
         return redirect()->route('admin.dashboard');
+    }
+
+    /**
+     * 👑 MODE DAPUR UTAMA
+     */
+    public function dapurUtama()
+    {
+        if (!Auth::user()->hasRole('super_admin')) {
+            abort(403);
+        }
+
+        session([
+            'is_superadmin' => true,
+            'dapur_id' => null,
+            'dapur_nama' => 'Dapur Utama'
+        ]);
+
+        return redirect()->route('super.dashboard');
     }
 
     public function logout(Request $request)
@@ -65,11 +95,4 @@ class LoginController extends Controller
 
         return redirect()->route('signin');
     }
-
-    // public function showPilihDapur()
-    // {
-    //     return view('pages.auth.pilih-dapur', [
-    //         'dapur' => Dapur::all()
-    //     ]);
-    // }
 }

@@ -12,18 +12,15 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('username')->unique();
-            $table->string('email')->unique()->nullable();
-            $table->foreignId('dapur_id')->nullable()->references('id')->on('dapur')->cascadeOnDelete();
-            $table->string('role')->default('admin');
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->rememberToken();
+            $table->string('role')->default('admin');
+
+
             $table->timestamps();
         });
 
         // ================= PASSWORD RESET =================
         Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });

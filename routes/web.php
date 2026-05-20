@@ -16,24 +16,36 @@ use App\Http\Controllers\SpTanggungjawabController;
 use App\Http\Controllers\BapSisadanaController;
 use App\Http\Controllers\DaftarNominatifController;
 use App\Http\Controllers\CatatanPengeluaranController;
+use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\InputBarangController;
 use App\Http\Controllers\PenerimaanBarangController;
 use App\Http\Controllers\PengeluaranBarangController;
 use App\Http\Controllers\LaporanStockController;
 use App\Http\Controllers\KelolaDapurController;
+use App\Http\Controllers\NotificationController;
 
 // ================= AUTH =================
 Route::get('/', function () {
     return redirect()->route('signin');
 });
 
+Route::get('/notifications', [NotificationController::class, 'index'])
+    ->name('notifications.index');
+
+Route::get('/notifications/read/{id}', [NotificationController::class, 'read'])
+    ->name('notifications.read');
+
 Route::get('/signin', [LoginController::class, 'index'])->name('signin');
 Route::post('/signin', [LoginController::class, 'authenticate'])->name('signin.authenticate');
 
-Route::post('/pilih-dapur/{id}', [LoginController::class, 'pilihDapur']);
+Route::post('/pilih-dapur/utama', [LoginController::class, 'dapurUtama'])
+    ->name('dapur.utama');
+
+Route::post('/pilih-dapur/{id}', [LoginController::class, 'pilihDapur'])
+    ->whereNumber('id')
+    ->name('pilih.dapur');
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
 
 // ================= ADMIN =================
 Route::middleware(['auth', 'role:admin|super_admin'])
@@ -110,12 +122,20 @@ Route::middleware(['auth', 'role:admin|super_admin'])
         // LAPORAN STOCK
         Route::get('/laporan-stock', [LaporanStockController::class, 'index'])->name('laporan-stock.index');
 
+        // LIST ANGGOTA
 
-        // // 🔥 KHUSUS SUPER ADMIN
-        // Route::middleware('role:super_admin')->group(function () {
-        //     Route::get('/kelola-dapur', [KelolaDapurController::class, 'index'])
-        //         ->name('super.kelola-dapur.index');
-        // });
+        Route::prefix('petugas')->group(function () {
+
+            Route::get('/', [AnggotaController::class, 'index'])->name('petugas.index');
+
+            Route::post('/store', [AnggotaController::class, 'store'])->name('petugas.store');
+
+            Route::put('/update/{id}', [AnggotaController::class, 'update'])->name('petugas.update');
+
+            Route::delete('/delete/{id}', [AnggotaController::class, 'destroy'])->name('petugas.destroy');
+
+        });
+
 });
 
 
@@ -125,121 +145,38 @@ Route::middleware(['auth', 'role:super_admin'])
     ->name('super.')
     ->group(function () {
 
+        // DASHBOARD
         Route::get('/dashboard', [DashboardController::class, 'superAdmin'])
             ->name('dashboard');
-});
-    // Route::middleware('auth', 'admin')->group(function () {
 
-    // Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+        // INDEX
+        Route::get('/kelola-dapur', [KelolaDapurController::class, 'index'])
+            ->name('kelola-dapur.index');
 
-    // Route::get('/dashboard/admin', [DashboardController::class, 'admin'])
-    //     ->name('admin.dashboard');
+        // CREATE PAGE
+        Route::get('/kelola-dapur/create', [KelolaDapurController::class, 'create'])
+            ->name('kelola-dapur.create');
 
-    // Route::get('/dashboard/super-admin', [DashboardController::class, 'superAdmin'])
-    //     ->name('super.dashboard');
-        
-// ====== TAMBAHAN ADMIN ======
+        // STORE
+        Route::post('/kelola-dapur', [KelolaDapurController::class, 'store'])
+            ->name('kelola-dapur.store');
 
-    // // Anggaran Admin
-    // Route::get('/admin/anggaran', [AnggaranController::class, 'index'])
-    //     ->name('admin.anggaran');
+        // SHOW (DETAIL)
+        Route::get('/kelola-dapur/{id}', [KelolaDapurController::class, 'show'])
+            ->name('kelola-dapur.show');
 
-    // Route::get('/admin/anggaran/create', [AnggaranController::class, 'create'])
-    //     ->name('admin.anggaran.create');
+        // EDIT PAGE
+        Route::get('/kelola-dapur/{id}/edit', [KelolaDapurController::class, 'edit'])
+            ->name('kelola-dapur.edit');
 
-    // Route::post('/admin/anggaran', [AnggaranController::class, 'store'])
-    //     ->name('admin.anggaran.store');
+        // UPDATE
+        Route::put('/kelola-dapur/{id}', [KelolaDapurController::class, 'update'])
+            ->name('kelola-dapur.update');
 
-
-
-// // // profile pages
-// Route::get('/profile', function () {
-//     return view('pages.profile', ['title' => 'Profile']);
-// })->name('profile');
-
-// Route::get('/saldo-awal-buku', function () {
-//     return view('pages.saldo', ['title' => 'Saldo Awal Buku']);
-// })->name('saldo-awal-buku');
-
-// Route::prefix('anggaran')->group(function () {
-//     Route::get('/bahan', [AnggaranController::class, 'bahan'])->name('anggaran-bahan');
-//     Route::get('/operasional', [AnggaranController::class, 'operasional'])->name('anggaran-operasional');
-//     Route::get('/insentif', [AnggaranController::class, 'insentif'])->name('anggaran-insentif');
-// });
-// // form pages
-// Route::get('/form-elements', function () {
-//     return view('pages.form.form-elements', ['title' => 'Form Elements']);
-// })->name('form-elements');
-
-// // tables pages
-// Route::get('/basic-tables', function () {
-//     return view('pages.tables.basic-tables', ['title' => 'Basic Tables']);
-// })->name('basic-tables');
-
-// // pages
-
-// Route::get('/blank', function () {
-//     return view('pages.blank', ['title' => 'Blank']);
-// })->name('blank');
-
-// // error pages
-// Route::get('/error-404', function () {
-//     return view('pages.errors.error-404', ['title' => 'Error 404']);
-// })->name('error-404');
-
-// // chart pages
-// Route::get('/line-chart', function () {
-//     return view('pages.chart.line-chart', ['title' => 'Line Chart']);
-// })->name('line-chart');
-
-// Route::get('/bar-chart', function () {
-//     return view('pages.chart.bar-chart', ['title' => 'Bar Chart']);
-// })->name('bar-chart');
-
-
-// // authentication pages
-
-
-// Route::get('/signup', function () {
-//     return view('pages.auth.signup', ['title' => 'Sign Up']);
-// })->name('signup');
-
-// // ui elements pages
-// Route::get('/alerts', function () {
-//     return view('pages.ui-elements.alerts', ['title' => 'Alerts']);
-// })->name('alerts');
-
-// Route::get('/avatars', function () {
-//     return view('pages.ui-elements.avatars', ['title' => 'Avatars']);
-// })->name('avatars');
-
-// Route::get('/badge', function () {
-//     return view('pages.ui-elements.badges', ['title' => 'Badges']);
-// })->name('badges');
-
-// Route::get('/buttons', function () {
-//     return view('pages.ui-elements.buttons', ['title' => 'Buttons']);
-// })->name('buttons');
-
-// Route::get('/image', function () {
-//     return view('pages.ui-elements.images', ['title' => 'Images']);
-// })->name('images');
-
-// Route::get('/videos', function () {
-//     return view('pages.ui-elements.videos', ['title' => 'Videos']);
-// })->name('videos');
-
-// Route::middleware(['auth'])->group(function () {
-//     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-// });
-
-// Route::prefix('admin')->middleware(['auth'])->group(function () {
-//     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-// });
-
-
-
-
+        // DELETE
+        Route::delete('/kelola-dapur/{id}', [KelolaDapurController::class, 'destroy'])
+            ->name('kelola-dapur.destroy');
+    });
 
 
 

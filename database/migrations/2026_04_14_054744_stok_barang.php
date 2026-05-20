@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('barang_id')->references('id')->on('barang')->cascadeOnDelete();
             $table->foreignId('dapur_id')->references('id')->on('dapur')->cascadeOnDelete();
             $table->integer('stok')->default(0);
-            $table->timestamp('last_update')->nullable();
+            $table->timestamps();
         });
     }
 

@@ -13,16 +13,23 @@ return new class extends Migration
     {
         Schema::create('dapur', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->cascadeOnDelete();
+
             $table->string('nama_lembaga');
             $table->text('alamat')->nullable();
+
             $table->string('nama_kepala_sppg')->nullable();
             $table->string('nama_akuntan')->nullable();
             $table->string('nama_yayasan')->nullable();
             $table->string('ketua_yayasan')->nullable();
             $table->string('nomor_rekening')->nullable();
             $table->string('tempat_pelaporan')->nullable();
+
             $table->timestamps();
-        });
+                });
     }
 
     /**

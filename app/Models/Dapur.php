@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Dapur extends Model
 {
     protected $table = 'dapur';
+
     protected $fillable = [
         'nama_lembaga',
         'alamat',
@@ -15,21 +16,18 @@ class Dapur extends Model
         'nama_yayasan',
         'ketua_yayasan',
         'nomor_rekening',
-        'tanggal_pelaporan',
-        'tempat_pelaporan',
-        'tahun_anggaran',
-        'periode_saat_ini',
-        'awal_periode_berikutnya'
     ];
 
-    public function periodes()
+    // relasi ke periode
+    public function periode()
     {
         return $this->hasMany(Periode::class);
     }
 
+    // periode aktif (ambil terbaru)
     public function periodeAktif()
     {
-        return $this->hasOne(Periode::class)->where('is_active', true);
+        return $this->hasOne(Periode::class)->latestOfMany();
     }
 
     public function anggaranBahan()
@@ -37,8 +35,18 @@ class Dapur extends Model
         return $this->hasMany(AnggaranBahan::class);
     }
 
-    public function dapur()
+    public function user()
     {
-        return $this->belongsTo(Dapur::class);
+        return $this->belongsTo(User::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function barang()
+    {
+        return $this->hasMany(Barang::class);
     }
 }

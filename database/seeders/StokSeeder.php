@@ -12,15 +12,49 @@ class StokSeeder extends Seeder
      * Run the database seeds.
      */
     public function run(): void
-    {
-        DB::table('stok_awal')->insert([
-            ['barang_id'=>1,'dapur_id'=>1,'jumlah'=>100],
-            ['barang_id'=>2,'dapur_id'=>2,'jumlah'=>50],
-        ]);
+{
+    $dapur1 = DB::table('dapur')->first();
+    $dapur2 = DB::table('dapur')->skip(1)->first();
 
-        DB::table('stok_barang')->insert([
-            ['barang_id'=>1,'dapur_id'=>1,'stok'=>100],
-            ['barang_id'=>2,'dapur_id'=>2,'stok'=>50],
-        ]);
+    $barang1 = DB::table('barang')->first();
+    $barang2 = DB::table('barang')->skip(1)->first();
+
+    if (!$dapur1 || !$barang1) {
+        throw new \Exception("Data dapur atau barang belum ada");
     }
+
+    DB::table('stok_awal')->insert([
+        [
+            'barang_id' => $barang1->id,
+            'dapur_id'  => $dapur1->id,
+            'jumlah'    => 100,
+            'created_at'=> now(),
+            'updated_at'=> now(),
+        ],
+        [
+            'barang_id' => $barang2?->id ?? $barang1->id,
+            'dapur_id'  => $dapur2?->id ?? $dapur1->id,
+            'jumlah'    => 50,
+            'created_at'=> now(),
+            'updated_at'=> now(),
+        ],
+    ]);
+
+    DB::table('stok_barang')->insert([
+        [
+            'barang_id' => $barang1->id,
+            'dapur_id'  => $dapur1->id,
+            'stok'      => 100,
+            'created_at'=> now(),
+            'updated_at'=> now(),
+        ],
+        [
+            'barang_id' => $barang2?->id ?? $barang1->id,
+            'dapur_id'  => $dapur2?->id ?? $dapur1->id,
+            'stok'      => 50,
+            'created_at'=> now(),
+            'updated_at'=> now(),
+        ],
+    ]);
+}
 }

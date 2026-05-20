@@ -77,4 +77,9 @@ class DashboardController extends Controller
         'dataKeluar'
     ));
 }
+public function superAdmin()
+{
+    return view('pages.dashboard.super_admin');
+}
+
 }

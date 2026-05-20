@@ -6,133 +6,123 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'Dashboard' }} | KAPUAZ - Aplikasi Pelaporan Keuangan Gizi</title>
+    <title>{{ $title ?? 'Dashboard' }} | KAPUAZ</title>
 
-    <!-- Styles -->
+    {{-- Livewire --}}
     @livewireStyles
+
+    {{-- Vite --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- SweetAlert --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Theme & Sidebar Store -->
+
+    {{-- Font Awesome --}}
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer" />
+
+    {{-- Prevent Flash Dark Mode --}}
     <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.store('theme', {
-                init() {
-                    const savedTheme = localStorage.getItem('theme');
-                    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                    this.theme = savedTheme || systemTheme;
-                    this.updateTheme();
-                },
-                theme: 'light',
-                toggle() {
-                    this.theme = this.theme === 'light' ? 'dark' : 'light';
-                    localStorage.setItem('theme', this.theme);
-                    this.updateTheme();
-                },
-                updateTheme() {
-                    const html = document.documentElement;
-                    const body = document.body;
+        (function () {
 
-                    if (this.theme === 'dark') {
-                        html.classList.add('dark');
-                        body.classList.add('dark', 'bg-gray-900');
-                    } else {
-                        html.classList.remove('dark');
-                        body.classList.remove('dark', 'bg-gray-900');
-                    }
-                }
-            });
+            const saved = localStorage.getItem('theme');
 
-            Alpine.store('sidebar', {
-                isExpanded: window.innerWidth >= 1280,
-                isMobileOpen: false,
-                isHovered: false,
+            const system =
+                window.matchMedia('(prefers-color-scheme: dark)').matches
+                    ? 'dark'
+                    : 'light';
 
-                toggleExpanded() {
-                    this.isExpanded = !this.isExpanded;
-                    this.isMobileOpen = false;
-                },
-
-                toggleMobileOpen() {
-                    this.isMobileOpen = !this.isMobileOpen;
-                },
-
-                setMobileOpen(val) {
-                    this.isMobileOpen = val;
-                },
-
-                setHovered(val) {
-                    if (window.innerWidth >= 1280 && !this.isExpanded) {
-                        this.isHovered = val;
-                    }
-                }
-            });
-        });
-    </script>
-
-    <!-- Prevent Dark Mode Flash -->
-    <script>
-        (function() {
-            const savedTheme = localStorage.getItem('theme');
-            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            const theme = savedTheme || systemTheme;
+            const theme = saved || system;
 
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
-                document.body.classList.add('dark', 'bg-gray-900');
+            } else {
+                document.documentElement.classList.remove('dark');
             }
+
         })();
     </script>
 
 </head>
 
 <body
-    x-data="{ loaded: true }"
-    x-init="
-        $store.sidebar.isExpanded = window.innerWidth >= 1280;
-
-        const checkMobile = () => {
-            if (window.innerWidth < 1280) {
-                $store.sidebar.setMobileOpen(false);
-                $store.sidebar.isExpanded = false;
-            } else {
-                $store.sidebar.isMobileOpen = false;
-                $store.sidebar.isExpanded = true;
-            }
-        };
-
-        window.addEventListener('resize', checkMobile);
-    "
+    x-data="layout()"
+    x-init="init()"
+    class="h-full antialiased bg-gray-50 dark:bg-gray-900"
 >
 
-    {{-- Preloader --}}
-    <x-common.preloader/>
+<script>
+    function layout() {
 
-    <div class="min-h-screen xl:flex">
-        @include('layouts.backdrop')
-        @include('layouts.sidebar')
+        return {
 
-        <div class="flex-1 transition-all duration-300 ease-in-out"
-            :class="{
-                'xl:ml-[290px]': $store.sidebar.isExpanded || $store.sidebar.isHovered,
-                'xl:ml-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
-                'ml-0': $store.sidebar.isMobileOpen
-            }"
-        >
-            {{-- Header --}}
-            @include('layouts.app-header')
+            init() {
 
-            <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
-                @yield('content')
-            </div>
+                // init theme
+                this.$store.theme.init();
 
-        </div>
+                // init sidebar
+                this.$store.sidebar.init();
+
+                // default sidebar desktop
+                this.$store.sidebar.isExpanded =
+                    window.innerWidth >= 1280;
+            }
+        }
+    }
+</script>
+
+{{-- PRELOADER --}}
+<x-common.preloader />
+
+<div class="flex min-h-screen overflow-hidden">
+
+    {{-- SIDEBAR --}}
+    @include('layouts.sidebar')
+
+    {{-- MAIN CONTENT --}}
+    <div
+        class="flex-1 min-w-0 transition-all duration-300"
+        :class="{
+
+            'xl:ml-[256px]':
+                $store.sidebar.isExpanded ||
+                $store.sidebar.isHovered,
+
+            'xl:ml-[72px]':
+                !$store.sidebar.isExpanded &&
+                !$store.sidebar.isHovered
+        }"
+    >
+
+        {{-- HEADER --}}
+        @include('layouts.app-header')
+
+        {{-- PAGE CONTENT --}}
+        <main class="p-4 md:p-6 max-w-[1600px] mx-auto">
+            @yield('content')
+        </main>
+
     </div>
 
-    <!-- Scripts -->
-    @livewireScripts
+</div>
 
-</body>
+{{-- MOBILE OVERLAY --}}
+<div
+    x-show="$store.sidebar.isMobileOpen"
+    @click="$store.sidebar.closeMobile()"
+    x-transition.opacity
+    class="fixed inset-0 z-40 bg-black/40 xl:hidden"
+>
+</div>
 
+{{-- Livewire --}}
+@livewireScripts
+
+{{-- Stack Scripts --}}
 @stack('scripts')
 
+</body>
 </html>

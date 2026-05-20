@@ -1,51 +1,64 @@
-import './bootstrap';
-// import Alpine from 'alpinejs';
-import ApexCharts from 'apexcharts';
+document.addEventListener('alpine:init', () => {
 
-// flatpickr
-import flatpickr from 'flatpickr';
-import 'flatpickr/dist/flatpickr.min.css';
-// FullCalendar
-import { Calendar } from '@fullcalendar/core';
+    Alpine.store('sidebar', {
 
+        isExpanded: window.innerWidth >= 1280,
+        isMobileOpen: false,
+        isHovered: false,
 
+        init() {
 
-// window.Alpine = Alpine;
-window.ApexCharts = ApexCharts;
-window.flatpickr = flatpickr;
-window.FullCalendar = Calendar;
+            window.addEventListener('resize', () => {
 
-// Alpine.start();
+                if (window.innerWidth < 1280) {
 
-// Initialize components on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-    // Map imports
-    if (document.querySelector('#mapOne')) {
-        import('./components/map').then(module => module.initMap());
-    }
+                    this.isExpanded = false;
+                    this.isHovered = false;
 
-    // Chart imports
-    if (document.querySelector('#chartOne')) {
-        import('./components/chart/chart-1').then(module => module.initChartOne());
-    }
-    if (document.querySelector('#chartTwo')) {
-        import('./components/chart/chart-2').then(module => module.initChartTwo());
-    }
-    if (document.querySelector('#chartThree')) {
-        import('./components/chart/chart-3').then(module => module.initChartThree());
-    }
-    if (document.querySelector('#chartSix')) {
-        import('./components/chart/chart-6').then(module => module.initChartSix());
-    }
-    if (document.querySelector('#chartEight')) {
-        import('./components/chart/chart-8').then(module => module.initChartEight());
-    }
-    if (document.querySelector('#chartThirteen')) {
-        import('./components/chart/chart-13').then(module => module.initChartThirteen());
-    }
+                } else {
 
-    // Calendar init
-    if (document.querySelector('#calendar')) {
-        import('./components/calendar-init').then(module => module.calendarInit());
-    }
+                    this.isMobileOpen = false;
+                }
+            });
+        },
+
+        toggleExpanded() {
+
+            if (window.innerWidth >= 1280) {
+
+                this.isExpanded = !this.isExpanded;
+            }
+        },
+
+        toggleMobileOpen() {
+
+            if (window.innerWidth < 1280) {
+
+                this.isMobileOpen = !this.isMobileOpen;
+            }
+        },
+
+        setMobileOpen(value) {
+
+            this.isMobileOpen = value;
+        },
+
+        closeMobile() {
+
+            this.isMobileOpen = false;
+        },
+
+        setHovered(value) {
+
+            if (!this.isExpanded && window.innerWidth >= 1280) {
+
+                this.isHovered = value;
+
+            } else {
+
+                this.isHovered = false;
+            }
+        }
+    });
+
 });

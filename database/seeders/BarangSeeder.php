@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use App\Models\Dapur;
 
 class BarangSeeder extends Seeder
 {
@@ -13,9 +14,15 @@ class BarangSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('barang')->insert([
-            ['id'=>1,'nama_barang'=>'Beras','supplier'=>'A','satuan'=>'kg','dapur_id'=>1],
-            ['id'=>2,'nama_barang'=>'Minyak','supplier'=>'B','satuan'=>'liter','dapur_id'=>2],
-        ]);
+        $dapur = Dapur::first();
+
+DB::table('barang')->insert([
+    [
+        'nama_barang' => 'Beras',
+        'satuan' => 'kg',
+        'supplier' => 'Makmur',
+        'dapur_id' => $dapur->id,
+    ]
+]);
     }
 }

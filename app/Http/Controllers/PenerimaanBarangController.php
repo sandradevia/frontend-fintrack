@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
 use App\Models\PenerimaanBarang;
 use App\Models\Barang;
 use App\Models\StokBarang;
+use App\Models\Notification;
+use App\Events\NotificationCreated;
 
 class PenerimaanBarangController extends Controller
 {
@@ -15,137 +19,185 @@ class PenerimaanBarangController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user) {
-            abort(403, 'User tidak ditemukan');
+        if (!$user || !$user->dapur) {
+            abort(403, 'User belum memiliki dapur');
         }
 
-        // 🔥 FILTER PER DAPUR LOGIN
+        $dapur = $user->dapur;
+
+        // data penerimaan untuk dropdown & tabel
         $items = PenerimaanBarang::with('barang')
-            ->whereHas('barang', function ($q) use ($user) {
-                $q->where('dapur_id', $user->dapur_id);
-            })
+            ->whereHas('barang', fn($q) => $q->where('dapur_id', $dapur->id))
             ->latest()
             ->get();
 
-        // hanya barang sesuai dapur login
-        $barangs = Barang::where('dapur_id', $user->dapur_id)->get();
+        $barang = Barang::where('dapur_id', $dapur->id)
+            ->orderBy('nama_barang')
+            ->get();
 
         return view('admin.penerimaan-barang.index', [
-            'title' => 'Penerimaan Barang',
-            'user' => $user,
-            'items' => $items,
-            'barangs' => $barangs,
+            'title'  => 'Penerimaan Barang',
+            'user'   => $user,
+            'items'  => $items,
+            'barang' => $barang,
         ]);
     }
 
     public function store(Request $request)
 {
+    $user = Auth::user();
+
+    if (!$user || !$user->dapur) {
+        abort(403, 'User belum memiliki dapur');
+    }
+
+    $dapur = $user->dapur;
+
     $request->validate([
-        'nama_barang' => 'required|string',
-        'satuan' => 'required|string',
-        'jumlah' => 'required|numeric|min:1',
-        'harga_beli' => 'required|numeric|min:0',
+        'nama_barang'   => 'required|string',
+        'satuan'        => 'required|string',
+        'jumlah'        => 'required|numeric|min:1',
+        'harga_beli'    => 'required|numeric|min:0',
         'tanggal_masuk' => 'required|date',
+        'supplier'      => 'nullable|string',
     ]);
 
     DB::beginTransaction();
 
     try {
-
-        $user = Auth::user();
-
-        // 1. barang
+        // =====================
+        // 1️⃣ Simpan / ambil barang
+        // =====================
         $barang = Barang::firstOrCreate(
             [
                 'nama_barang' => $request->nama_barang,
-                'dapur_id' => $user->dapur_id
+                'dapur_id'    => $dapur->id,
             ],
             [
-                'satuan' => $request->satuan,
-                'supplier' => $request->supplier ?? '-'
+                'satuan'   => $request->satuan,
+                'supplier' => $request->supplier ?? '-',
             ]
         );
 
-        // 2. penerimaan
+        // =====================
+        // 2️⃣ Simpan penerimaan
+        // =====================
         $penerimaan = PenerimaanBarang::create([
-            'barang_id' => $barang->id,
+            'barang_id'     => $barang->id,
             'tanggal_masuk' => $request->tanggal_masuk,
-            'jumlah' => $request->jumlah,
-            'harga_beli' => $request->harga_beli,
+            'jumlah'        => $request->jumlah,
+            'harga_beli'    => $request->harga_beli,
         ]);
 
-        // 3. stok
+        // =====================
+        // 3️⃣ Update stok barang
+        // =====================
         $stok = StokBarang::firstOrCreate(
             [
                 'barang_id' => $barang->id,
-                'dapur_id' => $user->dapur_id,
+                'dapur_id'  => $dapur->id,
             ],
-            [
-                'stok' => 0
-            ]
+            ['stok' => 0]
         );
 
-        $stok->stok += $request->jumlah;
-        $stok->last_update = now();
-        $stok->save();
+        $stok->increment('stok', $request->jumlah);
+
+        // =====================
+        // 4️⃣ Hitung total 12 hari
+        // =====================
+        $total12Hari = PenerimaanBarang::whereHas('barang', function ($q) use ($dapur) {
+        $q->where('dapur_id', $dapur->id);
+    })
+    ->where('tanggal_masuk', '>=', now()->subDays(12))
+    ->sum(DB::raw('jumlah * harga_beli'));
+
+// Threshold misal Rp 1 juta
+$threshold = 1000000;
+
+if ($total12Hari >= $threshold) {
+    // Buat notifikasi baru setiap kali store dijalankan
+    Notification::create([
+        'dapur_id' => $dapur->id,
+        'title'    => 'Limit Pengeluaran',
+        'message'  => 'Pengeluaran dapur melebihi Rp '.number_format($threshold,0,',','.').' dalam 12 hari',
+        'type'     => 'warning',
+        'is_read'  => false,
+    ]);
+
+    Log::info("🔔 Notifikasi dibuat. Total 12 hari: ".$total12Hari);
+
+        }
 
         DB::commit();
 
         return response()->json([
             'status' => 'success',
-            'item' => $penerimaan->load('barang') // 🔥 FIX PENTING
+            'item'   => $penerimaan->load('barang'),
         ]);
 
     } catch (\Exception $e) {
-
         DB::rollBack();
 
+        Log::error("ERROR store PenerimaanBarang: ".$e->getMessage());
+
         return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage()
+            'status'  => 'error',
+            'message' => $e->getMessage(),
         ], 500);
     }
 }
 
     public function edit($id)
     {
-        $item = PenerimaanBarang::with('barang')->findOrFail($id);
+        $user = Auth::user();
+        $dapur = $user->dapur;
+
+        $item = PenerimaanBarang::whereHas('barang', fn($q) => $q->where('dapur_id', $dapur->id))
+            ->with('barang')
+            ->findOrFail($id);
 
         return response()->json([
             'status' => 'success',
-            'item' => $item
+            'item'   => $item,
         ]);
     }
 
     public function update(Request $request, $id)
     {
+        $user = Auth::user();
+        $dapur = $user->dapur;
+
         $request->validate([
-            'jumlah' => 'required|numeric|min:1',
-            'harga_beli' => 'required|numeric|min:0',
+            'jumlah'        => 'required|numeric|min:1',
+            'harga_beli'    => 'required|numeric|min:0',
             'tanggal_masuk' => 'required|date',
         ]);
 
-        $item = PenerimaanBarang::findOrFail($id);
+        $item = PenerimaanBarang::whereHas('barang', fn($q) => $q->where('dapur_id', $dapur->id))
+            ->findOrFail($id);
 
-        $item->update([
-            'tanggal_masuk' => $request->tanggal_masuk,
-            'jumlah' => $request->jumlah,
-            'harga_beli' => $request->harga_beli,
-        ]);
+        $item->update($request->only([
+            'jumlah', 'harga_beli', 'tanggal_masuk'
+        ]));
 
         return response()->json([
             'status' => 'success',
-            'item' => $item->load('barang')
+            'item'   => $item->load('barang'),
         ]);
     }
 
     public function destroy($id)
     {
-        $item = PenerimaanBarang::findOrFail($id);
+        $user = Auth::user();
+        $dapur = $user->dapur;
+
+        $item = PenerimaanBarang::whereHas('barang', fn($q) => $q->where('dapur_id', $dapur->id))
+            ->findOrFail($id);
+
         $item->delete();
 
         return response()->json([
-            'status' => 'success'
+            'status' => 'success',
         ]);
     }
 }

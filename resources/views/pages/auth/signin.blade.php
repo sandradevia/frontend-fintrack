@@ -418,15 +418,33 @@ body {
                             autocomplete="username">
                     </div>
 
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
                     <div class="field-group">
                         <label class="field-label">Password</label>
-                        <input
-                            type="password"
-                            name="password"
-                            class="field-input"
-                            placeholder="••••••••"
-                            required
-                            autocomplete="current-password">
+
+                        <div style="position: relative;">
+                            <input
+                                type="password"
+                                name="password"
+                                id="password"
+                                class="field-input"
+                                placeholder="••••••••"
+                                required
+                                autocomplete="current-password"
+                                style="padding-right: 45px;">
+
+                            <i class="fa-solid fa-eye"
+                            id="togglePassword"
+                            style="
+                                    position: absolute;
+                                    right: 15px;
+                                    top: 50%;
+                                    transform: translateY(-50%);
+                                    cursor: pointer;
+                            ">
+                            </i>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn-login">
@@ -439,6 +457,7 @@ body {
                     KAPUAZ &copy; {{ date('Y') }} &mdash; Sistem Keuangan Gizi
                 </p>
             </div>
+
 
             {{-- ── STEP 2 : PILIH DAPUR ── --}}
             <div id="step-dapur" class="step-panel {{ session('step') == 'dapur' ? 'active' : '' }}">
@@ -455,28 +474,80 @@ body {
                     $iconColors = ['d-blue', 'd-green', 'd-amber', 'd-orange'];
                 @endphp
 
-                @foreach($dapur as $i => $d)
-                <form class="dapur-form" method="POST" action="{{ url('/pilih-dapur/'.$d->id) }}">
+                {{-- ============================= --}}
+                {{-- KHUSUS SUPER ADMIN --}}
+                {{-- ============================= --}}
+                @if(auth()->check() && auth()->user()->hasRole('super_admin'))
+
+                <form method="POST" action="{{ route('dapur.utama') }}">
                     @csrf
+
+                    <button type="submit" class="dapur-card super-admin-card">
+
+                        <div class="dapur-icon d-purple">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+
+                        <div>
+                            <div class="dapur-name">
+                                Dapur Utama
+                            </div>
+
+                            <div class="dapur-loc">
+                                Dashboard khusus Super Admin
+                            </div>
+                        </div>
+
+                        <div class="dapur-arrow">→</div>
+
+                    </button>
+                </form>
+
+                @endif
+
+                {{-- ============================= --}}
+                {{-- LIST DAPUR --}}
+                {{-- ============================= --}}
+                @foreach($dapur as $i => $d)
+
+                <form class="dapur-form"
+                    method="POST"
+                    action="{{ url('/pilih-dapur/'.$d->id) }}">
+
+                    @csrf
+
                     <button type="submit" class="dapur-card">
+
                         <div class="dapur-icon {{ $iconColors[$i % 4] }}">
                             {{ strtoupper(substr($d->nama_lembaga, 0, 1)) }}
                         </div>
+
                         <div>
-                            <div class="dapur-name">{{ $d->nama_lembaga }}</div>
-                            <div class="dapur-loc">{{ $d->alamat }}</div>
+                            <div class="dapur-name">
+                                {{ $d->nama_lembaga }}
+                            </div>
+
+                            <div class="dapur-loc">
+                                {{ $d->alamat }}
+                            </div>
                         </div>
+
                         <div class="dapur-arrow">→</div>
+
                     </button>
                 </form>
+
                 @endforeach
 
                 <div class="divider"></div>
 
                 <form method="POST" action="/logout" style="display:inline;">
                     @csrf
-                    <button type="submit" class="back-link">← Kembali / Ganti Akun</button>
+                    <button type="submit" class="back-link">
+                        ← Kembali / Ganti Akun
+                    </button>
                 </form>
+
             </div>
 
         </div>
@@ -527,6 +598,20 @@ body {
         container.appendChild(p);
     }
 })();
+
+const togglePassword = document.getElementById('togglePassword');
+const password = document.getElementById('password');
+
+togglePassword.addEventListener('click', function () {
+    const type = password.getAttribute('type') === 'password'
+        ? 'text'
+        : 'password';
+
+    password.setAttribute('type', type);
+
+    this.classList.toggle('fa-eye');
+    this.classList.toggle('fa-eye-slash');
+});
 </script>
 
 @endsection

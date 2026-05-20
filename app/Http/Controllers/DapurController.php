@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use App\Models\Dapur;
+use App\Models\Periode;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class DapurController extends Controller
 {
-    // Method yang sudah ada
     public function pilih($id)
     {
         session([
@@ -22,36 +21,157 @@ class DapurController extends Controller
         ]);
     }
 
-    // Method baru untuk menampilkan profil dapur
     public function index()
     {
-        $dapur = Dapur::with('periodeAktif')->findOrFail(session('dapur_id'));
+        $dapur = Dapur::with(['periodeAktif', 'user'])->findOrFail(session('dapur_id'));
         return view('admin.profile.profile', compact('dapur'));
     }
 
-    // Method baru untuk update data dapur
-    public function update(Request $request, $id)
+    // =============================
+    // STORE
+    // =============================
+    public function store(Request $request)
     {
-        $dapur = Dapur::findOrFail($id);
-
         $validated = $request->validate([
-            'nama_lemabaga' => 'required|string|max:255',
+            // dapur
+            'nama_lembaga' => 'required|string|max:255',
             'alamat' => 'nullable|string|max:500',
             'nama_kepala_sppg' => 'nullable|string|max:255',
             'nama_akuntan' => 'nullable|string|max:255',
             'nama_yayasan' => 'nullable|string|max:255',
             'ketua_yayasan' => 'nullable|string|max:255',
             'nomor_rekening' => 'nullable|string|max:50',
+
+            // periode
             'tanggal_pelaporan' => 'nullable|date',
             'tempat_pelaporan' => 'nullable|string|max:255',
+            'tahun_anggaran' => 'nullable|string|max:20',
+            'periode_saat_ini' => 'nullable|string|max:50',
+            'awal_periode_berikutnya' => 'nullable|date',
+
+            // user
+            'username' => 'required|string|max:50|unique:users,username',
+            'password' => 'required|string|min:6',
         ]);
 
-        $dapur->update($validated);
+        // =====================
+        // SIMPAN DAPUR
+        // =====================
+        $dapur = Dapur::create([
+            'nama_lembaga' => $validated['nama_lembaga'],
+            'alamat' => $validated['alamat'] ?? null,
+            'nama_kepala_sppg' => $validated['nama_kepala_sppg'] ?? null,
+            'nama_akuntan' => $validated['nama_akuntan'] ?? null,
+            'nama_yayasan' => $validated['nama_yayasan'] ?? null,
+            'ketua_yayasan' => $validated['ketua_yayasan'] ?? null,
+            'nomor_rekening' => $validated['nomor_rekening'] ?? null,
+        ]);
+
+        // =====================
+        // SIMPAN PERIODE
+        // =====================
+        $dapur->periode()->create([
+            'tanggal_pelaporan' => $validated['tanggal_pelaporan'] ?? null,
+            'tempat_pelaporan' => $validated['tempat_pelaporan'] ?? null,
+            'tahun_anggaran' => $validated['tahun_anggaran'] ?? null,
+            'periode_saat_ini' => $validated['periode_saat_ini'] ?? null,
+            'awal_periode_berikutnya' => $validated['awal_periode_berikutnya'] ?? null,
+        ]);
+
+        // =====================
+        // SIMPAN USER LOGIN
+        // =====================
+        User::create([
+            'name' => $validated['nama_lembaga'],
+            'username' => $validated['username'],
+            'password' => Hash::make($validated['password']),
+            'dapur_id' => $dapur->id,
+        ]);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Data dapur berhasil diperbarui',
-            'data' => $dapur,
+            'message' => 'Dapur + User berhasil ditambahkan',
+        ]);
+    }
+
+    // =============================
+    // UPDATE
+    // =============================
+    public function update(Request $request, $id)
+    {
+        $dapur = Dapur::with(['periodeAktif', 'user'])->findOrFail($id);
+
+        $validated = $request->validate([
+            // dapur
+            'nama_lembaga' => 'required|string|max:255',
+            'alamat' => 'nullable|string|max:500',
+            'nama_kepala_sppg' => 'nullable|string|max:255',
+            'nama_akuntan' => 'nullable|string|max:255',
+            'nama_yayasan' => 'nullable|string|max:255',
+            'ketua_yayasan' => 'nullable|string|max:255',
+            'nomor_rekening' => 'nullable|string|max:50',
+
+            // periode
+            'tanggal_pelaporan' => 'nullable|date',
+            'tempat_pelaporan' => 'nullable|string|max:255',
+            'tahun_anggaran' => 'nullable|string|max:20',
+            'periode_saat_ini' => 'nullable|string|max:50',
+            'awal_periode_berikutnya' => 'nullable|date',
+
+            // user
+            'username' => 'nullable|string|max:50|unique:users,username,' . ($dapur->user->id ?? 'NULL'),
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        // =====================
+        // UPDATE DAPUR
+        // =====================
+        $dapur->update([
+            'nama_lembaga' => $validated['nama_lembaga'],
+            'alamat' => $validated['alamat'] ?? null,
+            'nama_kepala_sppg' => $validated['nama_kepala_sppg'] ?? null,
+            'nama_akuntan' => $validated['nama_akuntan'] ?? null,
+            'nama_yayasan' => $validated['nama_yayasan'] ?? null,
+            'ketua_yayasan' => $validated['ketua_yayasan'] ?? null,
+            'nomor_rekening' => $validated['nomor_rekening'] ?? null,
+        ]);
+
+        // =====================
+        // UPDATE / CREATE PERIODE
+        // =====================
+        if ($dapur->periodeAktif) {
+            $dapur->periodeAktif->update([
+                'tanggal_pelaporan' => $validated['tanggal_pelaporan'] ?? null,
+                'tempat_pelaporan' => $validated['tempat_pelaporan'] ?? null,
+                'tahun_anggaran' => $validated['tahun_anggaran'] ?? null,
+                'periode_saat_ini' => $validated['periode_saat_ini'] ?? null,
+                'awal_periode_berikutnya' => $validated['awal_periode_berikutnya'] ?? null,
+            ]);
+        } else {
+            $dapur->periode()->create([
+                'tanggal_pelaporan' => $validated['tanggal_pelaporan'] ?? null,
+                'tempat_pelaporan' => $validated['tempat_pelaporan'] ?? null,
+                'tahun_anggaran' => $validated['tahun_anggaran'] ?? null,
+                'periode_saat_ini' => $validated['periode_saat_ini'] ?? null,
+                'awal_periode_berikutnya' => $validated['awal_periode_berikutnya'] ?? null,
+            ]);
+        }
+
+        // =====================
+        // UPDATE USER
+        // =====================
+        if ($dapur->user) {
+            $dapur->user->update([
+                'username' => $validated['username'] ?? $dapur->user->username,
+                'password' => !empty($validated['password'])
+                    ? Hash::make($validated['password'])
+                    : $dapur->user->password,
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data berhasil diperbarui',
         ]);
     }
 }

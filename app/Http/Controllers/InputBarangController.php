@@ -13,15 +13,21 @@ class InputBarangController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user) {
-            abort(403, 'User tidak ditemukan');
+        // ambil dapur dari relasi user -> dapur
+        $dapur = $user->dapur;
+
+        if (!$user || !$dapur) {
+            abort(403, 'User belum terhubung ke dapur');
         }
 
-        $barang = Barang::with('stokAwal')->where('dapur_id', $user->dapur_id)->get();
+        $barang = Barang::with('stokAwal')
+            ->where('dapur_id', $dapur->id)
+            ->latest()
+            ->get();
 
         return view('admin.input-barang.index', [
-            'title' => 'Input Barang',
-            'user' => $user,
+            'title'  => 'Input Barang',
+            'user'   => $user,
             'barang' => $barang,
         ]);
     }
@@ -29,6 +35,14 @@ class InputBarangController extends Controller
     // ================= STORE =================
     public function store(Request $request)
     {
+        $user = Auth::user();
+
+        $dapur = $user->dapur;
+
+        if (!$user || !$dapur) {
+            abort(403, 'User tidak memiliki dapur');
+        }
+
         $validated = $request->validate([
             'nama_barang' => 'required|string|max:255',
             'satuan'      => 'required|string|max:20',
@@ -36,36 +50,43 @@ class InputBarangController extends Controller
             'stok'        => 'required|numeric|min:0',
         ]);
 
-        $dapurId = Auth::user()->dapur_id;
-
         // 1. SIMPAN BARANG
         $barang = Barang::create([
             'nama_barang' => $validated['nama_barang'],
             'satuan'      => $validated['satuan'],
-            'supplier'    => $request->supplier,
-            'dapur_id'    => $dapurId,
+            'supplier'    => $validated['supplier'],
+            'dapur_id'    => $dapur->id,
         ]);
 
         // 2. SIMPAN STOK AWAL
         StokAwal::create([
             'barang_id' => $barang->id,
-            'dapur_id'  => $dapurId,
+            'dapur_id'  => $dapur->id,
             'jumlah'    => $validated['stok'],
         ]);
 
-        return redirect()->back()->with('success', 'Barang berhasil ditambahkan');
+        return redirect()
+            ->back()
+            ->with('success', 'Barang berhasil ditambahkan');
     }
 
     // ================= DELETE =================
     public function destroy($id)
     {
-        $barang = Barang::findOrFail($id);
-
         $user = Auth::user();
 
-        if ((int)$barang->dapur_id !== (int)$user->dapur_id) {
-            abort(403, 'Tidak bisa menghapus barang ini');
+        $dapur = $user->dapur;
+
+        if (!$dapur) {
+            abort(403, 'Dapur tidak ditemukan');
         }
+
+        $barang = Barang::where('id', $id)
+            ->where('dapur_id', $dapur->id)
+            ->firstOrFail();
+
+        // hapus stok awal dulu
+        StokAwal::where('barang_id', $barang->id)->delete();
 
         $barang->delete();
 
@@ -73,37 +94,56 @@ class InputBarangController extends Controller
     }
 
     // ================= UPDATE =================
-        public function update(Request $request, $id)
-{
-    try {
-        $barang = Barang::findOrFail($id);
+    public function update(Request $request, $id)
+    {
+        try {
 
-        $request->validate([
-            'nama_barang' => 'required',
-            'satuan' => 'required',
-            'stok' => 'required|numeric',
-        ]);
+            $user = Auth::user();
 
-        $barang->update([
-            'nama_barang' => $request->nama_barang,
-            'satuan' => $request->satuan,
-        ]);
+            $dapur = $user->dapur;
 
-        StokAwal::updateOrCreate(
-            ['barang_id' => $barang->id],
-            ['jumlah' => $request->stok]
-        );
+            if (!$dapur) {
+                abort(403, 'Dapur tidak ditemukan');
+            }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Berhasil update'
-        ]);
+            $barang = Barang::where('id', $id)
+                ->where('dapur_id', $dapur->id)
+                ->firstOrFail();
 
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage()
-        ], 500);
+            $request->validate([
+                'nama_barang' => 'required|string|max:255',
+                'satuan'      => 'required|string|max:20',
+                'stok'        => 'required|numeric|min:0',
+            ]);
+
+            // update barang
+            $barang->update([
+                'nama_barang' => $request->nama_barang,
+                'satuan'      => $request->satuan,
+            ]);
+
+            // update stok awal
+            StokAwal::updateOrCreate(
+                [
+                    'barang_id' => $barang->id,
+                    'dapur_id'  => $dapur->id,
+                ],
+                [
+                    'jumlah' => $request->stok,
+                ]
+            );
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Berhasil update',
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
-}
 }

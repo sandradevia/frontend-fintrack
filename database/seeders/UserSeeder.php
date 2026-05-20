@@ -11,28 +11,48 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // 🔥 Pastikan role ada
-        $superAdminRole = Role::firstOrCreate(['name' => 'super_admin']);
-        $adminRole = Role::firstOrCreate(['name' => 'admin']);
-
-        // Super Admin
-        $superAdmin = User::create([
-            'username' => 'superadmin',
-            'email' => 'superadmin@gmail.com',
-            'password' => Hash::make('password'),
-            'dapur_id' => null, // Super Admin tidak terkait dengan dapur tertentu
+        // ROLE
+        $superRole = Role::firstOrCreate([
+            'name' => 'super_admin',
+            'guard_name' => 'web'
         ]);
 
-        $superAdmin->assignRole($superAdminRole);
-
-        // Admin
-        $admin = User::create([
-            'username' => 'admin',
-            'email' => 'admin@gmail.com',
-            'password' => Hash::make('password'),
-            'dapur_id' => 1,
+        $adminRole = Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web'
         ]);
 
-        $admin->assignRole($adminRole);
+        // SUPER ADMIN
+        $super = User::updateOrCreate(
+            ['username' => 'superadmin'],
+            [
+                'password' => Hash::make('password'),
+                'role' => 'super_admin',
+            ]
+        );
+
+        $super->syncRoles([$superRole]);
+
+        // ADMIN 1
+        $admin1 = User::updateOrCreate(
+            ['username' => 'admin1'],
+            [
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+            ]
+        );
+
+        $admin1->syncRoles([$adminRole]);
+
+        // ADMIN 2
+        $admin2 = User::updateOrCreate(
+            ['username' => 'admin2'],
+            [
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+            ]
+        );
+
+        $admin2->syncRoles([$adminRole]);
     }
 }

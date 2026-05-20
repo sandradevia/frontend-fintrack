@@ -13,17 +13,22 @@ class Periode extends Model
 
     protected $fillable = [
         'dapur_id',
-        'nama_periode',
+        'tahun_anggaran',
         'tanggal_mulai',
         'tanggal_selesai',
         'tanggal_pelaporan',
-        'tempat_pelaporan',
         'is_active',
+    ];
+
+    protected $casts = [
+        'tanggal_mulai' => 'date',
+        'tanggal_selesai' => 'date',
+        'tanggal_pelaporan' => 'string',
+        'is_active' => 'boolean',
     ];
 
     // Relasi ke Dapur
     public function dapur()
     {
-        return $this->belongsTo(Dapur::class);
-    }
+return $this->belongsTo(Dapur::class);    }
 }

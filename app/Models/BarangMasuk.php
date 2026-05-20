@@ -6,9 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class BarangMasuk extends Model
 {
+    protected $table = 'barang_masuks'; // 🔥 ini WAJIB supaya tidak pakai plural default Laravel
+
     protected $fillable = [
-        'nama_barang',
+        'barang_id',
+        'tanggal_masuk',
         'jumlah',
-        'tanggal',
+        'harga_beli',
     ];
+
+    public function barang()
+    {
+        return $this->belongsTo(Barang::class);
+    }
 }
