@@ -51,26 +51,6 @@
             init() {
 
                 this.$store.theme.init();
-
-                // sidebar desktop/mobile
-                this.$store.sidebar.isExpanded =
-                    window.innerWidth >= 1280;
-
-                const checkMobile = () => {
-
-                    if (window.innerWidth < 1280) {
-
-                        this.$store.sidebar.isExpanded = false;
-                        this.$store.sidebar.isMobileOpen = false;
-
-                    } else {
-
-                        this.$store.sidebar.isExpanded = true;
-                        this.$store.sidebar.isMobileOpen = false;
-                    }
-                };
-
-                window.addEventListener('resize', checkMobile);
             }
         }
     }
@@ -79,46 +59,13 @@
 {{-- PRELOADER --}}
 <x-common.preloader />
 
-<div class="flex min-h-screen overflow-hidden">
+{{-- FULLSCREEN CONTENT --}}
+<div class="min-h-screen">
 
-    {{-- SIDEBAR --}}
-    @include('layouts.sidebar')
+    <main class="w-full">
+        @yield('content')
+    </main>
 
-    {{-- MAIN CONTENT --}}
-    <div
-        class="flex-1 min-w-0 transition-all duration-300"
-        :class="{
-            'xl:ml-[260px]':
-                $store.sidebar.isExpanded ||
-                $store.sidebar.isHovered,
-
-            'xl:ml-[78px]':
-                !$store.sidebar.isExpanded &&
-                !$store.sidebar.isHovered,
-
-            'ml-0': window.innerWidth < 1280
-        }"
-    >
-
-        {{-- HEADER --}}
-        @include('layouts.app-header')
-
-        {{-- PAGE CONTENT --}}
-        <main class="p-4 md:p-6 max-w-[1600px] mx-auto">
-            @yield('content')
-        </main>
-
-    </div>
-
-</div>
-
-{{-- MOBILE OVERLAY --}}
-<div
-    x-show="$store.sidebar.isMobileOpen"
-    @click="$store.sidebar.toggleMobileOpen()"
-    x-transition.opacity
-    class="fixed inset-0 bg-black/40 z-40 xl:hidden"
->
 </div>
 
 {{-- Livewire --}}

@@ -15,7 +15,7 @@
         type="button">
 
         <span class="block mr-1 font-medium text-theme-sm">
-            {{ Auth::user()->username }}
+            {{ Auth::user()?->username }}
         </span>
 
         <!-- Chevron Icon -->

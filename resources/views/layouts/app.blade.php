@@ -80,7 +80,9 @@
 <div class="flex min-h-screen overflow-hidden">
 
     {{-- SIDEBAR --}}
-    @include('layouts.sidebar')
+    @if (!request()->routeIs('signin'))
+        @include('layouts.sidebar')
+    @endif
 
     {{-- MAIN CONTENT --}}
     <div
@@ -98,7 +100,9 @@
     >
 
         {{-- HEADER --}}
-        @include('layouts.app-header')
+        @if (!request()->routeIs('signin'))
+            @include('layouts.app-header')
+        @endif
 
         {{-- PAGE CONTENT --}}
         <main class="p-4 md:p-6 max-w-[1600px] mx-auto">
@@ -110,6 +114,7 @@
 </div>
 
 {{-- MOBILE OVERLAY --}}
+@if (!request()->routeIs('signin'))
 <div
     x-show="$store.sidebar.isMobileOpen"
     @click="$store.sidebar.closeMobile()"
@@ -117,6 +122,7 @@
     class="fixed inset-0 z-40 bg-black/40 xl:hidden"
 >
 </div>
+@endif
 
 {{-- Livewire --}}
 @livewireScripts

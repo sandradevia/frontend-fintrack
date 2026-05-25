@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Anggota;
+use App\Models\Dapur;
+use App\Models\Pekerjaan;
 
 class AnggotaController extends Controller
 {
@@ -12,9 +15,24 @@ class AnggotaController extends Controller
     // =============================
     public function index()
     {
-        $petugas = Anggota::where('dapur_id', session('dapur_id'))->get();
+        $user = Auth::user();
 
-        return view('admin.petugas.index', compact('petugas'));
+        // Ambil dapur berdasarkan user login
+        $dapur = Dapur::where('user_id', $user->id)->first();
+
+        // Ambil anggota sesuai dapur
+        $anggota = Anggota::with('pekerjaan')
+            ->where('dapur_id', $dapur?->id)
+            ->latest()
+            ->get();
+
+        // Data pekerjaan
+        $pekerjaan = Pekerjaan::latest()->get();
+
+        return view('admin.petugas.index', compact(
+            'anggota',
+            'pekerjaan'
+        ));
     }
 
     // =============================
@@ -24,23 +42,22 @@ class AnggotaController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'jabatan' => 'nullable|string|max:100',
-            'no_hp' => 'nullable|string|max:20',
-            'alamat' => 'nullable|string|max:255',
+            'pekerjaan_id' => 'required|exists:pekerjaans,id',
         ]);
+
+        $user = Auth::user();
+
+        $dapur = Dapur::where('user_id', $user->id)->first();
 
         Anggota::create([
-            'dapur_id' => session('dapur_id'),
             'nama' => $validated['nama'],
-            'jabatan' => $validated['jabatan'] ?? null,
-            'no_hp' => $validated['no_hp'] ?? null,
-            'alamat' => $validated['alamat'] ?? null,
+            'pekerjaan_id' => $validated['pekerjaan_id'],
+            'dapur_id' => $dapur?->id,
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Petugas berhasil ditambahkan',
-        ]);
+        return redirect()
+            ->back()
+            ->with('success', 'Anggota berhasil ditambahkan');
     }
 
     // =============================
@@ -48,21 +65,21 @@ class AnggotaController extends Controller
     // =============================
     public function update(Request $request, $id)
     {
-        $petugas = Anggota::findOrFail($id);
+        $anggota = Anggota::findOrFail($id);
 
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'jabatan' => 'nullable|string|max:100',
-            'no_hp' => 'nullable|string|max:20',
-            'alamat' => 'nullable|string|max:255',
+            'pekerjaan_id' => 'required|exists:pekerjaans,id',
         ]);
 
-        $petugas->update($validated);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Petugas berhasil diperbarui',
+        $anggota->update([
+            'nama' => $validated['nama'],
+            'pekerjaan_id' => $validated['pekerjaan_id'],
         ]);
+
+        return redirect()
+            ->back()
+            ->with('success', 'Anggota berhasil diperbarui');
     }
 
     // =============================
@@ -70,12 +87,12 @@ class AnggotaController extends Controller
     // =============================
     public function destroy($id)
     {
-        $petugas = Anggota::findOrFail($id);
-        $petugas->delete();
+        $anggota = Anggota::findOrFail($id);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Petugas berhasil dihapus',
-        ]);
+        $anggota->delete();
+
+        return redirect()
+            ->back()
+            ->with('success', 'Anggota berhasil dihapus');
     }
 }

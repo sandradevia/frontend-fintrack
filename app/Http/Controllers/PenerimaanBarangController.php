@@ -112,7 +112,7 @@ class PenerimaanBarangController extends Controller
     ->sum(DB::raw('jumlah * harga_beli'));
 
 // Threshold misal Rp 1 juta
-$threshold = 1000000;
+$threshold = 5000000;
 
 if ($total12Hari >= $threshold) {
     // Buat notifikasi baru setiap kali store dijalankan

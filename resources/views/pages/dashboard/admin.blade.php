@@ -23,9 +23,15 @@ dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 p-4 rounded-2xl">
                     Sistem aktif
                 </span>
 
+               @php
+    $dapur = \App\Models\Dapur::where('user_id', auth()->id())->first();
+@endphp
+
                 <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
                     Selamat datang kembali, 
-                    <span class="text-blue-600 dark:text-blue-400">Admin SPPG</span>
+                    <span class="text-blue-600 dark:text-blue-400">
+                        {{ $dapur->nama_lembaga ?? auth()->user()->username }}
+                    </span>
                 </h1>
 
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
