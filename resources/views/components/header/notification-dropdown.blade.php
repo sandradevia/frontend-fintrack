@@ -32,9 +32,7 @@ if (!$user) {
     // ADMIN DAPUR
     else {
 
-        $dapur = Dapur::where('user_id', $user->id)->first();
-
-        $dapurId = $dapur?->id ?? 0;
+        $dapurId = $user->dapur_id ?? 0;
 
         $notifications = Notification::where('dapur_id', $dapurId)
             ->latest()

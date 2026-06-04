@@ -18,6 +18,6 @@ class AnggaranOperasional extends Model
     // Relasi ke dapur
     public function dapur()
     {
-        return $this->belongsTo(Dapur::class);
+        return $this->belongsTo(Dapur::class, 'dapur_id');
     }
 }

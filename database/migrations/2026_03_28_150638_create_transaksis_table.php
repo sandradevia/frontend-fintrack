@@ -13,10 +13,24 @@ return new class extends Migration
     {
         Schema::create('transaksis', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('dapur_id')->references('id')->on('dapur')->cascadeOnDelete();
+
+            $table->foreignId('dapur_id')
+                ->constrained('dapur')
+                ->cascadeOnDelete();
+
+            $table->foreignId('akun_id')
+                ->constrained('akuns')
+                ->cascadeOnDelete();
+
             $table->date('tanggal');
-            $table->string('no_bukti');
+            $table->string('no_bukti')->unique();
             $table->string('uraian');
+
+            $table->decimal('debet', 15, 2)->default(0);
+            $table->decimal('kredit', 15, 2)->default(0);
+
+            $table->string('keterangan')->nullable();
+
             $table->timestamps();
         });
     }

@@ -35,11 +35,16 @@ class PenerimaanBarangController extends Controller
             ->orderBy('nama_barang')
             ->get();
 
+        $periodeAwal = now()->startOfMonth()->format('d F Y');
+        $periodeAkhir = now()->format('d F Y');
         return view('admin.penerimaan-barang.index', [
             'title'  => 'Penerimaan Barang',
             'user'   => $user,
             'items'  => $items,
             'barang' => $barang,
+            'dapur'  => $dapur,
+            'periodeAwal' => $periodeAwal,
+            'periodeAkhir' => $periodeAkhir,
         ]);
     }
 

@@ -21,7 +21,7 @@ class AnggaranController extends Controller
 
         // ================= BAHAN =================
         if ($tab == 'bahan') {
-            $items = AnggaranBahan::with('dapur')->get();
+            $items = AnggaranBahan::with('dapur','details')->get();
             $total = $items->sum('total_rab');
         }
 

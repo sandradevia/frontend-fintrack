@@ -207,7 +207,7 @@
                 </span>
                 <div>
                     <p class="text-xs text-gray-500">Total Personil</p>
-                    <p class="text-sm font-bold text-gray-800 dark:text-gray-100">9 Orang</p>
+                    <p class="text-sm font-bold text-gray-800 dark:text-gray-100">{{ $nominatifs->count() }} Orang</p>
                 </div>
             </div>
             <div class="w-px bg-gray-200 dark:bg-gray-700 self-stretch"></div>
@@ -217,7 +217,7 @@
                 </span>
                 <div>
                     <p class="text-xs text-gray-500">Total Pembayaran</p>
-                    <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Rp 81.184.000</p>
+                    <p class="text-sm font-bold text-gray-800 dark:text-gray-100">Rp {{ number_format($nominatifs->sum('total'),0,',','.') }}</p>
                 </div>
             </div>
             <div class="w-px bg-gray-200 dark:bg-gray-700 self-stretch"></div>
@@ -227,7 +227,7 @@
                 </span>
                 <div>
                     <p class="text-xs text-gray-500">Hari Kerja</p>
-                    <p class="text-sm font-bold text-gray-800 dark:text-gray-100">10 Hari</p>
+                    <p class="text-sm font-bold text-gray-800 dark:text-gray-100">{{ $nominatifs->sum(fn($n) => $n->kehadiranNominatif->count()) }} Hari</p>
                 </div>
             </div>
         </div>
@@ -241,7 +241,7 @@
                         <th rowspan="2" class="text-center">No</th>
                         <th rowspan="2" class="text-center">Jenis</th>
                         <th rowspan="2" class="text-left">Nama</th>
-                        <th colspan="10" class="text-center day-header">Oktober {{ date('Y') }}</th>
+                        <th colspan="{{ $hariKerjaBerjalan }}" class="text-center day-header">{{ $bulan }} {{ $tahun }}</th>
                         <th rowspan="2" class="text-right">Honor</th>
                         <th rowspan="2" class="text-right">Kesehatan</th>
                         <th rowspan="2" class="text-right">TK</th>
@@ -249,121 +249,50 @@
                         <th rowspan="2" class="text-right bg-blue-600 text-white rounded-t">Total</th>
                         <th rowspan="2" class="text-center">Aksi</th>
                     </tr>
-                    <tr>
-                        @for ($i=1; $i<=10; $i++)
-                            <th class="text-center day-header text-blue-600">{{ $i }}</th>
-                        @endfor
-                    </tr>
                 </thead>
-
                 <tbody>
 
-                    {{-- ── ROW: Asisten Lapangan ── --}}
-                    <tr>
-                        <td class="no-cell">1</td>
-                        <td class="cat-cell">Asisten Lapangan</td>
-                        <td class="font-medium text-gray-700 dark:text-gray-300">Ahmad Fauzi</td>
-                        @for ($i=1; $i<=10; $i++)
-                            <td class="day-cell text-emerald-700 dark:text-emerald-400 font-medium">200K</td>
-                        @endfor
-                        <td class="num">2.000.000</td>
-                        <td class="num">68.000</td>
-                        <td class="num text-gray-400">–</td>
-                        <td class="num text-gray-400">–</td>
-                        <td class="num font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20">2.068.000</td>
+                @foreach($nominatifs as $item)
+
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+
+                    <td>
+                        {{ $item->anggota->jabatan ?? '-' }}
+                    </td>
+
+                    <td>
+                        {{ $item->anggota->nama ?? '-' }}
+                    </td>
+                    @for($i=1;$i<=25;$i++)
+                        @php
+                            $hadir = $item->kehadiranNominatif->contains(function ($k) use ($i) {
+                                return \Carbon\Carbon::parse($k->tanggal)->day == $i;
+                            });
+                        @endphp
+
                         <td class="text-center">
-                            <div class="flex justify-center gap-1">
-                                <button onclick="editRow(1)" class="px-2 py-1 text-xs font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg transition">Edit</button>
-                                <button onclick="deleteRow(1)" class="px-2 py-1 text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition">Hapus</button>
-                            </div>
+                            {{ $hadir ? '✓' : '-' }}
                         </td>
-                    </tr>
-
-                    {{-- ── GROUP LABEL: Persiapan Bahan ── --}}
-                    <tr>
-                        <td class="no-cell">2</td>
-                        <td rowspan="5" class="cat-cell text-center align-middle">
-                            <div class="flex flex-col items-center gap-1">
-                                <span class="nom-badge bg-indigo-50 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">Persiapan Bahan</span>
-                            </div>
-                        </td>
-                        <td class="font-medium text-gray-700 dark:text-gray-300">Siti Rahayu</td>
-                        @for ($j=1; $j<=10; $j++)<td class="day-cell text-emerald-700 dark:text-emerald-400 font-medium">100K</td>@endfor
-                        <td class="num">1.000.000</td>
-                        <td class="num">68.000</td>
-                        <td class="num text-gray-400">–</td>
-                        <td class="num">125.000</td>
-                        <td class="num font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20">1.193.000</td>
-                        <td class="text-center"><div class="flex justify-center gap-1">
-                            <button onclick="editRow(2)" class="px-2 py-1 text-xs font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg transition">Edit</button>
-                            <button onclick="deleteRow(2)" class="px-2 py-1 text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition">Hapus</button>
-                        </div></td>
-                    </tr>
-                    @for ($i=3; $i<=6; $i++)
-                    <tr>
-                        <td class="no-cell">{{ $i }}</td>
-                        <td class="font-medium text-gray-700 dark:text-gray-300">Nama Personil {{ $i }}</td>
-                        @for ($j=1; $j<=10; $j++)<td class="day-cell text-emerald-700 dark:text-emerald-400 font-medium">100K</td>@endfor
-                        <td class="num">1.000.000</td>
-                        <td class="num">68.000</td>
-                        <td class="num text-gray-400">–</td>
-                        <td class="num text-gray-400">–</td>
-                        <td class="num font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20">1.068.000</td>
-                        <td class="text-center"><div class="flex justify-center gap-1">
-                            <button onclick="editRow({{ $i }})" class="px-2 py-1 text-xs font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg transition">Edit</button>
-                            <button onclick="deleteRow({{ $i }})" class="px-2 py-1 text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition">Hapus</button>
-                        </div></td>
-                    </tr>
                     @endfor
 
-                    {{-- ── GROUP LABEL: Keamanan ── --}}
-                    <tr>
-                        <td class="no-cell">7</td>
-                        <td rowspan="3" class="cat-cell text-center align-middle">
-                            <span class="nom-badge bg-rose-50 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300">Keamanan</span>
-                        </td>
-                        <td class="font-medium text-gray-700 dark:text-gray-300">Budi Santoso</td>
-                        @for ($j=1; $j<=10; $j++)<td class="day-cell text-orange-600 dark:text-orange-400 font-medium">50K</td>@endfor
-                        <td class="num">500.000</td>
-                        <td class="num text-gray-400">–</td>
-                        <td class="num text-gray-400">–</td>
-                        <td class="num text-gray-400">–</td>
-                        <td class="num font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20">500.000</td>
-                        <td class="text-center"><div class="flex justify-center gap-1">
-                            <button onclick="editRow(7)" class="px-2 py-1 text-xs font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg transition">Edit</button>
-                            <button onclick="deleteRow(7)" class="px-2 py-1 text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition">Hapus</button>
-                        </div></td>
-                    </tr>
-                    @for ($i=8; $i<=9; $i++)
-                    <tr>
-                        <td class="no-cell">{{ $i }}</td>
-                        <td class="font-medium text-gray-700 dark:text-gray-300">Nama Personil {{ $i }}</td>
-                        @for ($j=1; $j<=10; $j++)<td class="day-cell text-orange-600 dark:text-orange-400 font-medium">50K</td>@endfor
-                        <td class="num">500.000</td>
-                        <td class="num text-gray-400">–</td>
-                        <td class="num text-gray-400">–</td>
-                        <td class="num text-gray-400">–</td>
-                        <td class="num font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20">500.000</td>
-                        <td class="text-center"><div class="flex justify-center gap-1">
-                            <button onclick="editRow({{ $i }})" class="px-2 py-1 text-xs font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg transition">Edit</button>
-                            <button onclick="deleteRow({{ $i }})" class="px-2 py-1 text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition">Hapus</button>
-                        </div></td>
-                    </tr>
-                    @endfor
+                    <td>{{ number_format($item->honor,0,',','.') }}</td>
 
-                    {{-- ── TOTAL ── --}}
-                    <tr class="total-row">
-                        <td colspan="3" class="text-center font-bold tracking-widest text-xs uppercase">TOTAL KESELURUHAN</td>
-                        @for ($i=1; $i<=10; $i++)
-                            <td class="day-cell font-bold">4.250.000</td>
-                        @endfor
-                        <td class="num">34.500.000</td>
-                        <td class="num">2.584.000</td>
-                        <td class="num">850.000</td>
-                        <td class="num">750.000</td>
-                        <td class="num text-yellow-300 text-base">81.184.000</td>
-                        <td></td>
-                    </tr>
+                    <td>{{ number_format($item->dana_sehat,0,',','.') }}</td>
+
+                    <td>{{ number_format($item->transport,0,',','.') }}</td>
+
+                    <td>{{ number_format($item->pajak,0,',','.') }}</td>
+
+                    <td>{{ number_format($item->total,0,',','.') }}</td>
+
+                    <td>
+                        Edit | Hapus
+                    </td>
+
+                </tr>
+
+                @endforeach
 
                 </tbody>
             </table>
@@ -414,7 +343,6 @@
             {{-- Form --}}
             <form id="nomForm" method="POST" action="#">
                 @csrf
-                <input type="hidden" name="_method" id="nomMethod" value="POST">
                 <input type="hidden" name="id" id="nomId">
 
                 <div class="px-6 py-5 max-h-[72vh] overflow-y-auto space-y-6">
@@ -428,7 +356,15 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div class="sm:col-span-2">
                                 <label class="nom-label" for="f_nama">Nama Lengkap <span class="text-red-400">*</span></label>
-                                <input type="text" name="nama" id="f_nama" class="nom-input" placeholder="Nama lengkap personil">
+                                <select name="anggota_id" id="nomMethod" class="nom-input">
+                                    <option value="">-- Pilih Anggota --</option>
+
+                                    @foreach($anggotas as $anggota)
+                                        <option value="{{ $anggota->id }}">
+                                            {{ $anggota->nama }} - {{ $anggota->jabatan }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div>
                                 <label class="nom-label" for="f_jenis">Jenis / Kategori <span class="text-red-400">*</span></label>

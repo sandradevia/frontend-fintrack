@@ -21,9 +21,17 @@ class PengeluaranBarangController extends Controller
             abort(403, 'User tidak ditemukan');
         }
 
+        $dapur = $user->dapur;
+
+        $periodeAwal = now()->startOfMonth()->format('d F Y');
+        $periodeAkhir = now()->format('d F Y');
+
         return view('admin.pengeluaran-barang.index', [
             'title' => 'Pengeluaran Barang',
             'user' => $user,
+            'periodeAwal' => $periodeAwal,
+            'periodeAkhir' => $periodeAkhir,
+            'dapur' => $dapur,
 
             'items' => PengeluaranBarang::with(['barang.stok', 'anggota'])
                 ->latest()

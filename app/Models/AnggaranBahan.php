@@ -13,11 +13,19 @@ class AnggaranBahan extends Model
         'tanggal',
         'jumlah_paket',
         'harga_satuan',
-        'total_rab'
+        'total_rab',
     ];
 
     public function dapur()
     {
-        return $this->belongsTo(Dapur::class);
+        return $this->belongsTo(Dapur::class, 'dapur_id');
+    }
+
+    public function details()
+    {
+        return $this->hasMany(
+            DetailAnggaranBahan::class,
+            'anggaran_bahan_id'
+        );
     }
 }

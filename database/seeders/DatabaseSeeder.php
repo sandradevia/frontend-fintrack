@@ -16,18 +16,18 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
         $this->call([
-            UserSeeder::class,
             DapurSeeder::class,
+            UserSeeder::class,
             pekerjaanSeeder::class,
-            AnggotaSeeder::class,
-            BarangSeeder::class,
-            StokSeeder::class,
-            AkunSeeder::class,
-            TransaksiSeeder::class,
-            JurnalSeeder::class,
-            BkuSeeder::class,
-            AnggaranSeeder::class,
-            NominatifSeeder::class,
+            // AnggotaSeeder::class,
+            // BarangSeeder::class,
+            // StokSeeder::class,
+            // AkunSeeder::class,
+            // TransaksiSeeder::class,
+            // JurnalSeeder::class,
+            // BkuSeeder::class,
+            // AnggaranSeeder::class,
+            // NominatifSeeder::class,
         ]);
     }
 }

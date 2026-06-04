@@ -17,8 +17,7 @@ class AnggotaController extends Controller
     {
         $user = Auth::user();
 
-        // Ambil dapur berdasarkan user login
-        $dapur = Dapur::where('user_id', $user->id)->first();
+        $dapur = Dapur::find($user->dapur_id);
 
         // Ambil anggota sesuai dapur
         $anggota = Anggota::with('pekerjaan')

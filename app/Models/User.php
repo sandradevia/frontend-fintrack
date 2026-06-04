@@ -32,7 +32,7 @@ class User extends Authenticatable
 
     public function dapur()
     {
-        return $this->hasOne(Dapur::class);
+        return $this->belongsTo(Dapur::class);
     }
 
     /*
@@ -51,4 +51,6 @@ class User extends Authenticatable
         return $this->hasRole('admin')
             || $this->hasRole('super_admin');
     }
+    
+
 }

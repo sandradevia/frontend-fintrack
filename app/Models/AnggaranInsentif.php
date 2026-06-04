@@ -22,18 +22,15 @@ class AnggaranInsentif extends Model
         return $this->belongsTo(Dapur::class);
     }
 
-    // 🔥 Relasi ke anggaran bahan
     public function bahan()
     {
         return $this->belongsTo(AnggaranBahan::class, 'anggaran_bahan_id');
     }
 
-    // 🔥 Auto hitung total (optional)
+
     protected static function booted()
     {
         static::saving(function ($model) {
-            // kalau nanti ada field jumlah, bisa dikali
-            // sementara pakai harga_satuan saja
             $model->total_rab = $model->harga_satuan;
         });
     }

@@ -11,8 +11,8 @@
         {{-- HEADER --}}
         <div class="text-center">
             <h1 class="text-xl font-bold">INPUT PEMBELIAN / PENERIMAAN BARANG</h1>
-            <p class="text-sm text-gray-500">SPPG GADOG MEGAMENDUNG</p>
-            <p class="text-sm text-gray-500">Periode : 1 - 13 Desember 2025</p>
+            <p class="text-sm text-gray-500">{{ $dapur->nama_lembaga }}</p>
+            <p class="text-sm text-gray-500">Periode : {{ $periodeAwal }} - {{ $periodeAkhir }}</p>
         </div>
 
         {{-- INFO --}}

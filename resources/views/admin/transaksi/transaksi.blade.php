@@ -53,61 +53,86 @@
                         <th class="px-3 py-3 text-center">Aksi</th>
                     </tr>
                 </thead>
-
                 <tbody class="text-sm divide-y">
-                    
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
-                        <td class="px-3 py-3 text-center">1</td>
-                        <td class="px-3 py-3">01 Jan 2026</td>
-                        <td class="px-3 py-3">TRX-001</td>
-                        <td class="px-3 py-3">Pembelian bahan</td>
-                        <td class="px-3 py-3 text-right text-green-600 font-semibold">Rp 500.000</td>
-                        <td class="px-3 py-3 text-right text-red-500">Rp 0</td>
-                        <td class="px-3 py-3">Kas</td>
-                        <td class="px-3 py-3">Awal</td>
 
-                        {{-- AKSI --}}
+                    @forelse($transaksis as $transaksi)
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+
+                        <td class="px-3 py-3 text-center">
+                            {{ $loop->iteration }}
+                        </td>
+
+                        <td class="px-3 py-3">
+                            {{ \Carbon\Carbon::parse($transaksi->tanggal)->format('d M Y') }}
+                        </td>
+
+                        <td class="px-3 py-3">
+                            {{ $transaksi->no_bukti }}
+                        </td>
+
+                        <td class="px-3 py-3">
+                            {{ $transaksi->uraian }}
+                        </td>
+
+                        <td class="px-3 py-3 text-right text-green-600 font-semibold">
+                            Rp {{ number_format($transaksi->debet,0,',','.') }}
+                        </td>
+
+                        <td class="px-3 py-3 text-right text-red-500">
+                            Rp {{ number_format($transaksi->kredit,0,',','.') }}
+                        </td>
+
+                        <td class="px-3 py-3">
+                            {{ $transaksi->akun->nama_akun ?? '-' }}
+                        </td>
+
+                        <td class="px-3 py-3">
+                            {{ $transaksi->keterangan }}
+                        </td>
+
                         <td class="px-3 py-3">
                             <div class="flex justify-center gap-2">
 
                                 {{-- EDIT --}}
-                                <button @click="openEdit({
-                                        id: 1,
-                                        tanggal: '2026-01-01',
-                                        no_bukti: 'TRX-001',
-                                        uraian: 'Pembelian bahan',
-                                        debet: 500000,
-                                        kredit: 0,
-                                        jenis: 'Kas',
-                                        keterangan: 'Awal'
-                                    })"
+                                <button
+                                    @click='openEdit({
+                                        id: {{ $transaksi->id }},
+                                        tanggal: "{{ $transaksi->tanggal }}",
+                                        no_bukti: "{{ $transaksi->no_bukti }}",
+                                        uraian: "{{ $transaksi->uraian }}",
+                                        debet: {{ $transaksi->debet }},
+                                        kredit: {{ $transaksi->kredit }},
+                                        akun_id: {{ $transaksi->akun_id }},
+                                        keterangan: "{{ $transaksi->keterangan }}"
+                                    })'
                                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-medium">
-
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                            d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"/>
-                                    </svg>
                                     Edit
                                 </button>
 
                                 {{-- HAPUS --}}
-                                <button @click="openHapus(1)"
+                                <button
+                                    type="button"
+                                    @click="openHapus({{ $transaksi->id }})"
                                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-50 text-red-600 hover:bg-red-100 text-xs font-medium">
-
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                            d="M6 7h12M9 7v12m6-12v12M4 7h16l-1 14H5L4 7zm5-3h6"/>
-                                    </svg>
                                     Hapus
                                 </button>
 
                             </div>
                         </td>
+
                     </tr>
 
-                </tbody>
+                    @empty
+
+                    <tr>
+                        <td colspan="9" class="text-center py-8 text-gray-500">
+                            Belum ada data transaksi
+                        </td>
+                    </tr>
+
+                    @endforelse
+
+                    </tbody>
             </table>
         </div>
     </div>
@@ -118,17 +143,14 @@
     @include('admin.transaksi.modal-hapus')
 
 </div>
-
-{{-- 🔥 ALPINE --}}
 <script>
-function transaksiHandler() {
+window.transaksiHandler = function () {
     return {
         showTambah: false,
         showEdit: false,
         showHapus: false,
         selectedId: null,
 
-        // 🔵 FORM TAMBAH
         form: {
             tanggal: '',
             no_bukti: '',
@@ -139,7 +161,6 @@ function transaksiHandler() {
             keterangan: ''
         },
 
-        // 🟢 FORM EDIT
         formEdit: {
             tanggal: '',
             no_bukti: '',
@@ -150,35 +171,30 @@ function transaksiHandler() {
             keterangan: ''
         },
 
-        // 🔥 OPEN TAMBAH
         openTambah() {
             this.resetForm();
             this.generateNoBukti();
-            this.form.tanggal = new Date().toISOString().split('T')[0]; // default hari ini
+            this.form.tanggal = new Date().toISOString().split('T')[0];
             this.showTambah = true;
         },
 
-        // 🔥 OPEN EDIT (AUTO ISI)
         openEdit(data) {
             this.formEdit = { ...data };
             this.selectedId = data.id;
             this.showEdit = true;
         },
 
-        // 🔥 OPEN HAPUS
         openHapus(id) {
             this.selectedId = id;
             this.showHapus = true;
         },
 
-        // 🔥 CLOSE SEMUA MODAL
         closeModal() {
             this.showTambah = false;
             this.showEdit = false;
             this.showHapus = false;
         },
 
-        // 🔥 RESET FORM TAMBAH
         resetForm() {
             this.form = {
                 tanggal: '',
@@ -191,28 +207,21 @@ function transaksiHandler() {
             };
         },
 
-        // 🔥 AUTO GENERATE NO BUKTI
         generateNoBukti() {
             const now = new Date();
             const random = Math.floor(Math.random() * 1000);
             this.form.no_bukti = 'TRX-' + now.getTime() + '-' + random;
         },
 
-        // 🔥 SIMPAN DATA
         submitForm() {
             console.log('DATA TAMBAH:', this.form);
-
-            // nanti bisa kirim ke backend
             this.closeModal();
         },
 
-        // 🔥 UPDATE DATA
         updateData() {
             console.log('DATA EDIT:', this.formEdit);
-
-            // nanti kirim ke backend
             this.closeModal();
-        }
+        }, // <-- koma di sini
 
         deleteData() {
             console.log('Hapus ID:', this.selectedId);

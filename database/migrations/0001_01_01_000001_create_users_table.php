@@ -14,6 +14,10 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('password');
             $table->string('role')->default('admin');
+            $table->foreignId('dapur_id')
+      ->nullable()
+      ->constrained('dapur')
+      ->cascadeOnDelete();
 
 
             $table->timestamps();

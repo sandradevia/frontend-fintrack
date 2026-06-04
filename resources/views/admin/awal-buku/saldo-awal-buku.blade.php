@@ -16,7 +16,7 @@
       </p>
       <p class="text-gray-400 dark:text-gray-500">:</p>
       <p class="font-semibold text-gray-900 dark:text-white">
-        SPPG Gado
+        {{ $dapur->nama_lembaga ?? 'Nama Lembaga Belum Ditetapkan' }}
       </p>
     </div>
 
@@ -27,7 +27,7 @@
       </p>
       <p class="text-gray-400 dark:text-gray-500">:</p>
       <p class="font-semibold text-gray-900 dark:text-white">
-        Jl. Pasir Angin desa Gadog
+        {{ $dapur->alamat ?? 'Alamat Belum Ditetapkan' }}
       </p>
     </div>
     </div>

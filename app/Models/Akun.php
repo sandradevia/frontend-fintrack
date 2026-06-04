@@ -17,4 +17,8 @@ class Akun extends Model
     {
         return $this->hasMany(Jurnal::class, 'akun_id');
     }
+    public function transaksi()
+    {
+        return $this->hasMany(Transaksi::class);
+    }
 }

@@ -27,4 +27,9 @@ class Anggota extends Model
     {
         return $this->belongsTo(Dapur::class);
     }
+
+    public function daftarNominatif()
+    {
+        return $this->hasMany(DaftarNominatif::class);
+    }
 }

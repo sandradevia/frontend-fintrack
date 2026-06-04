@@ -65,8 +65,11 @@ Route::middleware(['auth', 'role:admin|super_admin'])
 
         Route::resource('/awal-buku', AwalBukuController::class);
         Route::get('/transaksi', [TransaksiController::class, 'index'])->name('transaksi.transaksi');
+        Route::post('/transaksi/store', [TransaksiController::class, 'store'])->name('transaksi.store');
+        Route::get('/transaksi/search-akun', [TransaksiController::class, 'searchAkun'])->name('transaksi.search-akun');
 
         Route::get('/bku', [BkuController::class, 'index'])->name('bku.index');
+        Route::get('/admin/bku/export-excel', [BkuController::class, 'exportExcel'])->name('bku.export.excel');
 
         Route::get('/bpkas', [BpkasController::class, 'index'])->name('bp-kas.index');
 
@@ -90,6 +93,7 @@ Route::middleware(['auth', 'role:admin|super_admin'])
 
         // CATATAN PENGELUARAN
         Route::get('/catatan-pengeluaran', [CatatanPengeluaranController::class, 'index'])->name('catatan-pengeluaran.index');
+        Route::get('/catatan-pengeluaran/export', [CatatanPengeluaranController::class, 'export'])->name('catatan-pengeluaran.export');
 
         // INPUT BARANG
         Route::get('/input-barang', [InputBarangController::class, 'index'])->name('input-barang.index');
@@ -121,6 +125,7 @@ Route::middleware(['auth', 'role:admin|super_admin'])
 
         // LAPORAN STOCK
         Route::get('/laporan-stock', [LaporanStockController::class, 'index'])->name('laporan-stock.index');
+        Route::get('/laporan-stock/export', [LaporanStockController::class, 'exportStok'])->name('laporan.stock.export');
 
         // LIST ANGGOTA
 

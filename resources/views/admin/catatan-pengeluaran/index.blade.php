@@ -11,7 +11,7 @@
         {{-- JUDUL --}}
         <div class="text-center">
             <h1 class="text-xl font-bold">CATATAN PENGELUARAN BULANAN</h1>
-            <p class="text-sm text-gray-500">Periode : 1 - 13 Desember 2025</p>
+            <p class="text-sm text-gray-500">Periode :  {{ $periodeAwal }} - {{ $periodeAkhir }}</p>
         </div>
 
         {{-- INFO --}}
@@ -21,21 +21,21 @@
                 <div class="flex gap-2">
                     <span class="w-40 text-gray-500">Nama Lembaga</span>
                     <span>:</span>
-                    <span class="font-semibold">SPPG GADOG MEGAMENDUNG</span>
+                    <span class="font-semibold">{{ $dapur->nama_lembaga }}</span>
                 </div>
 
                 <div class="flex gap-2">
                     <span class="w-40 text-gray-500">Alamat</span>
                     <span>:</span>
-                    <span>Jl. Pasir Angin desa Gadog</span>
+                    <span>{{ $dapur->alamat }}</span>
                 </div>
             </div>
 
             <div>
-                <button onclick="window.print()"
-                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm">
-                    Print
-                </button>
+                <a href="{{ route('admin.catatan-pengeluaran.export') }}"
+                class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm inline-block">
+                    Export Excel
+                </a>
             </div>
         </div>
     </div>
@@ -48,19 +48,19 @@
 
             <div class="flex justify-between text-sm">
                 <span class="text-gray-500">Sisa Dana Sebelumnya</span>
-                <span class="font-medium">10.000.000</span>
+                <span class="font-medium">Rp {{ number_format($sisaDana, 0, ',', '.') }}</span>
             </div>
 
             <div class="flex justify-between text-sm">
                 <span class="text-gray-500">Dana Diterima</span>
-                <span class="font-medium">510.408.000</span>
+                <span class="font-medium">Rp {{ number_format($danaMasuk, 0, ',', '.') }}</span>
             </div>
 
             <hr>
 
             <div class="flex justify-between font-bold text-green-600">
                 <span>Total Dana</span>
-                <span>520.408.000</span>
+                <span>Rp {{ number_format($totalDana, 0, ',', '.') }}</span>
             </div>
         </div>
 
@@ -70,24 +70,24 @@
 
             <div class="flex justify-between text-sm">
                 <span class="text-gray-500">Bahan Baku</span>
-                <span>34.800.000</span>
+                <span>Rp {{ number_format($bahanBaku, 0, ',', '.') }}</span>
             </div>
 
             <div class="flex justify-between text-sm">
                 <span class="text-gray-500">Operasional</span>
-                <span>34.400.000</span>
+                <span>Rp {{ number_format($operasional, 0, ',', '.') }}
             </div>
 
             <div class="flex justify-between text-sm">
                 <span class="text-gray-500">Insentif Fasilitas</span>
-                <span>72.000.000</span>
+                <span>Rp {{ number_format($insentifFasilitas, 0, ',', '.') }}</span>
             </div>
 
             <hr>
 
             <div class="flex justify-between font-bold text-red-600">
                 <span>Total Pengeluaran</span>
-                <span>141.200.000</span>
+                <span>Rp {{ number_format($totalPengeluaran, 0, ',', '.') }}</span>
             </div>
         </div>
 
@@ -97,7 +97,7 @@
             <h3 class="text-sm text-gray-500 mb-2">Sisa Dana Saat Ini</h3>
 
             <h1 class="text-2xl font-bold text-blue-600">
-                379.208.000
+                Rp {{ number_format($sisaDana, 0, ',', '.') }}
             </h1>
 
             <p class="text-xs text-gray-400 mt-2">
@@ -129,78 +129,38 @@
                 {{-- BODY --}}
                 <tbody>
 
-                    <tr class="hover:bg-gray-50">
-                        <td class="border px-3 py-2 text-center">Desember</td>
-                        <td class="border px-3 py-2 text-center">1</td>
-                        <td class="border px-3 py-2">35/Kwt/2025</td>
-                        <td class="border px-3 py-2">Membayar belanja beras dan minyak goreng</td>
-                        <td class="border px-3 py-2 text-right">26.500.000</td>
-                    </tr>
+                @forelse($transaksis as $transaksi)
+                <tr class="hover:bg-gray-50">
 
-                    <tr class="hover:bg-gray-50">
-                        <td class="border px-3 py-2 text-center">Desember</td>
-                        <td class="border px-3 py-2 text-center">4</td>
-                        <td class="border px-3 py-2">37/Kwt/2025</td>
-                        <td class="border px-3 py-2">Membayar belanja minuman dalam kemasan</td>
-                        <td class="border px-3 py-2 text-right">6.150.000</td>
-                    </tr>
+                    <td class="border px-3 py-2 text-center">
+                        {{ \Carbon\Carbon::parse($transaksi->tanggal)->translatedFormat('F') }}
+                    </td>
 
-                    <tr class="hover:bg-gray-50">
-                        <td class="border px-3 py-2 text-center">Desember</td>
-                        <td class="border px-3 py-2 text-center">6</td>
-                        <td class="border px-3 py-2">38/Kwt/2025</td>
-                        <td class="border px-3 py-2">Membayar tagihan listrik</td>
-                        <td class="border px-3 py-2 text-right">1.500.000</td>
-                    </tr>
+                    <td class="border px-3 py-2 text-center">
+                        {{ \Carbon\Carbon::parse($transaksi->tanggal)->format('d') }}
+                    </td>
 
-                    <tr class="hover:bg-gray-50">
-                        <td class="border px-3 py-2 text-center">Desember</td>
-                        <td class="border px-3 py-2 text-center">7</td>
-                        <td class="border px-3 py-2">39/Kwt/2025</td>
-                        <td class="border px-3 py-2">Membayar belanja buah-buahan</td>
-                        <td class="border px-3 py-2 text-right">2.150.000</td>
-                    </tr>
+                    <td class="border px-3 py-2">
+                        {{ $transaksi->no_bukti }}
+                    </td>
 
-                    <tr class="hover:bg-gray-50">
-                        <td class="border px-3 py-2 text-center">Desember</td>
-                        <td class="border px-3 py-2 text-center">8</td>
-                        <td class="border px-3 py-2">40/Kwt/2025</td>
-                        <td class="border px-3 py-2">Membayar air tangki</td>
-                        <td class="border px-3 py-2 text-right">2.000.000</td>
-                    </tr>
+                    <td class="border px-3 py-2">
+                        {{ $transaksi->uraian }}
+                    </td>
 
-                    <tr class="hover:bg-gray-50">
-                        <td class="border px-3 py-2 text-center">Desember</td>
-                        <td class="border px-3 py-2 text-center">8</td>
-                        <td class="border px-3 py-2">41/Kwt/2025</td>
-                        <td class="border px-3 py-2">Membayar BBM kendaraan operasional</td>
-                        <td class="border px-3 py-2 text-right">500.000</td>
-                    </tr>
+                    <td class="border px-3 py-2 text-right">
+                        Rp {{ number_format($transaksi->kredit, 0, ',', '.') }}
+                    </td>
 
-                    <tr class="hover:bg-gray-50">
-                        <td class="border px-3 py-2 text-center">Desember</td>
-                        <td class="border px-3 py-2 text-center">10</td>
-                        <td class="border px-3 py-2">42/Kwt/2025</td>
-                        <td class="border px-3 py-2">Membayar kantong plastik, mika, kertas nasi</td>
-                        <td class="border px-3 py-2 text-right">400.000</td>
-                    </tr>
-
-                    <tr class="hover:bg-gray-50">
-                        <td class="border px-3 py-2 text-center">Desember</td>
-                        <td class="border px-3 py-2 text-center">13</td>
-                        <td class="border px-3 py-2">43/Kwt/2025</td>
-                        <td class="border px-3 py-2">Membayar insentif fasilitas 2 pekan</td>
-                        <td class="border px-3 py-2 text-right">72.000.000</td>
-                    </tr>
-
-                    <tr class="hover:bg-gray-50">
-                        <td class="border px-3 py-2 text-center">Desember</td>
-                        <td class="border px-3 py-2 text-center">13</td>
-                        <td class="border px-3 py-2">44/Kwt/2025</td>
-                        <td class="border px-3 py-2">Membayar honor relawan</td>
-                        <td class="border px-3 py-2 text-right">30.000.000</td>
-                    </tr>
-
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5" class="border px-3 py-4 text-center text-gray-500">
+                        Tidak ada data transaksi
+                    </td>
+                </tr>
+                @endforelse
+                    
                 </tbody>
 
             </table>

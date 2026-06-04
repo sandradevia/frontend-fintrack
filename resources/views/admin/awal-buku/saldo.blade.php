@@ -2,34 +2,6 @@
 
 @section('content')
     <x-common.page-breadcrumb pageTitle="Saldo Awal Buku" />
-        @php
-    $orders = [
-        [
-            'kode'       => '1000',
-            'nama_akun'  => 'BUKU KAS UMUM',
-            'saldo_awal' => 'Rp 10.000.000',
-            'saldo_akhir'=> 'Rp 379.280.000',
-            'status'     => 'Sesuai',
-            'is_parent'  => true,
-        ],
-        [
-            'kode'       => '1100',
-            'nama_akun'  => 'BUKU PEMBANTU KAS',
-            'saldo_awal' => '',
-            'saldo_akhir'=> '',
-            'status'     => 'Sesuai',
-            'is_section' => true,
-        ],
-        [
-            'kode'       => '1101',
-            'nama_akun'  => 'Petty Cash / Cash in Hand',
-            'saldo_awal' => 'Rp 2.000.000',
-            'saldo_akhir'=> 'Rp 2.600.000',
-            'status'     => 'Sesuai',
-            'is_sub'     => true,
-        ],
-    ];
-@endphp
 
 <div class="rounded-2xl border border-gray-200 bg-white overflow-hidden shadow-sm dark:border-gray-800 dark:bg-gray-900">
 
@@ -45,22 +17,18 @@
                 Atur saldo awal buku untuk memulai pencatatan keuangan secara akurat.
             </p>
 
-            {{-- Meta info --}}
-            @foreach ($dapur as $item)
-                
-            @endforeach
             <div class="mt-4 grid grid-cols-[160px_1fr] gap-y-1.5 text-sm">
                 <span class="flex items-center gap-1.5 font-medium text-gray-500 dark:text-gray-400">
                     <span class="h-1.5 w-1.5 rounded-full bg-blue-400 shrink-0"></span>
                     Nama Lembaga
                 </span>
-                <span class="font-medium text-gray-900 dark:text-white">{{ $item->nama_lembaga }}</span>
+                <span class="font-medium text-gray-900 dark:text-white">{{ $dapur->nama_lembaga }}</span>
 
                 <span class="flex items-center gap-1.5 font-medium text-gray-500 dark:text-gray-400">
                     <span class="h-1.5 w-1.5 rounded-full bg-blue-400 shrink-0"></span>
                     Alamat
                 </span>
-                <span class="font-medium text-gray-900 dark:text-white">{{ $item->alamat }}</span>
+                <span class="font-medium text-gray-900 dark:text-white">{{ $dapur->alamat }}</span>
             </div>
         </div>
     </div>
@@ -77,29 +45,29 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                @foreach ($orders as $order)
-                    @if (!empty($order['is_section']))
+                @foreach ($akuns as $akun)
+                    @if (!empty($akun['is_section']))
                         {{-- Section divider row --}}
                         <tr class="bg-gray-50 dark:bg-gray-800/40">
                             <td colspan="4" class="px-6 py-2 text-[11px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
-                                {{ $order['nama_akun'] }}
+                                {{ $akun['nama_akun'] }}
                             </td>
                         </tr>
                     @else
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors {{ !empty($order['is_parent']) ? 'font-semibold' : '' }}">
-                            <td class="px-6 py-3 {{ !empty($order['is_sub']) ? 'pl-10' : '' }}">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors {{ !empty($akun['is_parent']) ? 'font-semibold' : '' }}">
+                            <td class="px-6 py-3 {{ !empty($akun['is_sub']) ? 'pl-10' : '' }}">
                                 <span class="inline-block rounded-md bg-blue-50 px-2 py-0.5 text-xs font-mono font-medium text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                                    {{ $order['kode'] }}
+                                    {{ $akun['kode'] }}
                                 </span>
                             </td>
-                            <td class="px-6 py-3 {{ !empty($order['is_sub']) ? 'pl-10 text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white' }} {{ !empty($order['is_parent']) ? 'text-gray-900 dark:text-white font-semibold' : '' }}">
-                                {{ $order['nama_akun'] }}
+                            <td class="px-6 py-3 {{ !empty($akun['is_sub']) ? 'pl-10 text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white' }} {{ !empty($akun['is_parent']) ? 'text-gray-900 dark:text-white font-semibold' : '' }}">
+                                {{ $akun['nama_akun'] }}
                             </td>
                             <td class="px-6 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">
-                                {{ $order['saldo_awal'] ?: '—' }}
+                                {{ $akun['saldo_awal'] ?: '—' }}
                             </td>
                             <td class="px-6 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">
-                                {{ $order['saldo_akhir'] ?: '—' }}
+                                {{ $akun['saldo_akhir'] ?: '—' }}
                             </td>
                         </tr>
                     @endif
@@ -127,20 +95,20 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                @foreach ($orders as $order)
-                    @if (empty($order['is_section']))
+                @foreach ($akuns as $akun)
+                    @if (empty($akun['is_section']))
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
-                            <td class="px-6 py-3 {{ !empty($order['is_sub']) ? 'pl-10 text-gray-500 dark:text-gray-400' : 'font-medium text-gray-800 dark:text-white' }}">
-                                {{ $order['nama_akun'] }}
+                            <td class="px-6 py-3 {{ !empty($akun['is_sub']) ? 'pl-10 text-gray-500 dark:text-gray-400' : 'font-medium text-gray-800 dark:text-white' }}">
+                                {{ $akun['nama_akun'] }}
                             </td>
                             <td class="px-6 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">
-                                {{ $order['saldo_awal'] ?: '—' }}
+                                {{ $akun['saldo_awal'] ?: '—' }}
                             </td>
                             <td class="px-6 py-3 text-right tabular-nums text-gray-700 dark:text-gray-300">
-                                {{ $order['saldo_akhir'] ?: '—' }}
+                                {{ $akun['saldo_akhir'] ?: '—' }}
                             </td>
                             <td class="px-6 py-3 text-center">
-                                @if ($order['status'] === 'Sesuai')
+                                @if ($akun['status'] === 'Sesuai')
                                     <span class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-600 dark:bg-green-900/30 dark:text-green-400">
                                         <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
                                         Sesuai
@@ -148,7 +116,7 @@
                                 @else
                                     <span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600 dark:bg-red-900/30 dark:text-red-400">
                                         <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
-                                        {{ $order['status'] }}
+                                        {{ $akun['status'] }}
                                     </span>
                                 @endif
                             </td>

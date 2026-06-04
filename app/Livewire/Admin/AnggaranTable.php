@@ -3,6 +3,9 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
+use App\Models\AnggaranBahan;
+use App\Models\AnggaranOperasional;
+use App\Models\AnggaranInsentif;
 
 class AnggaranTable extends Component
 {
@@ -15,29 +18,36 @@ class AnggaranTable extends Component
 
     public function render()
     {
-        // Ambil data berdasarkan tab yang aktif
-        $items = $this->getData();
-
         return view('livewire.admin.anggaran-table', [
-            'items' => $items
+            'items' => $this->getData()
         ]);
     }
 
     private function getData()
     {
-        // Simulasi data - Nanti ganti dengan Anggaran::where(...)->get()
         if ($this->activeTab === 'bahan') {
-            return [
-                ['id' => 1, 'tanggal' => '2024-03-01', 'jumlah' => 100, 'harga' => 15000],
-            ];
-        } 
-        
-        if ($this->activeTab === 'operasional') {
-            return [
-                ['id' => 1, 'nama' => 'Listrik', 'kat' => 'Utilitas', 'nom' => 500000],
-            ];
+
+            return AnggaranBahan::with([
+                'dapur',
+                'details'
+            ])->get();
         }
 
-        return [];
+        if ($this->activeTab === 'operasional') {
+
+            return AnggaranOperasional::with([
+                'dapur'
+            ])->get();
+        }
+
+        if ($this->activeTab === 'insentif') {
+
+            return AnggaranInsentif::with([
+                'dapur',
+                'bahan'
+            ])->get();
+        }
+
+        return collect();
     }
 }

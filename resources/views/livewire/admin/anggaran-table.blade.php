@@ -177,42 +177,93 @@
                             <td class="px-4 py-3 text-xs text-gray-400">{{ $loop->iteration }}</td>
 
                             @if($activeTab == 'bahan')
-                                <td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ $item['tanggal'] ?? '-' }}</td>
+                                <td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ $item->tanggal ?? '-' }}</td>
                                 <td class="px-4 py-3 text-right">
                                     <span class="inline-flex items-center rounded-lg bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                                        {{ number_format($item['jumlah_paket'] ?? 0, 0, ',', '.') }}
+                                        {{ number_format($item->jumlah_paket ?? 0, 0, ',', '.') }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['kb_tk'] ?? 0, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['sd_1_3'] ?? 0, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['sd_4_6'] ?? 0, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['smp'] ?? 0, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['sma'] ?? 0, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['balita'] ?? 0, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['bumil'] ?? 0, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['busui'] ?? 0, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-right text-sm text-gray-500 dark:text-gray-500">Rp {{ number_format($item['harga_satuan'] ?? 0, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-right text-sm font-semibold text-blue-700 dark:text-blue-400">Rp {{ number_format($item['rab'] ?? 0, 0, ',', '.') }}</td>
+                                <td>
+                                    {{ $item->details->where('kategori', 'kb_tk')->sum('jumlah') }}
+                                </td>
+
+                                <td>
+                                    {{ $item->details->where('kategori', 'sd_1_3')->sum('jumlah') }}
+                                </td>
+
+                                <td>
+                                    {{ $item->details->where('kategori', 'sd_4_6')->sum('jumlah') }}
+                                </td>
+
+                                <td>
+                                    {{ $item->details->where('kategori', 'smp')->sum('jumlah') }}
+                                </td>
+
+                                <td>
+                                    {{ $item->details->where('kategori', 'sma')->sum('jumlah') }}
+                                </td>
+
+                                <td>
+                                    {{ $item->details->where('kategori', 'balita')->sum('jumlah') }}
+                                </td>
+
+                                <td>
+                                    {{ $item->details->where('kategori', 'bumil')->sum('jumlah') }}
+                                </td>
+
+                                <td>
+                                    {{ $item->details->where('kategori', 'busui')->sum('jumlah') }}
+                                </td>
+                                <td class="px-4 py-3 text-right text-sm text-gray-500 dark:text-gray-500">Rp {{ number_format($item->harga_satuan ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-4 py-3 text-right text-sm font-semibold text-blue-700 dark:text-blue-400">Rp {{ number_format($item->total_rab ?? 0, 0, ',', '.') }}</td>
                                 <td class="px-4 py-3 text-center">
                                     <button class="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-blue-50 hover:text-blue-600 dark:bg-gray-800 dark:text-gray-300">Edit</button>
                                 </td>
 
                             @elseif($activeTab == 'operasional')
-                                <td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ $item['tanggal'] ?? '-' }}</td>
-                                <td class="px-4 py-3 text-right text-sm font-semibold text-emerald-700 dark:text-emerald-400">Rp {{ number_format($item['rab'] ?? 0, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{{ $item['keterangan'] ?? '-' }}</td>
+                                <td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                                    {{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}
+                                </td>
+
+                                <td class="px-4 py-3 text-right text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+                                    Rp {{ number_format($item->total_rab, 0, ',', '.') }}
+                                </td>
+
+                                <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                                    {{ $item->keterangan ?? '-' }}
+                                </td>
+
                                 <td class="px-4 py-3 text-center">
-                                    <button class="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-emerald-50 hover:text-emerald-600 dark:bg-gray-800 dark:text-gray-300">Edit</button>
+                                    <button
+                                        class="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-emerald-50 hover:text-emerald-600 dark:bg-gray-800 dark:text-gray-300">
+                                        Edit
+                                    </button>
                                 </td>
 
                             @elseif($activeTab == 'insentif')
-                                <td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">{{ $item['tanggal'] ?? '-' }}</td>
-                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">{{ number_format($item['jumlah_paket'] ?? 0, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-right text-sm text-gray-500">Rp {{ number_format($item['harga_satuan'] ?? 0, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-right text-sm font-semibold text-amber-700 dark:text-amber-400">Rp {{ number_format($item['rab'] ?? 0, 0, ',', '.') }}</td>
-                                <td class="px-4 py-3 text-center">
-                                    <button class="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-amber-50 hover:text-amber-600 dark:bg-gray-800 dark:text-gray-300">Edit</button>
+                                <td class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                                    {{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}
                                 </td>
+
+                                <td class="px-4 py-3 text-right text-sm text-gray-600 dark:text-gray-400">
+                                    {{ number_format($item->bahan?->jumlah_paket ?? 0, 0, ',', '.') }}
+                                </td>
+
+                                <td class="px-4 py-3 text-right text-sm text-gray-500">
+                                    Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}
+                                </td>
+
+                                <td class="px-4 py-3 text-right text-sm font-semibold text-amber-700 dark:text-amber-400">
+                                    Rp {{ number_format($item->total_rab, 0, ',', '.') }}
+                                </td>
+
+                                <td class="px-4 py-3 text-center">
+                                    <button
+                                        class="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition hover:bg-amber-50 hover:text-amber-600 dark:bg-gray-800 dark:text-gray-300">
+                                        Edit
+                                    </button>
+                                </td>
+
                             @endif
 
                         </tr>
@@ -238,37 +289,126 @@
                            'border-amber-200 dark:border-amber-800') }}">
 
                         @if($activeTab == 'bahan')
-                            <td colspan="2" class="bg-gray-50 px-4 py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-500 dark:bg-gray-800/50">Total</td>
-                            <td class="bg-blue-50/60 px-4 py-4 text-right dark:bg-blue-900/20">
-                                <span class="text-sm font-black text-blue-700 dark:text-blue-400">36.864</span>
-                            </td>
-                            @php $totals = [0, 8508, 8184, 13128, 0, 4404, 648, 1992]; @endphp
-                            @foreach($totals as $total)
-                                <td class="bg-gray-50/60 px-3 py-4 text-right text-xs font-bold text-gray-700 dark:bg-gray-800/30 dark:text-gray-300">
-                                    {{ number_format($total, 0, ',', '.') }}
-                                </td>
-                            @endforeach
-                            <td class="bg-gray-50/60 px-4 py-4 dark:bg-gray-800/30"></td>
-                            <td class="bg-emerald-50/60 px-4 py-4 text-right dark:bg-emerald-900/20">
-                                <div class="flex flex-col items-end">
-                                    <span class="text-[9px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-500">Grand Total</span>
-                                    <span class="text-sm font-black text-emerald-700 dark:text-emerald-400">Rp 342.816.000</span>
-                                </div>
-                            </td>
-                            <td class="bg-gray-50/60 px-4 py-4 dark:bg-gray-800/30"></td>
+                        @php
+                            $totalPaket = $items->sum('jumlah_paket');
+
+                            $kbTk = $items->sum(function($item){
+                                return $item->details->where('kategori', 'kb_tk')->sum('jumlah');
+                            });
+
+                            $sd13 = $items->sum(function($item){
+                                return $item->details->where('kategori', 'sd_1_3')->sum('jumlah');
+                            });
+
+                            $sd46 = $items->sum(function($item){
+                                return $item->details->where('kategori', 'sd_4_6')->sum('jumlah');
+                            });
+
+                            $smp = $items->sum(function($item){
+                                return $item->details->where('kategori', 'smp')->sum('jumlah');
+                            });
+
+                            $sma = $items->sum(function($item){
+                                return $item->details->where('kategori', 'sma')->sum('jumlah');
+                            });
+
+                            $balita = $items->sum(function($item){
+                                return $item->details->where('kategori', 'balita')->sum('jumlah');
+                            });
+
+                            $bumil = $items->sum(function($item){
+                                return $item->details->where('kategori', 'bumil')->sum('jumlah');
+                            });
+
+                            $busui = $items->sum(function($item){
+                                return $item->details->where('kategori', 'busui')->sum('jumlah');
+                            });
+
+                            $grandTotal = $items->sum('total_rab');
+                        @endphp
+                        <td colspan="2"
+                            class="bg-gray-50 px-4 py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-500 dark:bg-gray-800/50">
+                            Total
+                        </td>
+
+                        <td class="bg-blue-50/60 px-4 py-4 text-right dark:bg-blue-900/20">
+                            <span class="text-sm font-black text-blue-700 dark:text-blue-400">
+                                {{ number_format($totalPaket, 0, ',', '.') }}
+                            </span>
+                        </td>
+
+                        <td class="bg-gray-50/60 px-3 py-4 text-right text-xs font-bold">
+                            {{ number_format($kbTk, 0, ',', '.') }}
+                        </td>
+
+                        <td class="bg-gray-50/60 px-3 py-4 text-right text-xs font-bold">
+                            {{ number_format($sd13, 0, ',', '.') }}
+                        </td>
+
+                        <td class="bg-gray-50/60 px-3 py-4 text-right text-xs font-bold">
+                            {{ number_format($sd46, 0, ',', '.') }}
+                        </td>
+
+                        <td class="bg-gray-50/60 px-3 py-4 text-right text-xs font-bold">
+                            {{ number_format($smp, 0, ',', '.') }}
+                        </td>
+
+                        <td class="bg-gray-50/60 px-3 py-4 text-right text-xs font-bold">
+                            {{ number_format($sma, 0, ',', '.') }}
+                        </td>
+
+                        <td class="bg-gray-50/60 px-3 py-4 text-right text-xs font-bold">
+                            {{ number_format($balita, 0, ',', '.') }}
+                        </td>
+
+                        <td class="bg-gray-50/60 px-3 py-4 text-right text-xs font-bold">
+                            {{ number_format($bumil, 0, ',', '.') }}
+                        </td>
+
+                        <td class="bg-gray-50/60 px-3 py-4 text-right text-xs font-bold">
+                            {{ number_format($busui, 0, ',', '.') }}
+                        </td>
+
+                        <td class="bg-gray-50/60 px-4 py-4"></td>
+
+                        <td class="bg-emerald-50/60 px-4 py-4 text-right dark:bg-emerald-900/20">
+                            <div class="flex flex-col items-end">
+                                <span class="text-[9px] font-black uppercase tracking-widest text-emerald-600">
+                                    Grand Total
+                                </span>
+                                <span class="text-sm font-black text-emerald-700 dark:text-emerald-400">
+                                    Rp {{ number_format($grandTotal, 0, ',', '.') }}
+                                </span>
+                            </div>
+                        </td>
+
+                        <td class="bg-gray-50/60 px-4 py-4"></td>
+
 
                         @elseif($activeTab == 'operasional')
                             <td colspan="2" class="bg-gray-50 px-4 py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-500 dark:bg-gray-800/50">Total</td>
                             <td class="bg-emerald-50/60 px-4 py-4 text-right dark:bg-emerald-900/20">
-                                <span class="text-sm font-black text-emerald-700 dark:text-emerald-400">Rp 10.000.000</span>
+                                <span class="text-sm font-black text-emerald-700 dark:text-emerald-400">
+                                    @php
+                                        $totalOperasional = $items->sum('total_rab');
+                                    @endphp
+                                    Rp {{ number_format($totalOperasional, 0, ',', '.') }}
+                                </span>
                             </td>
                             <td class="bg-gray-50/60 px-4 py-4 dark:bg-gray-800/30"></td>
                             <td class="bg-gray-50/60 px-4 py-4 dark:bg-gray-800/30"></td>
 
                         @elseif($activeTab == 'insentif')
+                        @php
+                            $totalPaketInsentif = $items->sum(function ($item) {
+                                return $item->bahan?->jumlah_paket ?? 0;
+                            });
+
+                            $totalRabInsentif = $items->sum('total_rab');
+                        @endphp
                             <td colspan="4" class="bg-gray-50 px-4 py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-500 dark:bg-gray-800/50">Total</td>
                             <td class="bg-amber-50/60 px-4 py-4 text-right dark:bg-amber-900/20">
-                                <span class="text-sm font-black text-amber-700 dark:text-amber-400">Rp 18.500.000</span>
+                                <span class="text-sm font-black text-amber-700 dark:text-amber-400">Rp {{ number_format($totalRabInsentif, 0, ',', '.') }}</span>
                             </td>
                             <td class="bg-gray-50/60 px-4 py-4 dark:bg-gray-800/30"></td>
                         @endif
