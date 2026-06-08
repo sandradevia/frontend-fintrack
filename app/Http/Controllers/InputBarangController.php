@@ -25,10 +25,15 @@ class InputBarangController extends Controller
             ->latest()
             ->get();
 
+        $periodeAwal = now()->startOfMonth()->format('d F Y');
+        $periodeAkhir = now()->format('d F Y');
+
         return view('admin.input-barang.index', [
             'title'  => 'Input Barang',
             'user'   => $user,
             'barang' => $barang,
+            'periodeAwal' => $periodeAwal,
+            'periodeAkhir' => $periodeAkhir,
         ]);
     }
 

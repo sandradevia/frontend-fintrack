@@ -8,7 +8,7 @@
     {{-- HEADER --}}
     <div class="bg-white dark:bg-gray-900 rounded-2xl shadow border p-6 text-center">
         <h1 class="text-xl font-bold">INPUT NAMA BARANG DAN SALDO AWAL</h1>
-        <p class="text-sm text-gray-500">Periode : 1 - 13 Desember 2025</p>
+        <p class="text-sm text-gray-500">Periode : {{ $periodeAwal }} - {{ $periodeAkhir }}</p>
     </div>
 
     {{-- FORM INPUT --}}

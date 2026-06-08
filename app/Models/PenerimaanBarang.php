@@ -16,6 +16,9 @@ class PenerimaanBarang extends Model
         'tanggal_masuk',
         'jumlah',
         'harga_beli',
+        'gambar',
+        'status',
+
     ];
 
     // RELASI: barang_masuks -> barang

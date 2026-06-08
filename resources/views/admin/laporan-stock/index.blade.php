@@ -15,7 +15,7 @@
             <p class="text-sm text-gray-500">Periode : {{ $periodeAwal }} - {{ $periodeAkhir }}</p>
         </div>
         <div class="no-print">
-            <a href="{{ route('admin.   laporan.stock.export') }}"
+            <a href="{{ route('admin.laporan.stock.export') }}"
             class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm inline-block">
                 Export Excel
             </a>

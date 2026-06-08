@@ -65,6 +65,9 @@ class PenerimaanBarangController extends Controller
         'harga_beli'    => 'required|numeric|min:0',
         'tanggal_masuk' => 'required|date',
         'supplier'      => 'nullable|string',
+        'gambar'        => 'nullable|image|max:2048',
+        'status'        => 'nullable|in:pending,disetujui,ditolak',
+
     ]);
 
     DB::beginTransaction();
@@ -92,6 +95,8 @@ class PenerimaanBarangController extends Controller
             'tanggal_masuk' => $request->tanggal_masuk,
             'jumlah'        => $request->jumlah,
             'harga_beli'    => $request->harga_beli,
+            'gambar'        => $request->hasFile('gambar') ? $request->file('gambar')->store('penerimaan_gambar', 'public') : null,
+            'status'        => $request->status ?? 'pending',
         ]);
 
         // =====================
@@ -176,6 +181,9 @@ if ($total12Hari >= $threshold) {
             'jumlah'        => 'required|numeric|min:1',
             'harga_beli'    => 'required|numeric|min:0',
             'tanggal_masuk' => 'required|date',
+            'supplier'      => 'nullable|string',
+            'gambar'        => 'nullable|image|max:2048',
+            'status'        => 'nullable|in:pending,disetujui,ditolak',
         ]);
 
         $item = PenerimaanBarang::whereHas('barang', fn($q) => $q->where('dapur_id', $dapur->id))

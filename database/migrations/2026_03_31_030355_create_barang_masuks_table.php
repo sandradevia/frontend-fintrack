@@ -17,6 +17,18 @@ return new class extends Migration
             $table->date('tanggal_masuk');
             $table->integer('jumlah');
             $table->decimal('harga_beli', 15, 2);
+            $table->string('gambar')->nullable();
+            $table->enum('status', [
+                'pending',
+                'disetujui',
+                'ditolak'
+            ])->default('pending');
+
+            $table->timestamp('approved_at')->nullable();
+            $table->foreignId('approved_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
             $table->timestamps();
         });
     }
