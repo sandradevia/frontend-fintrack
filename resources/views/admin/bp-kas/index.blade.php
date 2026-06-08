@@ -12,12 +12,12 @@
                 <div class="flex gap-2">
                     <span class="w-40 text-sm text-gray-500">Nama Lembaga</span>
                     <span>:</span>
-                    <span class="font-semibold">{{ $data['lembaga'] }}</span>
+                    <span class="font-semibold">{{ $dapur->nama_lembaga }}</span>
                 </div>
                 <div class="flex gap-2">
                     <span class="w-40 text-sm text-gray-500">Periode</span>
                     <span>:</span>
-                    <span>{{ $data['periode'] }}</span>
+                    <span>{{ $periodeText }}</span>
                 </div>
             </div>
         </div>

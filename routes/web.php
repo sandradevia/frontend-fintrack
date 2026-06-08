@@ -75,9 +75,11 @@ Route::middleware(['auth', 'role:admin|super_admin'])
 
         // BP OPERASIONAL
         Route::get('/bp-operasional', [BpOperasionalController::class, 'index'])->name('bp-operasional.index');
+        Route::get('/bp-operasional/export', [BpOperasionalController::class, 'export'])->name('bp-operasional.export');
 
         // BP INSENTIF
         Route::get('/bp-insentif', [BpInsentifController::class, 'index'])->name('bp-insentif.index');
+        Route::get('/bp-insentif/export', [BpInsentifController::class, 'export'])->name('bp-insentif.export');
 
         // LP ANGGARAN
         Route::get('/lp-anggaran', [LpAnggaranController::class, 'index'])->name('lp-anggaran.index');

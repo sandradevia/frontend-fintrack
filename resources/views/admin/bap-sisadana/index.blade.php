@@ -83,7 +83,7 @@
     </div>
 
     <div class="nomor">
-        Nomor: <strong>/BAPSD/IX/2025</strong>
+        Nomor: {{ $nomor_surat ?? '/BAPSD/' . now()->format('m') . '/' . now()->year }}
     </div>
 
     {{-- ISI --}}
@@ -98,36 +98,47 @@
         pada periode berikutnya.
     </div>
 
-    {{-- TANGGAL --}}
-    <div style="margin-top: 40px; text-align: right;">
-        Gadog, 13 Desember 2025
-    </div>
-
     {{-- TTD --}}
-    <table class="ttd">
+    <table class="ttd" width="100%">
         <tr>
-            <td>
+            <td width="50%" style="text-align:center; vertical-align:top;">
                 Pihak Pertama,<br>
-                Yayasan Bakti Nusa
+                {{ $dapur->nama_yayasan }}
 
-                <div class="nama">Bakri</div>
-                Ketua/Mewakili
+                <div style="height:80px;"></div>
+
+                <div style="font-weight:bold; text-decoration:underline;">
+                    {{ $dapur->ketua_yayasan }}
+                </div>
+
+                Ketua / Mewakili
             </td>
 
-            <td>
-                Pihak Kedua,<br>
-                Akuntan SPPG GADOG MEGAMENDUNG
+            <td width="50%" style="text-align:center; vertical-align:top;">
+                {{ $dapur->tempat_pelaporan }},
+                {{ now()->translatedFormat('d F Y') }}<br>
 
-                <div class="nama">Riyanto</div>
+                Pihak Kedua,<br>
+                Akuntan SPPG {{ $dapur->nama_lembaga }}
+
+                <div style="height:80px;"></div>
+
+                <div style="font-weight:bold; text-decoration:underline;">
+                    {{ $dapur->nama_akuntan }}
+                </div>
             </td>
         </tr>
 
         <tr>
-            <td colspan="2">
+            <td colspan="2" style="text-align:center; padding-top:50px;">
                 Mengetahui,<br>
-                Kepala SPPG GADOG MEGAMENDUNG
+                Kepala SPPG {{ $dapur->nama_lembaga }}
 
-                <div class="nama">Sutiono</div>
+                <div style="height:80px;"></div>
+
+                <div style="font-weight:bold; text-decoration:underline;">
+                    {{ $dapur->nama_kepala_sppg }}
+                </div>
             </td>
         </tr>
     </table>

@@ -11,7 +11,16 @@
         {{-- JUDUL --}}
         <div class="text-center">
             <h1 class="text-xl font-bold">BUKU PEMBANTU DANA OPERASIONAL</h1>
-            <p class="text-sm text-gray-500">Periode : 1 - 13 Desember 2025</p>
+            <p class="text-sm text-gray-500">
+                Periode :
+                @if($periode)
+                    {{ \Carbon\Carbon::parse($periode->tanggal_mulai)->format('j') }}
+                    -
+                    {{ \Carbon\Carbon::parse($periode->tanggal_selesai)->translatedFormat('j F Y') }}
+                @else
+                    -
+                @endif
+            </p>
         </div>
 
         {{-- INFO --}}
@@ -22,13 +31,13 @@
                 <div class="flex gap-2">
                     <span class="w-32 text-gray-500">Nama Lembaga</span>
                     <span>:</span>
-                    <span class="font-semibold">SPPG GADOG MEGAMENDUNG</span>
+                    <span class="font-semibold">{{ $dapur->nama_lembaga }}</span>
                 </div>
 
                 <div class="flex gap-2">
                     <span class="w-32 text-gray-500">Alamat</span>
                     <span>:</span>
-                    <span>Jl. Pasir Angin desa Gadog</span>
+                    <span>{{ $dapur->alamat }}</span>
                 </div>
 
                 <div class="flex gap-2 mt-2">
@@ -42,10 +51,10 @@
             <div class="text-sm border rounded-lg overflow-hidden">
                 {{--ACTION --}}
                 <div class="flex justify-end">
-                    <button 
+                    <a href="{{ route('admin.bp-operasional.export') }}"
                         class="bg-brand-500 hover:bg-brand-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium">
-                        Eksprot Data
-                    </button>
+                        Export Data
+                    </a>
                 </div>
             </div>
         </div>
@@ -56,21 +65,14 @@
         <div class="bg-white dark:bg-gray-900 p-5 rounded-2xl border shadow-sm">
             <p class="text-sm text-gray-500">Saldo Awal</p>
             <h2 class="text-xl font-bold text-gray-800 dark:text-white mt-1">
-                Rp 1.000.000
-            </h2>
-        </div>
-
-        <div class="bg-white dark:bg-gray-900 p-5 rounded-2xl border shadow-sm">
-            <p class="text-sm text-gray-500">Total Pemasukan</p>
-            <h2 class="text-xl font-bold text-green-600 mt-1">
-                Rp 2.500.000
+                Rp {{ number_format($saldoAwal, 0, ',', '.') }}
             </h2>
         </div>
 
         <div class="bg-white dark:bg-gray-900 p-5 rounded-2xl border shadow-sm">
             <p class="text-sm text-gray-500">Saldo Akhir</p>
             <h2 class="text-xl font-bold text-blue-600 mt-1">
-                Rp 3.500.000
+                Rp {{ number_format($saldoAkhir,0,',','.') }}
             </h2>
         </div>
     </div>
@@ -97,37 +99,54 @@
                 {{-- BODY --}}
                 <tbody>
 
-                    {{-- SALDO AWAL --}}
                     <tr class="bg-gray-50 font-medium">
                         <td class="border px-2 py-2 text-center"></td>
                         <td class="border"></td>
                         <td class="border"></td>
                         <td class="border px-2 py-2">SALDO AWAL BULAN BERJALAN</td>
-                        <td class="border px-2 py-2 text-right text-green-600">6.500.000</td>
+                        <td class="border px-2 py-2 text-right text-green-600">Rp {{ number_format($saldoAwal, 0, ',', '.') }}</td>
                         <td class="border px-2 py-2 text-right">-</td>
-                        <td class="border px-2 py-2 text-right">6.500.000</td>
+                        <td class="border px-2 py-2 text-right">Rp {{ number_format($saldoAwal, 0, ',', '.') }}</td>
                     </tr>
 
-                    {{-- CONTOH DATA --}}
-                    <tr class="hover:bg-gray-50">
-                        <td class="border px-2 py-2 text-center">1</td>
-                        <td class="border px-2 py-2">02</td>
-                        <td class="border px-2 py-2">TRX-001</td>
-                        <td class="border px-2 py-2">Pembelian bahan</td>
-                        <td class="border px-2 py-2 text-right text-green-600">500.000</td>
-                        <td class="border px-2 py-2 text-right">0</td>
-                        <td class="border px-2 py-2 text-right">7.000.000</td>
-                    </tr>
-
-                    {{-- EMPTY --}}
+                    @forelse($transaksis as $trx)
                     <tr>
-                        <td colspan="8" class="text-center py-6 text-gray-400">
+                        <td class="border px-2 py-2 text-center">
+                            {{ \Carbon\Carbon::parse($trx['tanggal'])->translatedFormat('M') }}
+                        </td>
+
+                        <td class="border px-2 py-2 text-center">
+                            {{ \Carbon\Carbon::parse($trx['tanggal'])->format('d') }}
+                        </td>
+
+                        <td class="border px-2 py-2">
+                            {{ $trx['no_bukti'] }}
+                        </td>
+
+                        <td class="border px-2 py-2">
+                            {{ $trx['uraian'] }}
+                        </td>
+
+                        <td class="border px-2 py-2 text-right">
+                            {{ $trx['debet'] ? number_format($trx['debet'],0,',','.') : '-' }}
+                        </td>
+
+                        <td class="border px-2 py-2 text-right">
+                            {{ $trx['kredit'] ? number_format($trx['kredit'],0,',','.') : '-' }}
+                        </td>
+
+                        <td class="border px-2 py-2 text-right">
+                            {{ number_format($trx['saldo'],0,',','.') }}
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="text-center py-6 text-gray-400">
                             Belum ada data
                         </td>
                     </tr>
-
+                    @endforelse
                 </tbody>
-
             </table>
         </div>
     </div>

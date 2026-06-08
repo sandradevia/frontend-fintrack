@@ -101,7 +101,6 @@
     {{-- 🔷 KOP --}}
     <div class="kop">
         <h3>KOP SURAT SPPG</h3>
-        <small>Alamat Instansi / Kontak</small>
     </div>
 
     {{-- 🔷 JUDUL --}}
@@ -119,11 +118,11 @@
         <table class="table-identitas">
             <tr>
                 <td width="120">Nama</td>
-                <td>: Sutiono</td>
+                <td>: {{ $dapur->nama_kepala_sppg }}</td>
             </tr>
             <tr>
                 <td>Jabatan</td>
-                <td>: Kepala SPPG GADOG MEGAMENDUNG</td>
+                <td>: Kepala SPPG {{ $dapur->nama_lembaga }}</td>
             </tr>
         </table>
     </div>
@@ -131,7 +130,7 @@
     {{-- 🔷 ISI --}}
     <div class="section text-justify">
         menyatakan bertanggung jawab secara formal dan material atas penerimaan dan pengeluaran dana yang 
-        dilaksanakan dengan menggunakan dana APBN TA 2025 melalui DIPA Badan Gizi Nasional TA 2025, 
+        dilaksanakan dengan menggunakan dana APBN TA {{ now()->year }} melalui DIPA Badan Gizi Nasional TA {{ now()->year }}, 
         dengan mata anggaran sebagai Bantuan Pemerintah untuk Program Makan Bergizi Gratis. 
         Sebagaimana Surat Pernyataan Tanggung Jawab penggunaan anggaran 
         <strong>Bahan Baku / Operasional / Insentif Fasilitas</strong> 
@@ -145,19 +144,19 @@
                 <td class="nomor">1.</td>
                 <td class="label">Jumlah Penerimaan</td>
                 <td>:</td>
-                <td class="value">520.408.000</td>
+                <td class="value">{{ $danaMasuk }}</td>
             </tr>
             <tr>
                 <td class="nomor">2.</td>
                 <td class="label">Jumlah Pengeluaran</td>
                 <td>:</td>
-                <td class="value">141.200.000</td>
+                <td class="value">{{ $totalPengeluaran }}</td>
             </tr>
             <tr class="bold">
                 <td class="nomor">3.</td>
                 <td class="label">Sisa Dana</td>
                 <td>:</td>
-                <td class="value">379.208.000</td>
+                <td class="value">{{ $sisaDana }}</td>
             </tr>
         </table>
     </div>
@@ -173,10 +172,10 @@
         <tr>
             <td></td>
             <td>
-                Gadog, 13 Desember 2025<br>
+                {{ $dapur->tempat_pelaporan }}, {{ now()->translatedFormat('d F Y') }}<br>
                 Mengetahui,<br>
-                Kepala SPPG GADOG MEGAMENDUNG<br><br><br><br>
-                <strong>Sutiono</strong>
+                Kepala SPPG {{ $dapur->nama_lembaga }}<br><br><br><br>
+                <strong>{{ $dapur->nama_kepala_sppg }}</strong>
             </td>
         </tr>
     </table>
