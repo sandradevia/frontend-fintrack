@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('bku', function (Blueprint $table) {
             $table->id();
             $table->foreignId('dapur_id')->references('id')->on('dapur')->cascadeOnDelete();
-            $table->foreignId('transaksi_id')->references('id')->on('transaksis')->cascadeOnDelete();
+            $table->foreignId('transaksi_id')->references('id')->on('transaksi')->cascadeOnDelete();
             $table->date('tanggal');
             $table->string('no_bukti');
         });

@@ -18,39 +18,61 @@ class LoginController extends Controller
     }
 
     public function authenticate(Request $request)
-    {
-        $credentials = $request->validate([
-            'username' => ['required'],
-            'password' => ['required'],
-        ]);
+{
+    $credentials = $request->validate([
+        'username' => ['required'],
+        'password' => ['required'],
+    ]);
 
-        if (Auth::attempt($credentials)) {
+    if (Auth::attempt($credentials)) {
 
-            $request->session()->regenerate();
+        $request->session()->regenerate();
 
-            $user = Auth::user();
+        $user = Auth::user();
 
-            // 👑 SUPER ADMIN
-            if ($user->hasRole('super_admin')) {
+        // SUPER ADMIN
+        if ($user->hasRole('super_admin')) {
 
-                return redirect()->route('signin')
-                    ->with('step', 'dapur');
-            }
+            session([
+                'is_superadmin' => true,
+            ]);
 
-            // 👤 ADMIN BIASA
+            return redirect()->route('super.dashboard');
+        }
+
+        // ADMIN YAYASAN
+        if ($user->hasRole('admin_yayasan')) {
+
+            session([
+                'is_superadmin' => false,
+            ]);
+
+            return redirect()->route('yayasan.dashboard');
+        }
+
+        // ADMIN DAPUR
+        if ($user->hasRole('admin_dapur')) {
+
             session([
                 'is_superadmin' => false,
                 'dapur_id' => $user->dapur_id,
-                'dapur_nama' => optional($user->dapur)->nama_lembaga
+                'dapur_nama' => optional($user->dapur)->nama_lembaga,
             ]);
 
             return redirect()->route('admin.dashboard');
         }
 
+        Auth::logout();
+
         return back()->withErrors([
-            'login' => 'Username atau password salah'
+            'login' => 'Role user tidak dikenali'
         ]);
     }
+
+    return back()->withErrors([
+        'login' => 'Username atau password salah'
+    ]);
+}
 
     /**
      * 👑 PILIH DAPUR KHUSUS SUPER ADMIN

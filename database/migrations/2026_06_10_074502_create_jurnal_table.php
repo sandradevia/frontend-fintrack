@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('jurnal', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('transaksi_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('akun_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('transaksi_id')->constrained('transaksi')->cascadeOnDelete();
+            $table->foreignId('akun_id')->constrained('akun')->cascadeOnDelete();
             $table->decimal('debit', 15, 2)->default(0);
             $table->decimal('kredit', 15, 2)->default(0);
         });

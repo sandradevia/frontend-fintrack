@@ -48,7 +48,7 @@ Route::post('/pilih-dapur/{id}', [LoginController::class, 'pilihDapur'])
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // ================= ADMIN =================
-Route::middleware(['auth', 'role:admin|super_admin'])
+Route::middleware(['auth', 'role:admin_dapur|super_admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {

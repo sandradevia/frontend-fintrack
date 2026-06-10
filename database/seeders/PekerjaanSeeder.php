@@ -13,7 +13,7 @@ class PekerjaanSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('pekerjaans')->insert([
+        DB::table('pekerjaan')->insert([
             ['id' => 1, 'nama_pekerjaan' => 'Asisten Lapangan'],
             ['id' => 2, 'nama_pekerjaan' => 'Persiapan Bahan Makanan'],
             ['id' => 3, 'nama_pekerjaan' => 'Pengolahan Bahan Makanan (Bagian Memasak)'],

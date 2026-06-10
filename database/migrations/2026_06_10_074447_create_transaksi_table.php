@@ -17,7 +17,7 @@ return new class extends Migration
                 ->constrained('dapur')
                 ->cascadeOnDelete();
             $table->foreignId('akun_id')
-                ->constrained('akuns')
+                ->constrained('akun')
                 ->cascadeOnDelete();
             $table->date('tanggal');
             $table->string('no_bukti')->unique();

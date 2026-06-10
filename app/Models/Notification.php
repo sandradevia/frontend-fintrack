@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
 {
+    protected $table = 'notifikasi';
     protected $fillable = [
         'dapur_id',
         'title',

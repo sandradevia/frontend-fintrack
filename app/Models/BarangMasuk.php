@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class BarangMasuk extends Model
 {
-    protected $table = 'barang_masuks'; // 🔥 ini WAJIB supaya tidak pakai plural default Laravel
+    protected $table = 'barang_masuk';
 
     protected $fillable = [
         'barang_id',

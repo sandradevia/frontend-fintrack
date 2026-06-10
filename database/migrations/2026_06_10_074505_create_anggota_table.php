@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('anggota', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
-            $table->foreignId('pekerjaan_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('pekerjaan_id')->constrained('pekerjaan')->cascadeOnDelete();
             $table->foreignId('dapur_id')->references('id')->on('dapur')->cascadeOnDelete();
 
             $table->timestamps();

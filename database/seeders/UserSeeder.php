@@ -17,48 +17,50 @@ class UserSeeder extends Seeder
             'guard_name' => 'web'
         ]);
 
-        $adminRole = Role::firstOrCreate([
-            'name' => 'admin',
+        $adminYayasanRole = Role::firstOrCreate([
+            'name' => 'admin_yayasan',
             'guard_name' => 'web'
         ]);
 
-        $dapurUtama = Dapur::where('nama_lembaga', 'Dapur Utama')->first();
-        $dapurCabang = Dapur::where('nama_lembaga', 'Dapur Cabang')->first();
+        $adminDapurRole = Role::firstOrCreate([
+            'name' => 'admin_dapur',
+            'guard_name' => 'web'
+        ]);
 
         // SUPER ADMIN
-        $super = User::updateOrCreate(
+        $superAdmin = User::updateOrCreate(
             ['username' => 'superadmin'],
             [
                 'password' => Hash::make('password'),
                 'role' => 'super_admin',
-                'dapur_id' => $dapurUtama?->id,
+                'dapur_id' => null,
             ]
         );
 
-        $super->syncRoles([$superRole]);
+        $superAdmin->syncRoles([$superRole]);
 
-        // ADMIN 1
-        $admin1 = User::updateOrCreate(
-            ['username' => 'admin1'],
+        // ADMIN YAYASAN
+        $adminYayasan = User::updateOrCreate(
+            ['username' => 'admin_yayasan'],
             [
                 'password' => Hash::make('password'),
-                'role' => 'admin',
-                'dapur_id' => $dapurUtama?->id,
+                'role' => 'admin_yayasan',
+                'dapur_id' => null,
             ]
         );
 
-        $admin1->syncRoles([$adminRole]);
+        $adminYayasan->syncRoles([$adminYayasanRole]);
 
-        // ADMIN 2
-        $admin2 = User::updateOrCreate(
-            ['username' => 'admin2'],
+        // ADMIN DAPUR
+        $adminDapur = User::updateOrCreate(
+            ['username' => 'admin_dapur'],
             [
                 'password' => Hash::make('password'),
-                'role' => 'admin',
-                'dapur_id' => $dapurCabang?->id,
+                'role' => 'admin_dapur',
+                'dapur_id' => Dapur::first()?->id,
             ]
         );
 
-        $admin2->syncRoles([$adminRole]);
+        $adminDapur->syncRoles([$adminDapurRole]);
     }
 }

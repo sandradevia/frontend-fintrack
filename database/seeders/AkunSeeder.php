@@ -13,7 +13,7 @@ class AkunSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('akuns')->insert([
+        DB::table('akun')->insert([
             ['kode' => '1000', 'nama_akun' => 'BUKU KAS UMUM'],
 
             ['kode' => '1100', 'nama_akun' => 'BUKU PEMBANTU KAS'],
