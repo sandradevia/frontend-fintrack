@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('anggaran_bahan', function (Blueprint $table) {
+        Schema::create('akun', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('dapur_id')->references('id')->on('dapur')->cascadeOnDelete();
-            $table->date('tanggal');
-            $table->integer('jumlah_paket');
-            $table->decimal('harga_satuan', 15, 2);
-            $table->decimal('total_rab', 15, 2);
+            $table->string('kode')->unique();
+            $table->string('nama_akun');
             $table->timestamps();
         });
     }
@@ -27,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('anggaran_bahan');
+        Schema::dropIfExists('akun');
     }
 };

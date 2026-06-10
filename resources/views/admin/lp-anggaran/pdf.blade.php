@@ -1,146 +1,99 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Laporan Penggunaan Anggaran</title>
 
-@section('content')
+    <style>
+        body{
+            font-family: "Times New Roman", serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            margin: 30px;
+        }
 
-<style>
-    .page {
-        width: 210mm;
-        min-height: 297mm;
-        margin: auto;
-        background: white;
-        padding: 30px;
-        font-family: 'Times New Roman', serif;
-        font-size: 12pt;
-        color: #000;
-    }
+        .kop{
+            text-align:center;
+            border-bottom:3px solid black;
+            padding-bottom:10px;
+            margin-bottom:20px;
+        }
 
-    .kop {
-        text-align: center;
-        border-bottom: 3px solid black;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
-    }
+        .kop h2{
+            margin:0;
+            font-size:18pt;
+        }
 
-    .judul {
-        text-align: center;
-        margin: 10px 0;
-    }
+        .kop p{
+            margin:2px 0;
+            font-size:11pt;
+        }
 
-    .judul h2 {
-        font-weight: bold;
-        text-transform: uppercase;
-        margin-bottom: 5px;
-    }
+        .judul{
+            text-align:center;
+            margin:20px 0;
+        }
 
-    .nomor {
-        display: inline-block;
-        padding: 3px 10px;
-        font-size: 11pt;
-    }
+        .judul h3{
+            margin:0;
+            text-decoration:underline;
+        }
 
-    .section {
-        margin-top: 20px;
-    }
+        .info{
+            margin-bottom:20px;
+        }
 
-    .table-info td {
-        padding: 3px 5px;
-    }
+        .info table{
+            border:none;
+        }
 
-    table.laporan {
-        width: 100%;
-        margin-top: 10px;
-    }
+        .info td{
+            padding:3px;
+        }
 
-    table.laporan th,
-    table.laporan td {
-        padding: 6px;
-    }
+        .laporan{
+            width:100%;
+            margin-top:10px;
+        }
 
-    table.laporan th {
-        text-align: center;
-    }
+        .laporan th,
+        .laporan td{
+            padding:8px;
+        }
 
-    .text-right { text-align: right; }
-    .text-center { text-align: center; }
+        .laporan th{
+            background:#e5e7eb;
+        }
 
-    .total-row {
-        font-weight: bold;
-    }
+        .text-right{
+            text-align:right;
+        }
 
-    .ttd {
-        margin-top: 60px;
-        width: 100%;
-    }
+        .kesimpulan{
+            margin-top:20px;
+            text-align:justify;
+        }
 
-    .ttd td {
-        text-align: center;
-        vertical-align: top;
-        padding-top: 40px;
-    }
+        .ttd{
+            margin-top:50px;
+            width:100%;
+        }
 
-    .no-print { margin-bottom: 15px; }
+        .ttd td{
+            width:50%;
+            text-align:center;
+            vertical-align:top;
+        }
 
-    @media print {
-        .no-print { display: none; }
-        body { margin: 0; }
-    }
-</style>
+        .nama{
+            margin-top:70px;
+            font-weight:bold;
+            text-decoration:underline;
+        }
+    </style>
+</head>
 
-{{-- ── TOOLBAR (tidak ikut cetak) ── --}}
-<div class="no-print flex items-center gap-3 flex-wrap">
-
-    {{-- Filter Periode
-    <form method="GET" action="{{ route('admin.lp-anggaran.index') }}"
-        class="flex items-center gap-2 flex-wrap">
-
-        <label class="text-sm font-medium text-gray-600">Periode:</label>
-
-        <input type="date" name="periode_awal" value="{{ $periodeAwalRaw }}"
-            class="border rounded px-3 py-1.5 text-sm focus:ring focus:ring-blue-200">
-
-        <span class="text-gray-500 text-sm">s/d</span>
-
-        <input type="date" name="periode_akhir" value="{{ $periodeAkhirRaw }}"
-            class="border rounded px-3 py-1.5 text-sm focus:ring focus:ring-blue-200">
-
-        <button type="submit"
-            class="bg-gray-700 hover:bg-gray-800 text-white text-sm px-4 py-1.5 rounded">
-            Tampilkan
-        </button>
-    </form> --}}
-
-    <div class="relative inline-block text-left">
-        <button type="button"
-            onclick="toggleExportMenu()"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm transition">
-            Cetak Surat
-            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"/>
-            </svg>
-        </button>
-
-        <div id="exportMenu"
-            class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-50">
-
-            <a href="{{ route('admin.lp-anggaran.pdf') }}"
-                class="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100">
-                Cetak PDF
-            </a>
-
-            <a href="{{ route('admin.lp-anggaran.word') }}"
-                class="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100">
-                Cetak Word
-            </a>
-        </div>
-    </div>
-</div>
-
-{{-- ── HALAMAN DOKUMEN ── --}}
-<div class="page">
+<body>
 
     {{-- KOP --}}
     <div class="kop">
@@ -286,9 +239,8 @@
                 <strong>{{ $dapur->ketua_yayasan ?? '____________________' }}</strong><br>
                 Ketua / Mewakili
             </td>
-
             <td>
-                {{ $dapur->tempat_pelaporan ?? '.......' }},
+                {{ $dapur->tempat_pelaporan ?? 'Kota' }},
                 {{ \Carbon\Carbon::parse($periodeAkhirRaw)->translatedFormat('j F Y') }}<br>
                 Pihak Kedua,<br>
                 Akuntan SPPG<br><br><br><br>
@@ -304,21 +256,5 @@
             </td>
         </tr>
     </table>
-
-</div>
-
-@endsection
-<script>
-function toggleExportMenu() {
-    document.getElementById('exportMenu')
-        .classList.toggle('hidden');
-}
-
-document.addEventListener('click', function(e) {
-    const menu = document.getElementById('exportMenu');
-
-    if (!e.target.closest('.relative')) {
-        menu.classList.add('hidden');
-    }
-});
-</script>
+    </body>
+</html>

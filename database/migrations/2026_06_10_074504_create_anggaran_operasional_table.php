@@ -17,7 +17,10 @@ return new class extends Migration
             $table->date('tanggal');
             $table->string('keterangan')->nullable();
             $table->decimal('total_rab', 15, 2);
-
+            $table->enum('status', ['pending', 'disetujui', 'ditolak'])->default('pending');
+            $table->foreignId('verified_by')->nullable()->references('id')->on('users')->nullOnDelete();
+            $table->timestamp('verified_at')->nullable();
+            $table->text('catatan_status')->nullable();
             $table->timestamps();
         });
     }

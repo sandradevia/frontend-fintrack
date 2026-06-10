@@ -30,5 +30,12 @@ class Periode extends Model
     // Relasi ke Dapur
     public function dapur()
     {
-return $this->belongsTo(Dapur::class);    }
+    return $this->belongsTo(Dapur::class);    
+    }
+
+    public function daftarNominatif()
+    {
+        return $this->hasMany(DaftarNominatif::class, 'periode_id');
+    }
 }
+    

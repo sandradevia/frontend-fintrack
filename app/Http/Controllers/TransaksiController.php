@@ -6,12 +6,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Transaksi;
 use App\Models\Akun;
+use App\Models\Dapur;
 
 class TransaksiController extends Controller
 {
     public function index()
     {
         $user = Auth::user();
+        $dapur = Dapur::first();
+        $periodeAwal = now()->startOfMonth()->format('d F Y');
+        $periodeAkhir = now()->format('d F Y');
 
         if (!$user) {
             abort(403, 'User tidak ditemukan');
@@ -28,6 +32,9 @@ class TransaksiController extends Controller
             'user' => $user,
             'transaksis' => $transaksis,
             'akuns' => $akuns,
+            'periodeAwal' => $periodeAwal,
+            'periodeAkhir' => $periodeAkhir,
+            'dapur' => $dapur,
         ]);
     }
 

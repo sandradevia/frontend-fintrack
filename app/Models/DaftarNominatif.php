@@ -34,4 +34,14 @@ class DaftarNominatif extends Model
     {
         return $this->hasMany(KehadiranNominatif::class, 'daftar_nominatif_id');
     }
+
+    public function pekerjaan()
+    {
+        return $this->belongsTo(Pekerjaan::class, 'pekerjaan_id');
+    }
+
+    public function periode()
+    {
+        return $this->belongsTo(Periode::class, 'periode_id');
+    }
 }

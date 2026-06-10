@@ -11,26 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transaksis', function (Blueprint $table) {
+        Schema::create('transaksi', function (Blueprint $table) {
             $table->id();
-
             $table->foreignId('dapur_id')
                 ->constrained('dapur')
                 ->cascadeOnDelete();
-
             $table->foreignId('akun_id')
                 ->constrained('akuns')
                 ->cascadeOnDelete();
-
             $table->date('tanggal');
             $table->string('no_bukti')->unique();
             $table->string('uraian');
-
             $table->decimal('debet', 15, 2)->default(0);
             $table->decimal('kredit', 15, 2)->default(0);
-
             $table->string('keterangan')->nullable();
-
+            $table->enum('status', ['pending', 'disetujui', 'ditolak'])->default('pending');
+            $table->foreignId('verified_by')->nullable()->references('id')->on('users')->nullOnDelete();
+            $table->timestamp('verified_at')->nullable();
+            $table->text('catatan_status')->nullable();
             $table->timestamps();
         });
     }
@@ -40,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transaksis');
+        Schema::dropIfExists('transaksi');
     }
 };

@@ -12,15 +12,15 @@
             {{-- KIRI --}}
             <div class="flex flex-col gap-3">
                 <div class="flex items-center gap-2">
-                    <span class="w-40 text-sm text-gray-500">Nama Lembaga</span>
+                    <span class="w-40 text-sm text-gray-500">Nama Yayasan</span>
                     <span>:</span>
-                    <span class="font-semibold">Yayasan Contoh Indonesia</span>
+                    <span class="font-semibold">{{ $dapur->nama_yayasan }}</span>
                 </div>
 
                 <div class="flex items-center gap-2">
                     <span class="w-40 text-sm text-gray-500">Periode</span>
                     <span>:</span>
-                    <span>Januari 2026</span>
+                    <span>{{ $periodeAwal }} - {{ $periodeAkhir }}</span>
                 </div>
             </div>
 

@@ -26,8 +26,8 @@ use App\Http\Controllers\NotificationController;
 
 // ================= AUTH =================
 Route::get('/', function () {
-    return redirect()->route('signin');
-});
+    return view('landingpage');
+})->name('landingpage');
 
 Route::get('/notifications', [NotificationController::class, 'index'])
     ->name('notifications.index');
@@ -83,15 +83,26 @@ Route::middleware(['auth', 'role:admin|super_admin'])
 
         // LP ANGGARAN
         Route::get('/lp-anggaran', [LpAnggaranController::class, 'index'])->name('lp-anggaran.index');
+        Route::get('/lp-anggaran/export/pdf', [LpAnggaranController::class, 'exportPdf'])
+            ->name('lp-anggaran.pdf');
+
+        Route::get('/lp-anggaran/export/word', [LpAnggaranController::class, 'exportWord'])
+            ->name('lp-anggaran.word');
 
         // SP TANGGUNG JAWAB
         Route::get('/sp-tanggungjawab', [SpTanggungjawabController::class, 'index'])->name('sp-tanggungjawab.index');
 
         // BAP SISA DANA
         Route::get('/bap-sisadana', [BapSisadanaController::class, 'index'])->name('bap-sisadana.index');
+        Route::get('/bap-sisadana/pdf', [BapSisadanaController::class, 'exportPdf'])->name('bp-sisadana.pdf');
+        Route::get('/bap-sisadana/word', [BapSisadanaController::class, 'exportWord'])->name('bp-sisadana.word');
 
         // DAFTAR NOMINATIF
         Route::get('/daftar-nominatif', [DaftarNominatifController::class, 'index'])->name('daftar-nominatif.index');
+        Route::post('/daftar-nominatif', [DaftarNominatifController::class, 'store'])->name('daftar-nominatif.store');
+        Route::put('/daftar-nominatif/{id}', [DaftarNominatifController::class, 'update'])->name('daftar-nominatif.update');
+        Route::delete('/daftar-nominatif/{id}', [DaftarNominatifController::class, 'destroy'])->name('daftar-nominatif.destroy');
+        Route::get('/daftar-nominatif/export/excel', [DaftarNominatifController::class, 'exportExcel'])->name('daftar-nominatif.export.excel');
 
         // CATATAN PENGELUARAN
         Route::get('/catatan-pengeluaran', [CatatanPengeluaranController::class, 'index'])->name('catatan-pengeluaran.index');

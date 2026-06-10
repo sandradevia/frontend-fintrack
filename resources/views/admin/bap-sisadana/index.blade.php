@@ -68,6 +68,34 @@
         }
     }
 </style>
+<div class="relative inline-block text-left">
+        <button type="button"
+            onclick="toggleExportMenu()"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm transition">
+            Cetak Surat
+            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+
+        <div id="exportMenu"
+            class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-50">
+
+            <a href="{{ route('admin.bp-sisadana.pdf') }}"
+                class="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100">
+                Cetak PDF
+            </a>
+
+            <a href="{{ route('admin.bp-sisadana.word') }}"
+                class="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100">
+                Cetak Word
+            </a>
+        </div>
+    </div>
 
 <div class="print-area">
 
@@ -88,9 +116,14 @@
 
     {{-- ISI --}}
     <div class="isi">
-        Sehubungan dengan telah berakhirnya periode <b>1 - 13 Desember 2025</b>, 
-        sisa dana sebesar <b>Rp 379.208.000,-</b> akan dialihkan ke periode selanjutnya 
-        yang dimulai pada tanggal <b>15 Desember 2025</b>.
+        Sehubungan dengan telah berakhirnya periode 
+        <b>
+        {{ \Carbon\Carbon::parse($periodeAwal)->translatedFormat('j') }}
+        -
+        {{ \Carbon\Carbon::parse($periodeAkhir)->translatedFormat('j F Y') }}
+        </b>, 
+        sisa dana sebesar <b>Rp Rp {{ number_format($totalSisa, 0, ',', '.') }},-</b> akan dialihkan ke periode selanjutnya 
+        yang dimulai pada tanggal <b>{{ \Carbon\Carbon::parse($periodeAkhir)->addDay()->translatedFormat('j F Y') }}</b>.
 
         <br><br>
 
@@ -102,7 +135,7 @@
     <table class="ttd" width="100%">
         <tr>
             <td width="50%" style="text-align:center; vertical-align:top;">
-                Pihak Pertama,<br>
+                <br>Pihak Pertama,<br>
                 {{ $dapur->nama_yayasan }}
 
                 <div style="height:80px;"></div>
@@ -146,3 +179,18 @@
 </div>
 
 @endsection
+
+<script>
+function toggleExportMenu() {
+    document.getElementById('exportMenu')
+        .classList.toggle('hidden');
+}
+
+document.addEventListener('click', function(e) {
+    const menu = document.getElementById('exportMenu');
+
+    if (!e.target.closest('.relative')) {
+        menu.classList.add('hidden');
+    }
+});
+</script>

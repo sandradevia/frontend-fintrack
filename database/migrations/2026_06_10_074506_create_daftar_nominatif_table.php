@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('daftar_nominatif', function (Blueprint $table) {
             $table->id();
-
             $table->foreignId('dapur_id')->references('id')->on('dapur')->cascadeOnDelete();
             $table->foreignId('anggota_id')->references('id')->on('anggota')->cascadeOnDelete();
             $table->date('tanggal');
@@ -22,9 +21,11 @@ return new class extends Migration
             $table->decimal('dana_sehat', 15, 2)->default(0);
             $table->decimal('transport', 15, 2)->default(0);
             $table->decimal('pajak', 15, 2)->default(0);
-
             $table->decimal('total', 15, 2);
-
+            $table->enum('status', ['pending', 'disetujui', 'ditolak'])->default('pending');
+            $table->foreignId('verified_by')->nullable()->references('id')->on('users')->nullOnDelete();
+            $table->timestamp('verified_at')->nullable();
+            $table->text('catatan_status')->nullable();
             $table->timestamps();
         });
     }

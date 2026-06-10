@@ -85,19 +85,29 @@
                     <label class="text-sm">Jenis</label>
                     <select
                         name="akun_id"
-                        id="akun_id"
+                        x-model="formEdit.akun_id"
                         class="w-full border rounded px-3 py-2"
-                        required>
+                        required
+                    >
+                        <option value="">-- Pilih Akun --</option>
+
+                        @foreach($akuns as $akun)
+                            <option value="{{ $akun->id }}">
+                                {{ $akun->kode }} - {{ $akun->nama_akun }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
 
                 <div>
                     <label class="text-sm">Keterangan</label>
-                    <input
-                        type="text"
+                    <select
                         name="keterangan"
-                        class="w-full border rounded px-3 py-2"
-                    >
+                        class="w-full border rounded px-3 py-2">
+                        <option value="">-- Pilih Keterangan --</option>
+                        <option value="Kas di Bank">Kas di Bank</option>
+                        <option value="Petty Cash/Cash in Hand">Petty Cash/Cash in Hand</option>
+                    </select>
                 </div>
 
             </div>

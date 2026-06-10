@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('anggaran_insentif', function (Blueprint $table) {
+        Schema::create('kehadiran_nominatif', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('dapur_id')->references('id')->on('dapur')->cascadeOnDelete();
-            $table->foreignId('anggaran_bahan_id')->references('id')->on('anggaran_bahan')->cascadeOnDelete();
+            $table->foreignId('daftar_nominatif_id')->constrained('daftar_nominatif')->cascadeOnDelete();
             $table->date('tanggal');
-            $table->decimal('harga_satuan', 15, 2);
-            $table->decimal('total_rab', 15, 2);
-
+            $table->decimal('honor_harian', 15, 2)->default(0);
             $table->timestamps();
         });
     }
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('anggaran_insentif');
+        Schema::dropIfExists('kehadiran_nominatif');
     }
 };

@@ -11,12 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('barang_keluars', function (Blueprint $table) {
+        Schema::create('barang_keluar', function (Blueprint $table) {
             $table->id();
             $table->foreignId('barang_id')->references('id')->on('barang')->cascadeOnDelete();
             $table->foreignId('anggota_id')->references('id')->on('anggota')->cascadeOnDelete();
             $table->date('tanggal_keluar');
             $table->integer('jumlah');
+            $table->enum('status', ['pending', 'disetujui', 'ditolak'])->default('pending');
+            $table->foreignId('verified_by')->nullable()->references('id')->on('users')->nullOnDelete();
+            $table->timestamp('verified_at')->nullable();
+            $table->text('catatan_status')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('barang_keluars');
+        Schema::dropIfExists('barang_keluar');
     }
 };

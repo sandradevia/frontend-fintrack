@@ -11,17 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('detail_anggaran_bahan', function (Blueprint $table) {
+        Schema::create('notifikasi', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('anggaran_bahan_id')
-                ->references('id')
-                ->on('anggaran_bahan')
-                ->cascadeOnDelete();
-
-            $table->string('kategori'); // balita, sd, smp, dll
-            $table->integer('jumlah');
-
+            $table->foreignId('dapur_id')
+                ->constrained('dapur')
+                ->onDelete('cascade');
+            $table->string('title');
+            $table->text('message');
+            $table->string('type')->default('warning');
+            $table->boolean('is_read')->default(false);
             $table->timestamps();
         });
     }
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('detail_anggaran_bahan');
+        Schema::dropIfExists('notifikasi');
     }
 };

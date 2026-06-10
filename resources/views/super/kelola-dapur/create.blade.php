@@ -54,10 +54,6 @@
     }
 </style>
 
-@extends('layouts.app')
-
-@section('content')
-
 <div class="dapur-wrap space-y-6">
 
     <x-common.page-breadcrumb 
@@ -105,18 +101,43 @@
                 </div>
             </div>
 
-            {{-- PERIODE (INI YANG PENTING) --}}
             <div>
                 <p class="section-title">Periode</p>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <input type="date" name="tanggal_pelaporan" class="dapur-input">
-                    <input name="tahun_anggaran" class="dapur-input" placeholder="Tahun Anggaran">
-                    <input name="periode_saat_ini" class="dapur-input" placeholder="Periode Saat Ini">
-                    <input type="date" name="awal_periode_berikutnya" class="dapur-input">
-                </div>
+                    <div>
+                        <label class="block text-sm mb-1">Tahun Anggaran</label>
+                        <input
+                            type="number"
+                            name="tahun_anggaran"
+                            class="dapur-input"
+                            placeholder="2026">
+                    </div>
 
-                <input name="tempat_pelaporan" class="dapur-input mt-3" placeholder="Kota/Kabupaten">
+                    <div>
+                        <label class="block text-sm mb-1">Tanggal Pelaporan</label>
+                        <input
+                            type="date"
+                            name="tanggal_pelaporan"
+                            class="dapur-input">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm mb-1">Tanggal Mulai Periode</label>
+                        <input
+                            type="date"
+                            name="tanggal_mulai"
+                            class="dapur-input">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm mb-1">Tanggal Selesai Periode</label>
+                        <input
+                            type="date"
+                            name="tanggal_selesai"
+                            class="dapur-input">
+                    </div>
+                </div>
             </div>
 
             {{-- AKUN (WAJIB LOGIN) --}}

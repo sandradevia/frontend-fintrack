@@ -108,12 +108,19 @@
 
                 <div>
                     <label class="text-sm">Keterangan</label>
-                    <input
-                        type="text"
+                    <select
                         name="keterangan"
-                        x-model="formEdit.keterangan"
-                        class="w-full border rounded px-3 py-2"
-                    >
+                        class="w-full border rounded px-3 py-2">
+                        <option value="">-- Pilih Keterangan --</option>
+                        <option value="Kas di Bank"
+                            {{ old('keterangan', $data->keterangan ?? '') == 'Kas di Bank' ? 'selected' : '' }}>
+                            Kas di Bank
+                        </option>
+                        <option value="Petty Cash/Cash in Hand"
+                            {{ old('keterangan', $data->keterangan ?? '') == 'Petty Cash/Cash in Hand' ? 'selected' : '' }}>
+                            Petty Cash/Cash in Hand
+                        </option>
+                    </select>
                 </div>
 
             </div>

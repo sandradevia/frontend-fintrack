@@ -159,13 +159,17 @@
 
         <div class="flex items-center gap-2">
             {{-- Export --}}
-            <button onclick="exportData()"
-                class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50 rounded-xl border border-emerald-200 dark:border-emerald-800 transition active:scale-95">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            <a href="{{ route('admin.daftar-nominatif.export.excel') }}"
+            class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50 rounded-xl border border-emerald-200 dark:border-emerald-800 transition active:scale-95">
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                 </svg>
-                Export Excel
-            </button>
+
+                Cetak Excel
+            </a>
 
             {{-- Tambah Entri --}}
             <button onclick="openModal()"
@@ -189,12 +193,17 @@
             </div>
             <div class="flex flex-wrap gap-3 text-xs text-white/80">
                 <span class="flex items-center gap-1.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    SK/Tugas No: <strong class="text-white ml-1">...</strong>
-                </span>
-                <span class="flex items-center gap-1.5">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    Periode: <strong class="text-white ml-1">Oktober {{ date('Y') }}</strong>
+                    Periode:
+                    <strong class="text-white ml-1">
+                        @if($periodeAktif)
+                            {{ \Carbon\Carbon::parse($periodeAktif->tanggal_mulai)->translatedFormat('d F Y') }}
+                            -
+                            {{ \Carbon\Carbon::parse($periodeAktif->tanggal_selesai)->translatedFormat('d F Y') }}
+                        @else
+                            <span>Periode belum tersedia</span>
+                        @endif
+                    </strong>
                 </span>
             </div>
         </div>
@@ -236,65 +245,176 @@
         <div class="w-full min-w-0 p-1">
         <div class="nom-scroll">
             <table class="nom-table w-full">
+
                 <thead>
                     <tr>
-                        <th rowspan="2" class="text-center">No</th>
-                        <th rowspan="2" class="text-center">Jenis</th>
-                        <th rowspan="2" class="text-left">Nama</th>
-                        <th colspan="{{ $hariKerjaBerjalan }}" class="text-center day-header">{{ $bulan }} {{ $tahun }}</th>
-                        <th rowspan="2" class="text-right">Honor</th>
-                        <th rowspan="2" class="text-right">Kesehatan</th>
-                        <th rowspan="2" class="text-right">TK</th>
-                        <th rowspan="2" class="text-right">PJ</th>
-                        <th rowspan="2" class="text-right bg-blue-600 text-white rounded-t">Total</th>
-                        <th rowspan="2" class="text-center">Aksi</th>
+                        <th rowspan="2">No</th>
+                        <th rowspan="2">Jenis</th>
+                        <th rowspan="2">Nama</th>
+
+                        <th colspan="{{ count($tanggalKerja) }}" class="day-header">
+                            {{ $bulan }} {{ $tahun }}
+                        </th>
+
+                        <th rowspan="2">Honor</th>
+                        <th rowspan="2">Dana Sehat</th>
+                        <th rowspan="2">TK</th>
+                        <th rowspan="2">Pajak</th>
+                        <th rowspan="2">Total</th>
+                        <th rowspan="2">Aksi</th>
+                    </tr>
+
+                    <tr>
+                        @foreach($tanggalKerja as $tanggal)
+                            <th class="text-center">
+                                {{ \Carbon\Carbon::parse($tanggal)->format('d') }}
+                            </th>
+                        @endforeach
                     </tr>
                 </thead>
+
                 <tbody>
 
-                @foreach($nominatifs as $item)
+                @forelse($nominatifs as $item)
 
-                <tr>
-                    <td>{{ $loop->iteration }}</td>
-
-                    <td>
-                        {{ $item->anggota->jabatan ?? '-' }}
-                    </td>
-
-                    <td>
-                        {{ $item->anggota->nama ?? '-' }}
-                    </td>
-                    @for($i=1;$i<=25;$i++)
-                        @php
-                            $hadir = $item->kehadiranNominatif->contains(function ($k) use ($i) {
-                                return \Carbon\Carbon::parse($k->tanggal)->day == $i;
-                            });
-                        @endphp
+                    <tr>
 
                         <td class="text-center">
-                            {{ $hadir ? '✓' : '-' }}
+                            {{ $loop->iteration }}
                         </td>
-                    @endfor
 
-                    <td>{{ number_format($item->honor,0,',','.') }}</td>
+                        <td>
+                            {{ $item->anggota->pekerjaan->nama_pekerjaan ?? '-' }}
+                        </td>
 
-                    <td>{{ number_format($item->dana_sehat,0,',','.') }}</td>
+                        <td>
+                            {{ $item->anggota->nama ?? '-' }}
+                        </td>
 
-                    <td>{{ number_format($item->transport,0,',','.') }}</td>
+                        @foreach($tanggalKerja as $tanggal)
 
-                    <td>{{ number_format($item->pajak,0,',','.') }}</td>
+                            @php
+                                $kehadiran = $item->kehadiranNominatif
+                                    ->where('tanggal', $tanggal)
+                                    ->first();
+                            @endphp
 
-                    <td>{{ number_format($item->total,0,',','.') }}</td>
+                            <td class="text-center text-xs">
 
-                    <td>
-                        Edit | Hapus
-                    </td>
+                                @if($kehadiran)
 
-                </tr>
+                                    Rp {{ number_format($kehadiran->honor_harian,0,',','.') }}
 
-                @endforeach
+                                @else
+
+                                    -
+
+                                @endif
+
+                            </td>
+
+                        @endforeach
+
+                        <td class="text-right">
+                            Rp {{ number_format($item->honor,0,',','.') }}
+                        </td>
+
+                        <td class="text-right">
+                            Rp {{ number_format($item->dana_sehat,0,',','.') }}
+                        </td>
+
+                        <td class="text-right">
+                            Rp {{ number_format($item->transport,0,',','.') }}
+                        </td>
+
+                        <td class="text-right">
+                            Rp {{ number_format($item->pajak,0,',','.') }}
+                        </td>
+
+                        <td class="text-right font-semibold text-blue-600">
+                            Rp {{ number_format($item->total,0,',','.') }}
+                        </td>
+
+                        <td>
+
+                            <div class="flex gap-2 justify-center">
+
+                                <button
+                                    onclick="editRow({{ $item->id }})"
+                                    class="px-2 py-1 text-xs bg-amber-100 text-amber-700 rounded-lg">
+                                    Edit
+                                </button>
+
+                                <form
+                                    action="{{ route('admin.nominatif.destroy',$item->id) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('Yakin hapus data?')">
+
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button
+                                        class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-lg">
+                                        Hapus
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                @empty
+
+                    <tr>
+                        <td colspan="{{ count($tanggalKerja)+8 }}"
+                            class="text-center py-6 text-gray-500">
+
+                            Belum ada data nominatif
+
+                        </td>
+                    </tr>
+
+                @endforelse
 
                 </tbody>
+
+                <tfoot>
+
+                    <tr class="bg-blue-50 font-semibold">
+
+                        <td colspan="{{ count($tanggalKerja)+4 }}">
+                            TOTAL
+                        </td>
+
+                        <td class="text-right">
+                            Rp {{ number_format($nominatifs->sum('honor'),0,',','.') }}
+                        </td>
+
+                        <td class="text-right">
+                            Rp {{ number_format($nominatifs->sum('dana_sehat'),0,',','.') }}
+                        </td>
+
+                        <td class="text-right">
+                            Rp {{ number_format($nominatifs->sum('transport'),0,',','.') }}
+                        </td>
+
+                        <td class="text-right">
+                            Rp {{ number_format($nominatifs->sum('pajak'),0,',','.') }}
+                        </td>
+
+                        <td class="text-right text-blue-700">
+                            Rp {{ number_format($nominatifs->sum('total'),0,',','.') }}
+                        </td>
+
+                        <td></td>
+
+                    </tr>
+
+                </tfoot>
+
             </table>
         </div>
 
@@ -367,12 +487,17 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="nom-label" for="f_jenis">Jenis / Kategori <span class="text-red-400">*</span></label>
+                                <label class="nom-label" for="f_jenis">
+                                    Jenis / Kategori <span class="text-red-400">*</span>
+                                </label>
+
                                 <select name="jenis" id="f_jenis" class="nom-input">
                                     <option value="">-- Pilih Kategori --</option>
-                                    <option value="Asisten Lapangan">Asisten Lapangan</option>
-                                    <option value="Persiapan Bahan">Persiapan Bahan</option>
-                                    <option value="Keamanan">Keamanan</option>
+                                    @foreach($pekerjaans as $pekerjaan)
+                                        <option value="{{ $pekerjaan->pekerjaan_id }}">
+                                            {{ $pekerjaan->nama_pekerjaan }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div>

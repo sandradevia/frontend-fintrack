@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kehadiran_nominatifs', function (Blueprint $table) {
+        Schema::create('detail_anggaran_bahan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('daftar_nominatif_id')
-                ->constrained('daftar_nominatif')
-                ->cascadeOnDelete();
-            $table->date('tanggal');
-            $table->decimal('honor_harian', 15, 2)->default(0);
+            $table->foreignId('anggaran_bahan_id')->references('id')->on('anggaran_bahan')->cascadeOnDelete();
+            $table->foreignId('kategori_penerima_id')->references('id')->on('kategori_penerima')->cascadeOnDelete();
+            $table->integer('jumlah');
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kehadiran_nominatifs');
+        Schema::dropIfExists('detail_anggaran_bahan');
     }
 };
