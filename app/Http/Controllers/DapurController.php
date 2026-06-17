@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Dapur;
-use App\Models\Periode;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -23,7 +22,7 @@ class DapurController extends Controller
 
     public function index()
     {
-        $dapur = Dapur::with(['periodeAktif', 'user'])->findOrFail(session('dapur_id'));
+        $dapur = Dapur::with(['user'])->findOrFail(session('dapur_id'));
         return view('admin.profile.profile', compact('dapur'));
     }
 
@@ -41,13 +40,7 @@ class DapurController extends Controller
             'nama_yayasan' => 'nullable|string|max:255',
             'ketua_yayasan' => 'nullable|string|max:255',
             'nomor_rekening' => 'nullable|string|max:50',
-
-            // periode
-            'tanggal_pelaporan' => 'nullable|date',
             'tempat_pelaporan' => 'nullable|string|max:255',
-            'tahun_anggaran' => 'nullable|string|max:20',
-            'periode_saat_ini' => 'nullable|string|max:50',
-            'awal_periode_berikutnya' => 'nullable|date',
 
             // user
             'username' => 'required|string|max:50|unique:users,username',
@@ -65,17 +58,7 @@ class DapurController extends Controller
             'nama_yayasan' => $validated['nama_yayasan'] ?? null,
             'ketua_yayasan' => $validated['ketua_yayasan'] ?? null,
             'nomor_rekening' => $validated['nomor_rekening'] ?? null,
-        ]);
-
-        // =====================
-        // SIMPAN PERIODE
-        // =====================
-        $dapur->periode()->create([
-            'tanggal_pelaporan' => $validated['tanggal_pelaporan'] ?? null,
             'tempat_pelaporan' => $validated['tempat_pelaporan'] ?? null,
-            'tahun_anggaran' => $validated['tahun_anggaran'] ?? null,
-            'periode_saat_ini' => $validated['periode_saat_ini'] ?? null,
-            'awal_periode_berikutnya' => $validated['awal_periode_berikutnya'] ?? null,
         ]);
 
         // =====================
@@ -99,7 +82,7 @@ class DapurController extends Controller
     // =============================
     public function update(Request $request, $id)
     {
-        $dapur = Dapur::with(['periodeAktif', 'user'])->findOrFail($id);
+        $dapur = Dapur::with(['user'])->findOrFail($id);
 
         $validated = $request->validate([
             // dapur
@@ -110,13 +93,7 @@ class DapurController extends Controller
             'nama_yayasan' => 'nullable|string|max:255',
             'ketua_yayasan' => 'nullable|string|max:255',
             'nomor_rekening' => 'nullable|string|max:50',
-
-            // periode
-            'tanggal_pelaporan' => 'nullable|date',
             'tempat_pelaporan' => 'nullable|string|max:255',
-            'tahun_anggaran' => 'nullable|string|max:20',
-            'periode_saat_ini' => 'nullable|string|max:50',
-            'awal_periode_berikutnya' => 'nullable|date',
 
             // user
             'username' => 'nullable|string|max:50|unique:users,username,' . ($dapur->user->id ?? 'NULL'),
@@ -134,28 +111,8 @@ class DapurController extends Controller
             'nama_yayasan' => $validated['nama_yayasan'] ?? null,
             'ketua_yayasan' => $validated['ketua_yayasan'] ?? null,
             'nomor_rekening' => $validated['nomor_rekening'] ?? null,
+            'tempat_pelaporan' => $validated['tempat_pelaporan'] ?? null,
         ]);
-
-        // =====================
-        // UPDATE / CREATE PERIODE
-        // =====================
-        if ($dapur->periodeAktif) {
-            $dapur->periodeAktif->update([
-                'tanggal_pelaporan' => $validated['tanggal_pelaporan'] ?? null,
-                'tempat_pelaporan' => $validated['tempat_pelaporan'] ?? null,
-                'tahun_anggaran' => $validated['tahun_anggaran'] ?? null,
-                'periode_saat_ini' => $validated['periode_saat_ini'] ?? null,
-                'awal_periode_berikutnya' => $validated['awal_periode_berikutnya'] ?? null,
-            ]);
-        } else {
-            $dapur->periode()->create([
-                'tanggal_pelaporan' => $validated['tanggal_pelaporan'] ?? null,
-                'tempat_pelaporan' => $validated['tempat_pelaporan'] ?? null,
-                'tahun_anggaran' => $validated['tahun_anggaran'] ?? null,
-                'periode_saat_ini' => $validated['periode_saat_ini'] ?? null,
-                'awal_periode_berikutnya' => $validated['awal_periode_berikutnya'] ?? null,
-            ]);
-        }
 
         // =====================
         // UPDATE USER
@@ -169,9 +126,8 @@ class DapurController extends Controller
             ]);
         }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Data berhasil diperbarui',
-        ]);
+         return redirect()
+            ->route('admin.profile.profile')
+            ->with('success', 'Data nominatif berhasil dihapus.');
     }
 }

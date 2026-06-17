@@ -102,27 +102,58 @@
 
         {{-- Table header --}}
         <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-800">
-            <div>
-                <h2 class="text-sm font-bold uppercase tracking-wide text-gray-800 dark:text-white">
-                    @if($activeTab == 'bahan') Anggaran Bahan Makanan
-                    @elseif($activeTab == 'operasional') Anggaran Operasional
-                    @else Anggaran Insentif Fasilitas
-                    @endif
-                </h2>
-                <p class="mt-0.5 text-xs text-gray-400">
-                    @if($activeTab == 'bahan') Data distribusi harian per kategori penerima
-                    @elseif($activeTab == 'operasional') Rincian pengeluaran operasional dapur
-                    @else Rincian insentif per fasilitas
-                    @endif
-                </p>
-            </div>
-            <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold
-                {{ $activeTab == 'bahan' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' :
-                   ($activeTab == 'operasional' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' :
-                   'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300') }}">
-                {{ count($items) }} entri
-            </span>
-        </div>
+    <div>
+        <h2 class="text-sm font-bold uppercase tracking-wide text-gray-800 dark:text-white">
+            @if($activeTab == 'bahan')
+                Anggaran Bahan Makanan
+            @elseif($activeTab == 'operasional')
+                Anggaran Operasional
+            @else
+                Anggaran Insentif Fasilitas
+            @endif
+        </h2>
+
+        <p class="mt-0.5 text-xs text-gray-400">
+            @if($activeTab == 'bahan')
+                Data distribusi harian per kategori penerima
+            @elseif($activeTab == 'operasional')
+                Rincian pengeluaran operasional dapur
+            @else
+                Rincian insentif per fasilitas
+            @endif
+        </p>
+    </div>
+
+    <div class="flex items-center gap-3">
+
+        <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold
+            {{ $activeTab == 'bahan'
+                ? 'bg-blue-50 text-blue-700'
+                : ($activeTab == 'operasional'
+                    ? 'bg-emerald-50 text-emerald-700'
+                    : 'bg-amber-50 text-amber-700') }}">
+            {{ count($items) }} entri
+        </span>
+
+        <button
+    wire:click="openTambahModal"
+    class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+
+    <svg class="h-4 w-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor">
+        <path stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"/>
+    </svg>
+
+    Tambah Anggaran
+</button>
+
+    </div>
+</div>
 
         {{-- Table --}}
         <div class="overflow-x-auto">

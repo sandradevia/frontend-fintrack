@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\AnggaranBahan;
+use App\Models\KategoriPenerima;
 
 class DetailAnggaranBahan extends Model
 {
@@ -10,7 +13,7 @@ class DetailAnggaranBahan extends Model
 
     protected $fillable = [
         'anggaran_bahan_id',
-        'kategori',
+        'kategori_penerima_id',
         'jumlah',
     ];
 
@@ -19,6 +22,14 @@ class DetailAnggaranBahan extends Model
         return $this->belongsTo(
             AnggaranBahan::class,
             'anggaran_bahan_id'
+        );
+    }
+
+    public function kategoriPenerima()
+    {
+        return $this->belongsTo(
+            KategoriPenerima::class,
+            'kategori_penerima_id'
         );
     }
 }

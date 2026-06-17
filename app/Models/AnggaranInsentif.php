@@ -13,25 +13,34 @@ class AnggaranInsentif extends Model
         'anggaran_bahan_id',
         'tanggal',
         'harga_satuan',
-        'total_rab'
+        'total_rab',
+        'status',
+        'verified_by',
+        'verified_at',
+        'catatan_status',
     ];
 
-    // Relasi ke dapur
     public function dapur()
     {
-        return $this->belongsTo(Dapur::class);
+        return $this->belongsTo(
+            Dapur::class,
+            'dapur_id'
+        );
     }
 
     public function bahan()
     {
-        return $this->belongsTo(AnggaranBahan::class, 'anggaran_bahan_id');
+        return $this->belongsTo(
+            AnggaranBahan::class,
+            'anggaran_bahan_id'
+        );
     }
 
-
-    protected static function booted()
+    public function verifier()
     {
-        static::saving(function ($model) {
-            $model->total_rab = $model->harga_satuan;
-        });
+        return $this->belongsTo(
+            User::class,
+            'verified_by'
+        );
     }
 }

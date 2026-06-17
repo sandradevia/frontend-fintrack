@@ -16,6 +16,7 @@ class Dapur extends Model
         'nama_yayasan',
         'ketua_yayasan',
         'nomor_rekening',
+        'tempat_pelaporan',
     ];
 
     // relasi ke periode
@@ -36,9 +37,9 @@ class Dapur extends Model
     }
 
     public function user()
-    {
-        return $this->hasMany(User::class);
-    }
+{
+    return $this->hasOne(User::class, 'dapur_id');
+}
 
     public function notifications()
     {

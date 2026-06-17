@@ -8,65 +8,28 @@ use App\Models\AnggaranBahan;
 use App\Models\AnggaranOperasional;
 use App\Models\AnggaranInsentif;
 
+namespace App\Http\Controllers;
+
 class AnggaranController extends Controller
 {
-    public function bahan(Request $request)
+    public function bahan()
     {
-        $user = Auth::user();
-        $tab = $request->query('tab', 'bahan');
-
-        $items = collect();
-        $total = 0;
-        $count = 0;
-
-        // ================= BAHAN =================
-        if ($tab == 'bahan') {
-            $items = AnggaranBahan::with('dapur','details')->get();
-            $total = $items->sum('total_rab');
-        }
-
-        // ================= OPERASIONAL =================
-        elseif ($tab == 'operasional') {
-            $items = AnggaranOperasional::with('dapur')->get();
-            $total = $items->sum('total_rab');
-        }
-
-        // ================= INSENTIF =================
-        elseif ($tab == 'insentif') {
-            $items = AnggaranInsentif::with(['dapur','bahan'])->get();
-            $total = $items->sum('total_rab');
-        }
-
-        $count = $items->count();
-        $totalGlobalRab = 0;
-
-$totalGlobalRab += AnggaranBahan::sum('total_rab');
-$totalGlobalRab += AnggaranOperasional::sum('total_rab');
-$totalGlobalRab += AnggaranInsentif::sum('total_rab');
-        $summary = [
-        'bahan' => [
-            'count' => AnggaranBahan::count(),
-            'total' => AnggaranBahan::sum('total_rab'),
-        ],
-        'operasional' => [
-            'count' => AnggaranOperasional::count(),
-            'total' => AnggaranOperasional::sum('total_rab'),
-        ],
-        'insentif' => [
-            'count' => AnggaranInsentif::count(),
-            'total' => AnggaranInsentif::sum('total_rab'),
-        ],
-    ];
-
         return view('admin.anggaran.bahan', [
             'title' => 'Setup Anggaran',
-            'user' => $user,
-            'activeTab' => $tab,
-            'items' => $items,
-            'total' => $total,
-            'count' => $count,
-            'summary' => $summary,
-            'totalGlobalRab' => $totalGlobalRab,
+        ]);
+    }
+
+    public function operasional()
+    {
+        return view('admin.anggaran.operasional', [
+            'title' => 'Setup Anggaran',
+        ]);
+    }
+
+    public function insentif()
+    {
+        return view('admin.anggaran.insentif', [
+            'title' => 'Setup Anggaran',
         ]);
     }
 }

@@ -34,6 +34,7 @@ class PenerimaanBarangController extends Controller
         $barang = Barang::where('dapur_id', $dapur->id)
             ->orderBy('nama_barang')
             ->get();
+        
 
         $periodeAwal = now()->startOfMonth()->format('d F Y');
         $periodeAkhir = now()->format('d F Y');
@@ -155,6 +156,8 @@ if ($total12Hari >= $threshold) {
             'message' => $e->getMessage(),
         ], 500);
     }
+    dd($item->gambar);
+
 }
 
     public function edit($id)
@@ -188,6 +191,15 @@ if ($total12Hari >= $threshold) {
 
         $item = PenerimaanBarang::whereHas('barang', fn($q) => $q->where('dapur_id', $dapur->id))
             ->findOrFail($id);
+        if ($request->hasFile('gambar')) {
+    $file = $request->file('gambar');
+
+    $name = time().'_'.$file->getClientOriginalName();
+    $file->move(public_path('uploads/bukti'), $name);
+
+    $data['gambar'] = 'uploads/bukti/'.$name;
+}
+        
 
         $item->update($request->only([
             'jumlah', 'harga_beli', 'tanggal_masuk'
@@ -213,4 +225,6 @@ if ($total12Hari >= $threshold) {
             'status' => 'success',
         ]);
     }
+
+    
 }

@@ -14,11 +14,18 @@ class AnggaranBahan extends Model
         'jumlah_paket',
         'harga_satuan',
         'total_rab',
+        'status',
+        'verified_by',
+        'verified_at',
+        'catatan_status',
     ];
 
     public function dapur()
     {
-        return $this->belongsTo(Dapur::class, 'dapur_id');
+        return $this->belongsTo(
+            Dapur::class,
+            'dapur_id'
+        );
     }
 
     public function details()
@@ -26,6 +33,14 @@ class AnggaranBahan extends Model
         return $this->hasMany(
             DetailAnggaranBahan::class,
             'anggaran_bahan_id'
+        );
+    }
+
+    public function verifier()
+    {
+        return $this->belongsTo(
+            User::class,
+            'verified_by'
         );
     }
 }

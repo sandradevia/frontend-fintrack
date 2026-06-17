@@ -149,7 +149,7 @@
  
                         <p id="namaFileFoto" class="hidden text-xs text-blue-600 mt-2 font-medium"></p>
                     </div>
-                    <input type="file" id="fotoBukti" name="foto_bukti" accept="image/*" class="hidden">
+                    <input type="file" id="fotoBukti" name="gambar" accept="image/*" class="hidden">
                 </div>
 
                 <div class="md:col-span-7 flex justify-end gap-2 pt-4">
@@ -212,6 +212,7 @@
                             <td class="border px-3 py-2 text-center">{{ $item->barang->satuan ?? 'N/A' }}</td>
 
                             <td class="border px-3 py-2 text-center">{{ $item->jumlah }}</td>
+                            
 
                             <td class="border px-3 py-2 text-right">
                                 {{ number_format($item->harga_beli, 0, ',', '.') }}
@@ -223,8 +224,8 @@
 
                             {{-- Kolom Bukti Foto --}}
                             <td class="border px-3 py-2 text-center">
-                                @if ($item->foto_bukti)
-                                    <button onclick="lihatFoto('{{ asset('storage/' . $item->foto_bukti) }}')"
+                                @if ($item->gambar)
+                                    <button onclick="lihatFoto('{{ $item->gambar_url }}')"
                                         class="text-blue-500 hover:underline text-xs flex items-center gap-1 mx-auto">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -352,7 +353,7 @@
 
                 <p id="editNamaFile" class="hidden text-xs text-blue-600 mt-1 font-medium"></p>
             </div>
-            <input type="file" id="editFotoBukti" name="foto_bukti" accept="image/*" class="hidden">
+            <input type="file" id="editFotoBukti" name="gambar" accept="image/*" class="hidden">
         </div>
 
         <div class="flex justify-end gap-2 pt-2">
@@ -363,6 +364,7 @@
         </div>
 
         </form>
+        {{ $item->gambar }}
     </div>
 </div>
 
@@ -469,7 +471,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let namaBarang = item.barang?.nama_barang ?? '-';
             let satuan   = item.barang?.satuan ?? '-';
             let supplier = item.barang?.supplier ?? '-';
-            let fotoUrl  = item.foto_bukti_url ?? null;
+            let fotoUrl  = item.gambar_url ?? null;
             let status   = item.status_acc ?? 'menunggu';
 
             let row = document.createElement('tr');
@@ -612,8 +614,8 @@ window.editItem = function (id) {
             const fotoLamaWrap = document.getElementById('editFotoLama');
             const fotoLamaImg  = document.getElementById('editFotoLamaImg');
 
-            if (item.foto_bukti_url) {
-                fotoLamaImg.src = item.foto_bukti_url;
+            if (item.gambar_url) {
+                fotoLamaImg.src = item.gambar_url;
                 fotoLamaWrap.classList.remove('hidden');
             } else {
                 fotoLamaWrap.classList.add('hidden');
@@ -662,7 +664,7 @@ document.getElementById('editForm').addEventListener('submit', function (e) {
         row.children[5].innerText = item.jumlah;
         row.children[6].innerText = Number(item.harga_beli).toLocaleString('id-ID');
         row.children[7].innerText = Number(item.jumlah * item.harga_beli).toLocaleString('id-ID');
-        row.children[8].innerHTML = renderFotoBtn(item.foto_bukti_url ?? null, item.id);
+        row.children[8].innerHTML = renderFotoBtn(item.gambar_url ?? null, item.id);
 
         closeEditModal();
 

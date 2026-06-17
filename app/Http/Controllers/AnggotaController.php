@@ -41,18 +41,18 @@ class AnggotaController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'pekerjaan_id' => 'required|exists:pekerjaans,id',
+            'pekerjaan_id' => 'required|exists:pekerjaan,id',
         ]);
 
         $user = Auth::user();
 
-        $dapur = Dapur::where('user_id', $user->id)->first();
+$dapur = Dapur::find($user->dapur_id);
 
-        Anggota::create([
-            'nama' => $validated['nama'],
-            'pekerjaan_id' => $validated['pekerjaan_id'],
-            'dapur_id' => $dapur?->id,
-        ]);
+Anggota::create([
+    'nama' => $validated['nama'],
+    'pekerjaan_id' => $validated['pekerjaan_id'],
+    'dapur_id' => $dapur?->id,
+    ]);
 
         return redirect()
             ->back()
@@ -68,7 +68,7 @@ class AnggotaController extends Controller
 
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'pekerjaan_id' => 'required|exists:pekerjaans,id',
+            'pekerjaan_id' => 'required|exists:pekerjaan,id',
         ]);
 
         $anggota->update([

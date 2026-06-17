@@ -12,12 +12,26 @@ class AnggaranOperasional extends Model
         'dapur_id',
         'tanggal',
         'keterangan',
-        'total_rab'
+        'total_rab',
+        'status',
+        'verified_by',
+        'verified_at',
+        'catatan_status',
     ];
 
-    // Relasi ke dapur
     public function dapur()
     {
-        return $this->belongsTo(Dapur::class, 'dapur_id');
+        return $this->belongsTo(
+            Dapur::class,
+            'dapur_id'
+        );
+    }
+
+    public function verifier()
+    {
+        return $this->belongsTo(
+            User::class,
+            'verified_by'
+        );
     }
 }
