@@ -66,13 +66,13 @@
                         value="{{ date('Y-m-d') }}">
                 </div>
 
-                {{-- Supplier --}}
+                {{-- Supplier
                 <div class="md:col-span-2">
                     <label class="text-sm text-gray-600">Supplier</label>
                     <input type="text"
                         name="supplier"
                         class="w-full border rounded-lg px-3 py-2">
-                </div>
+                </div> --}}
 
                 {{-- Barang --}}
                 <div class="md:col-span-2">
@@ -184,7 +184,7 @@
                     <tr>
                         <th class="border px-3 py-2 text-center">No</th>
                         <th class="border px-3 py-2">Tanggal</th>
-                        <th class="border px-3 py-2">Supplier</th>
+                        {{-- <th class="border px-3 py-2">Supplier</th> --}}
                         <th class="border px-3 py-2">Nama Barang</th>
                         <th class="border px-3 py-2 text-center">Satuan</th>
                         <th class="border px-3 py-2 text-center">Vol</th>
@@ -205,7 +205,7 @@
 
                             <td class="border px-3 py-2">{{ $item->tanggal_masuk }}</td>
 
-                            <td class="border px-3 py-2">{{ $item->barang->supplier ?? 'N/A' }}</td>
+                            {{-- <td class="border px-3 py-2">{{ $item->barang->supplier ?? 'N/A' }}</td> --}}
 
                             <td class="border px-3 py-2">{{ $item->barang->nama_barang ?? 'N/A' }}</td>
 
@@ -298,11 +298,11 @@
                 class="w-full border p-2 rounded focus:ring focus:ring-blue-200">
         </div>
 
-        <div>
+        {{-- <div>
             <label class="block text-sm text-gray-600 mb-1">Supplier</label>
             <input type="text" name="supplier"
                 class="w-full border p-2 rounded focus:ring focus:ring-blue-200">
-        </div>
+        </div> --}}
 
         <div>
             <label class="block text-sm text-gray-600 mb-1">Nama Barang</label>
@@ -363,8 +363,7 @@
                 class="px-4 py-2 bg-blue-500 text-white rounded">Update</button>
         </div>
 
-        </form>
-        {{ $item->gambar }}
+    </form>
     </div>
 </div>
 
@@ -470,7 +469,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let item     = res.item;
             let namaBarang = item.barang?.nama_barang ?? '-';
             let satuan   = item.barang?.satuan ?? '-';
-            let supplier = item.barang?.supplier ?? '-';
+            // let supplier = item.barang?.supplier ?? '-';
             let fotoUrl  = item.gambar_url ?? null;
             let status   = item.status_acc ?? 'menunggu';
 
@@ -481,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function () {
             row.innerHTML = `
                 <td class="border px-3 py-2 text-center">${tbody.children.length + 1}</td>
                 <td class="border px-3 py-2">${item.tanggal_masuk}</td>
-                <td class="border px-3 py-2">${supplier}</td>
+                
                 <td class="border px-3 py-2">${namaBarang}</td>
                 <td class="border px-3 py-2 text-center">${satuan}</td>
                 <td class="border px-3 py-2 text-center">${item.jumlah}</td>
@@ -604,7 +603,7 @@ window.editItem = function (id) {
             };
 
             setVal('tanggal_masuk', item.tanggal_masuk);
-            setVal('supplier',      item.barang?.supplier);
+            // setVal('supplier',      item.barang?.supplier);
             setVal('nama_barang',   item.barang?.nama_barang);
             setVal('jumlah',        item.jumlah);
             setVal('harga_beli',    item.harga_beli);
@@ -658,7 +657,7 @@ document.getElementById('editForm').addEventListener('submit', function (e) {
         if (!row) return;
 
         row.children[1].innerText = item.tanggal_masuk;
-        row.children[2].innerText = item.barang?.supplier  ?? '-';
+        // row.children[2].innerText = item.barang?.supplier  ?? '-';
         row.children[3].innerText = item.barang?.nama_barang ?? '-';
         row.children[4].innerText = item.barang?.satuan    ?? '-';
         row.children[5].innerText = item.jumlah;

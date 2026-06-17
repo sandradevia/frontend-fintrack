@@ -14,6 +14,7 @@ class AnggaranBahan extends Model
         'jumlah_paket',
         'harga_satuan',
         'total_rab',
+        'harga_satuan_2',
         'status',
         'verified_by',
         'verified_at',

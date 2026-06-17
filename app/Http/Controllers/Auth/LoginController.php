@@ -30,7 +30,7 @@ class LoginController extends Controller
 
         $user = Auth::user();
 
-        // SUPER ADMIN
+
         if ($user->hasRole('super_admin')) {
 
             session([
@@ -40,7 +40,7 @@ class LoginController extends Controller
             return redirect()->route('super.dashboard');
         }
 
-        // ADMIN YAYASAN
+
         if ($user->hasRole('admin_yayasan')) {
 
             session([
@@ -90,9 +90,7 @@ class LoginController extends Controller
         return redirect()->route('admin.dashboard');
     }
 
-    /**
-     * 👑 MODE DAPUR UTAMA
-     */
+
     public function dapurUtama()
     {
         if (!Auth::user()->hasRole('super_admin')) {

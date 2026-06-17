@@ -1,5 +1,6 @@
 <?php
 
+namespace App\Models;
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
@@ -14,55 +15,110 @@ use App\Models\DetailAnggaranBahan;
 
 class AnggaranTable extends Component
 {
-    // Disinkronkan ke query string ?tab=..., jadi bisa di-refresh / di-bookmark
+    // Disinkronkan ke query string ?tab=...
     #[Url(as: 'tab')]
     public $activeTab = 'bahan';
 
     // Modal
     public $showModalTambah = false;
 
-    // Form
+    // Form Properti Utama
     public $kategoriAnggaran = '';
-
     public $tanggal;
-    public $harga_satuan;
-    public $total_rab;
+    public $harga_satuan = 0;       // MBG 1 (KB/TK, SD 1-3, Balita)
+    public $harga_satuan_2 = 0;     // MBG 2 (SD 4-6, SMP, SMA, Bumil, Busui)
     public $keterangan;
-
     public $anggaran_bahan_id;
 
-    // Detail penerima
-    public $kb_tk = 0;
-    public $sd_1_3 = 0;
-    public $sd_4_6 = 0;
-    public $smp = 0;
-    public $sma = 0;
-    public $balita = 0;
-    public $bumil = 0;
-    public $busui = 0;
+    // Properti Hasil Kalkulasi yang akan dibaca langsung oleh Blade
+    public $jumlah_paket = 0;
+    public $total_rab = 0;
+
+    // Array Input Data Siswa Berdasarkan ID
+    public $jumlah_siswa = [
+        1 => 0,
+        2 => 0,
+        3 => 0,
+        4 => 0,
+        5 => 0,
+        6 => 0,
+        7 => 0,
+        8 => 0
+    ];
 
     public function setTab($tab)
     {
         $this->activeTab = $tab;
     }
 
-    public function getJumlahPaketProperty()
+    /**
+     * FUNGSI MANDIRI UNTUK MENGHITUNG PORSI DAN NOMINAL RAB
+     */
+    public function hitungKalkulasiOtomatis()
     {
-        return
-            (int) $this->kb_tk +
-            (int) $this->sd_1_3 +
-            (int) $this->sd_4_6 +
-            (int) $this->smp +
-            (int) $this->sma +
-            (int) $this->balita +
-            (int) $this->bumil +
-            (int) $this->busui;
+        // 1. Hitung Total Porsi Paket
+        $daftar_jumlah = array_map(function($nilai) {
+            return is_numeric($nilai) ? (int)$nilai : 0;
+        }, $this->jumlah_siswa ?? []);
+
+        $this->jumlah_paket = array_sum($daftar_jumlah);
+
+        // 2. Hitung Estimasi Total RAB Berdasarkan Kelompok Tarif
+        // Kelompok 1 (ID 1 = KB/TK, ID 2 = SD 1-3, ID 6 = Balita)
+        $kelompok1 = (int)($this->jumlah_siswa[1] ?? 0) + 
+                     (int)($this->jumlah_siswa[2] ?? 0) + 
+                     (int)($this->jumlah_siswa[6] ?? 0);
+        
+        // Kelompok 2 (ID 3 = SD 4-6, ID 4 = SMP, ID 5 = SMA, ID 7 = Bumil, ID 8 = Busui)
+        $kelompok2 = (int)($this->jumlah_siswa[3] ?? 0) + 
+                     (int)($this->jumlah_siswa[4] ?? 0) + 
+                     (int)($this->jumlah_siswa[5] ?? 0) + 
+                     (int)($this->jumlah_siswa[7] ?? 0) + 
+                     (int)($this->jumlah_siswa[8] ?? 0);
+
+        $harga1 = is_numeric($this->harga_satuan) ? (float)$this->harga_satuan : 0;
+        $harga2 = is_numeric($this->harga_satuan_2) ? (float)$this->harga_satuan_2 : 0;
+
+        // Amankan nilai total akhir ke variabel penampung
+        $this->total_rab = ($kelompok1 * $harga1) + ($kelompok2 * $harga2);
     }
 
-    public function getTotalRabProperty()
+    /**
+     * LIFECYCLE HOOK SENSOR LIVEWIRE 3
+     * Berjalan otomatis setiap kali ada ketikan di modal form
+     */
+    public function updated($propertyName)
     {
-        return $this->jumlahPaket * ($this->harga_satuan ?? 0);
+        if ($this->kategoriAnggaran === 'bahan') {
+            $this->hitungKalkulasiOtomatis();
+        }
+
+        elseif ($this->kategoriAnggaran === 'insentif') {
+            // Pastikan id acuan bahan dan harga satuan tidak kosong/nol
+            if (!empty($this->anggaran_bahan_id) && (float)$this->harga_satuan > 0) {
+                
+                // Paksa ID menjadi integer agar query pencarian DB akurat
+                $bahanId = (int)$this->anggaran_bahan_id;
+                $bahan = \App\Models\AnggaranBahan::find($bahanId);
+                
+                if ($bahan) {
+                    // Ambil jumlah porsi/paket dari record anggaran_bahan terpilih
+                    $porsiPaket = (int)$bahan->jumlah_paket;
+                    $hargaInsentif = (float)$this->harga_satuan;
+
+                    // Hitung riil kalkulasi RAB Insentif
+                    $this->total_rab = $porsiPaket * $hargaInsentif;
+                } else {
+                    $this->total_rab = 0;
+                }
+            } else {
+                // Reset ke 0 jika input acuan belum lengkap
+                $this->total_rab = 0;
+            }
+        }
     }
+
+    // Hapus fungsi getJumlahPaketProperty(), getTotalRabProperty() dan updatedJumlahSiswa() yang lama...
 
     public function openTambahModal()
     {
@@ -81,62 +137,52 @@ class AnggaranTable extends Component
             'kategoriAnggaran',
             'tanggal',
             'harga_satuan',
-            'total_rab',
+            'harga_satuan_2',
             'keterangan',
             'anggaran_bahan_id',
-
-            'kb_tk',
-            'sd_1_3',
-            'sd_4_6',
-            'smp',
-            'sma',
-            'balita',
-            'bumil',
-            'busui',
+            'jumlah_paket',
+            'total_rab'
         ]);
+        $this->jumlah_siswa = [1=>0, 2=>0, 3=>0, 4=>0, 5=>0, 6=>0, 7=>0, 8=>0];
     }
 
     private function simpanBahan()
     {
         $this->validate([
-            'tanggal' => 'required|date',
-            'harga_satuan' => 'required|numeric|min:1',
+            'tanggal'        => 'required|date',
+            'harga_satuan'   => 'required|numeric|min:0',
+            'harga_satuan_2' => 'required|numeric|min:0',
         ]);
 
         DB::transaction(function () {
+            // Pastikan perhitungan dijalankan sekali lagi sebelum masuk ke Database
+            $this->hitungKalkulasiOtomatis();
 
             $anggaran = AnggaranBahan::create([
-                'dapur_id'      => Auth::user()->dapur_id,
-                'tanggal'       => $this->tanggal,
-                'jumlah_paket'  => $this->jumlahPaket,
-                'harga_satuan'  => $this->harga_satuan,
-                'total_rab'     => $this->totalRab,
+                'dapur_id'       => Auth::user()->dapur_id,
+                'tanggal'        => $this->tanggal,
+                'jumlah_paket'   => $this->jumlah_paket,
+                'harga_satuan'   => $this->harga_satuan,
+                'harga_satuan_2' => $this->harga_satuan_2,
+                'total_rab'      => $this->total_rab,
+                'status'         => 'pending',
             ]);
 
-            $detail = [
-                1 => $this->kb_tk,
-                2 => $this->sd_1_3,
-                3 => $this->sd_4_6,
-                4 => $this->smp,
-                5 => $this->sma,
-                6 => $this->balita,
-                7 => $this->bumil,
-                8 => $this->busui,
-            ];
-
-            foreach ($detail as $kategoriId => $jumlah) {
-
-                if ($jumlah > 0) {
-
-                    DetailAnggaranBahan::create([
-                        'anggaran_bahan_id'     => $anggaran->id,
-                        'kategori_penerima_id' => $kategoriId,
-                        'jumlah'               => $jumlah,
-                    ]);
+            if (!empty($this->jumlah_siswa)) {
+                foreach ($this->jumlah_siswa as $kategoriId => $jumlah) {
+                    if ((int)$jumlah > 0) {
+                        DetailAnggaranBahan::create([
+                            'anggaran_bahan_id'    => $anggaran->id,
+                            'kategori_penerima_id' => $kategoriId,
+                            'jumlah'               => (int)$jumlah,
+                        ]);
+                    }
                 }
             }
         });
     }
+
+    // Sisa fungsi simpanOperasional, simpanInsentif, simpan, getData, getSummary, dan render tetap biarkan seperti aslinya...
 
     private function simpanOperasional()
     {
@@ -262,19 +308,15 @@ class AnggaranTable extends Component
     public function render()
     {
         $user = Auth::user();
-        $summary = $this->getSummary();
-
-        return view('livewire.admin.anggaran-table', [
-            'items'   => $this->getData(),
-            'summary' => $summary,
-            'totalGlobalRab' =>
-                $summary['bahan']['total'] +
-                $summary['operasional']['total'] +
-                $summary['insentif']['total'],
-            'listAnggaranBahan' => AnggaranBahan::where(
-                'dapur_id',
-                $user->dapur_id
-            )->latest()->get(),
-        ]);
+    
+    return view('livewire.admin.anggaran-table', [
+        'items'             => $this->getData(),
+        'summary'           => $this->getSummary(),
+        'totalGlobalRab'    => $this->getSummary()['bahan']['total'] + $this->getSummary()['operasional']['total'] + $this->getSummary()['insentif']['total'],
+        'listAnggaranBahan' => AnggaranBahan::where('dapur_id', $user->dapur_id)->latest()->get(),
+        // Ambil data dari tabel kategori penerima kamu
+        'kategoriPenerima'  => DB::table('kategori_penerima')->get(), 
+    ]);
     }
+
 }

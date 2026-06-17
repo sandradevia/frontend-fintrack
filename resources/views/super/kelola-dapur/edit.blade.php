@@ -203,7 +203,7 @@
                     </div>
                 </div>
 
-                {{-- PELAPORAN --}}
+                {{-- PELAPORAN
                 <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm">
                     <div class="section-header-form">
                         <div class="icon-wrapper !text-orange-600"><i class="ph-bold ph-calendar"></i></div>
@@ -213,27 +213,45 @@
 
                     <div class="space-y-4">
                         <div>
-                            <label class="dapur-label">Kota / Kabupaten</label>
+                            <label class="dapur-label">Tempat Pelaporan</label>
                             <input name="tempat_pelaporan" value="{{ old('tempat_pelaporan', $dapur->tempat_pelaporan) }}" class="dapur-input">
                         </div>
                         <div>
-                            <label class="dapur-label">Tanggal Pelaporan</label>
-                            <input type="string" name="tanggal_pelaporan" value="{{ old('tanggal_pelaporan', $periode->tanggal_pelaporan ?? '') }}" class="dapur-input">
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="dapur-label">Tahun</label>
-                                <input name="tahun_anggaran" value="{{ old('tahun_anggaran', $periode->tahun_anggaran ?? '') }}" class="dapur-input" placeholder="2024">
-                            </div>
-                            <div>
-                                <label class="dapur-label">Periode</label>
-                                <input name="periode_saat_ini" value="{{ old('periode_saat_ini', $periode->periode_saat_ini ?? '') }}" class="dapur-input" placeholder="Jan-Mar">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="dapur-label">Awal Periode Berikutnya</label>
-                            <input type="date" name="awal_periode_berikutnya" value="{{ old('awal_periode_berikutnya', $periode->tanggal_mulai ?? '') }}" class="dapur-input">
-                        </div>
+    <label class="dapur-label">Tanggal Pelaporan</label>
+    <input
+        type="date"
+        name="tanggal_pelaporan"
+        value="{{ old('tanggal_pelaporan', isset($periode) ? $periode->tanggal_pelaporan?->format('Y-m-d') : '') }}"
+        class="dapur-input">
+</div> --}}
+
+{{-- <div>
+    <label class="dapur-label">Tahun Anggaran</label>
+    <input
+        type="number"
+        name="tahun_anggaran"
+        value="{{ old('tahun_anggaran', $periode->tahun_anggaran ?? '') }}"
+        class="dapur-input"
+        placeholder="2026">
+</div>
+
+<div>
+    <label class="dapur-label">Tanggal Mulai</label>
+    <input
+        type="date"
+        name="tanggal_mulai"
+        value="{{ old('tanggal_mulai', isset($periode) ? $periode->tanggal_mulai?->format('Y-m-d') : '') }}"
+        class="dapur-input">
+</div>
+
+<div>
+    <label class="dapur-label">Tanggal Selesai</label>
+    <input
+        type="date"
+        name="tanggal_selesai"
+        value="{{ old('tanggal_selesai', isset($periode) ? $periode->tanggal_selesai?->format('Y-m-d') : '') }}"
+        class="dapur-input">
+</div> --}}
                     </div>
                 </div>
 
