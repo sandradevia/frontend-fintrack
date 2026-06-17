@@ -34,7 +34,7 @@
                 {{-- IDENTITAS --}}
                 <tr class="bg-gray-50 dark:bg-gray-800/50">
                     <td colspan="2" class="px-6 py-2 text-[11px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
-                        Identitas Lembaga
+                        Identitas Lembaga SPPG
                     </td>
                 </tr>
 
@@ -294,5 +294,4 @@
             </form>
         </div>
     </div>
-
 </div>
