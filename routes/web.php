@@ -17,6 +17,7 @@ use App\Http\Controllers\BapSisadanaController;
 use App\Http\Controllers\DaftarNominatifController;
 use App\Http\Controllers\CatatanPengeluaranController;
 use App\Http\Controllers\AnggotaController;
+use App\Http\Controllers\PeriodeController;
 use App\Http\Controllers\InputBarangController;
 use App\Http\Controllers\PenerimaanBarangController;
 use App\Http\Controllers\PengeluaranBarangController;
@@ -63,10 +64,17 @@ Route::middleware(['auth', 'role:admin_dapur|super_admin'])
         Route::get('/anggaran/operasional', [AnggaranController::class, 'operasional'])->name('anggaran.operasional');
         Route::get('/anggaran/insentif', [AnggaranController::class, 'insentif'])->name('anggaran.insentif');
 
-        Route::resource('/awal-buku', AwalBukuController::class);
+        Route::get('/awal-buku', [AwalBukuController::class, 'index'])->name('awal-buku.saldo');
+        // Ubah baris ini agar menerima request POST maupun fallback GET saat redirect
+Route::any('/awal-buku/update', [AwalBukuController::class, 'updateSaldo'])->name('awal-buku.update');
+
+        // Modul Manajemen Periode
+        Route::get('/periode', [PeriodeController::class, 'index'])->name('periode.index');
+        Route::post('/periode/store', [PeriodeController::class, 'store'])->name('periode.store');
+        
         Route::get('/transaksi', [TransaksiController::class, 'index'])->name('transaksi.transaksi');
         Route::post('/transaksi/store', [TransaksiController::class, 'store'])->name('transaksi.store');
-        Route::put('transaksi/update/{id}', [TransaksiController::class, 'update'])->name('transaksi.update');
+        Route::put('/transaksi/update/{id}', [TransaksiController::class, 'update'])->name('transaksi.update');
         Route::get('/transaksi/search-akun', [TransaksiController::class, 'searchAkun'])->name('transaksi.search-akun');
 
         Route::get('/bku', [BkuController::class, 'index'])->name('bku.index');

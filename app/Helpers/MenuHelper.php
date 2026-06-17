@@ -36,7 +36,7 @@ class MenuHelper
 
                     [
                         'name' => 'Saldo Awal Buku',
-                        'route' => 'admin.awal-buku.index',
+                        'route' => 'admin.awal-buku.saldo',
                     ],
 
                     [
@@ -84,6 +84,11 @@ class MenuHelper
                     ['name' => 'Pengeluaran Barang', 'route' => 'admin.pengeluaran-barang.index'],
                     ['name' => 'Laporan Stok Barang', 'route' => 'admin.laporan-stock.index'],
                 ],
+            ],
+            [
+                'icon' => 'calendar',
+                'name' => 'Periode Akuntansi',
+                'route' => 'admin.periode.index',
             ],
             [
                 'icon' => 'user-profile',
