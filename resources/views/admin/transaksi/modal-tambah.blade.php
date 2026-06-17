@@ -45,7 +45,7 @@
                     <input
                         type="text"
                         name="no_bukti"
-                        value="{{ $noBukti ?? '' }}"
+                        value="{{ $nextKwt }}" {{-- Jika ini modal khusus pengeluaran/Kwitansi --}}
                         readonly
                         class="w-full border rounded px-3 py-2 bg-gray-100"
                     >
@@ -91,7 +91,7 @@
                     >
                         <option value="">-- Pilih Akun --</option>
 
-                        @foreach($akuns as $akun)
+                        @foreach($akun as $akun)
                             <option value="{{ $akun->id }}">
                                 {{ $akun->kode }} - {{ $akun->nama_akun }}
                             </option>

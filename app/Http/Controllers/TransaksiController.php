@@ -10,6 +10,28 @@ use App\Models\Dapur;
 
 class TransaksiController extends Controller
 {
+    /**
+     * Fungsi helper untuk generate nomor bukti otomatis berdasarkan tipe (RK / Kwt)
+     */
+    private function generateNextNoBukti($kode)
+    {
+        $tahun = date('Y'); // Mengambil tahun berjalan
+
+        // Ambil transaksi terakhir yang formatnya mirip (contoh: %/Kwt/2026 atau %/RK/2026)
+        $lastTransaksi = Transaksi::where('no_bukti', 'like', "%/{$kode}/{$tahun}")
+            ->orderByRaw("CAST(SPLIT_PART(no_bukti, '/', 1) AS INTEGER) DESC") // Mengurutkan angka depan secara presisi
+            ->first();
+
+        if ($lastTransaksi) {
+            $lastNumber = explode('/', $lastTransaksi->no_bukti)[0];
+            $nextNumber = (int)$lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
+        return "{$nextNumber}/{$kode}/{$tahun}";
+    }
+
     public function index()
     {
         $user = Auth::user();
@@ -21,29 +43,42 @@ class TransaksiController extends Controller
             abort(403, 'User tidak ditemukan');
         }
 
-        $transaksis = Transaksi::with('akun')
+        $transaksi = Transaksi::with('akun')
             ->orderBy('tanggal', 'desc')
+            ->orderBy('id', 'desc')
             ->get();
 
-        $akuns = Akun::orderBy('nama_akun')->get();
+        $akun = Akun::orderBy('nama_akun')->get();
+
+        // Generate nomor bukti otomatis untuk dilempar ke view
+        $nextRk = $this->generateNextNoBukti('RK');   // Untuk Debet (Uang Masuk)
+        $nextKwt = $this->generateNextNoBukti('Kwt'); // Untuk Kredit (Uang Keluar)
 
         return view('admin.transaksi.transaksi', [
             'title' => 'Transaksi',
             'user' => $user,
-            'transaksis' => $transaksis,
-            'akuns' => $akuns,
+            'transaksi' => $transaksi,
+            'akun' => $akun,
             'periodeAwal' => $periodeAwal,
             'periodeAkhir' => $periodeAkhir,
             'dapur' => $dapur,
+            'nextRk' => $nextRk,     // Pastikan ini terkirim
+            'nextKwt' => $nextKwt,   // Pastikan ini terkirim
         ]);
     }
 
     public function store(Request $request)
     {
+        // Tentukan kodenya dulu sebelum validasi unik agar nomor benar-benar fresh dari server
+        $kode = ((float)$request->debet > 0) ? 'RK' : 'Kwt';
+        $request->merge([
+            'no_bukti' => $this->generateNextNoBukti($kode)
+        ]);
+
         $request->validate([
-            'akun_id' => 'required|exists:akuns,id',
+            'akun_id' => 'required|exists:akun,id',
             'tanggal' => 'required|date',
-            'no_bukti' => 'required|unique:transaksis,no_bukti',
+            'no_bukti' => 'required|unique:transaksi,no_bukti',
             'uraian' => 'required|string|max:255',
             'debet' => 'nullable|numeric|min:0',
             'kredit' => 'nullable|numeric|min:0',
@@ -62,7 +97,7 @@ class TransaksiController extends Controller
         ]);
 
         return redirect()
-            ->route('transaksi.index')
+            ->route('admin.transaksi.transaksi')
             ->with('success', 'Transaksi berhasil ditambahkan');
     }
 
@@ -71,9 +106,9 @@ class TransaksiController extends Controller
         $transaksi = Transaksi::findOrFail($id);
 
         $request->validate([
-            'akun_id' => 'required|exists:akuns,id',
+            'akun_id' => 'required|exists:akun,id',
             'tanggal' => 'required|date',
-            'no_bukti' => 'required|unique:transaksis,no_bukti,' . $id,
+            'no_bukti' => 'required|unique:transaksi,no_bukti,' . $id,
             'uraian' => 'required|string|max:255',
             'debet' => 'nullable|numeric|min:0',
             'kredit' => 'nullable|numeric|min:0',
@@ -91,7 +126,7 @@ class TransaksiController extends Controller
         ]);
 
         return redirect()
-            ->route('transaksi.index')
+            ->route('admin.transaksi.transaksi')
             ->with('success', 'Transaksi berhasil diubah');
     }
 
@@ -102,7 +137,7 @@ class TransaksiController extends Controller
         $transaksi->delete();
 
         return redirect()
-            ->route('transaksi.index')
+            ->route('admin.transaksi.transaksi')
             ->with('success', 'Transaksi berhasil dihapus');
     }
 

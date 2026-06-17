@@ -66,6 +66,7 @@ Route::middleware(['auth', 'role:admin_dapur|super_admin'])
         Route::resource('/awal-buku', AwalBukuController::class);
         Route::get('/transaksi', [TransaksiController::class, 'index'])->name('transaksi.transaksi');
         Route::post('/transaksi/store', [TransaksiController::class, 'store'])->name('transaksi.store');
+        Route::put('transaksi/update/{id}', [TransaksiController::class, 'update'])->name('transaksi.update');
         Route::get('/transaksi/search-akun', [TransaksiController::class, 'searchAkun'])->name('transaksi.search-akun');
 
         Route::get('/bku', [BkuController::class, 'index'])->name('bku.index');

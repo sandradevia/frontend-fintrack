@@ -24,12 +24,9 @@
             </button>
         </div>
 
-        <form
-            :action="`{{ url('admin/transaksi') }}/${selectedId}`"
-            method="POST"
-        >
-            @csrf
-            @method('PUT')
+        <form :action="`{{ url('admin/transaksi/update') }}/${selectedId}`" method="POST">
+    @csrf
+    @method('PUT')
 
             <div class="grid grid-cols-2 gap-4">
 
@@ -97,10 +94,10 @@
                         required
                     >
                         <option value="">-- Pilih Akun --</option>
-
-                        @foreach($akuns as $akun)
-                            <option value="{{ $akun->id }}">
-                                {{ $akun->kode }} - {{ $akun->nama_akun }}
+                        {{-- Mengubah iterasi variabel agar nama tidak bertabrakan --}}
+                        @foreach($akun as $item)
+                            <option value="{{ $item->id }}">
+                                {{ $item->kode }} - {{ $item->nama_akun }}
                             </option>
                         @endforeach
                     </select>
@@ -110,16 +107,11 @@
                     <label class="text-sm">Keterangan</label>
                     <select
                         name="keterangan"
+                        x-model="formEdit.keterangan" {{-- Diikat langsung ke state Alpine.js --}}
                         class="w-full border rounded px-3 py-2">
                         <option value="">-- Pilih Keterangan --</option>
-                        <option value="Kas di Bank"
-                            {{ old('keterangan', $data->keterangan ?? '') == 'Kas di Bank' ? 'selected' : '' }}>
-                            Kas di Bank
-                        </option>
-                        <option value="Petty Cash/Cash in Hand"
-                            {{ old('keterangan', $data->keterangan ?? '') == 'Petty Cash/Cash in Hand' ? 'selected' : '' }}>
-                            Petty Cash/Cash in Hand
-                        </option>
+                        <option value="Kas di Bank">Kas di Bank</option>
+                        <option value="Petty Cash/Cash in Hand">Petty Cash/Cash in Hand</option>
                     </select>
                 </div>
 

@@ -12,9 +12,9 @@
             {{-- KIRI --}}
             <div class="flex flex-col gap-3">
                 <div class="flex items-center gap-2">
-                    <span class="w-40 text-sm text-gray-500">Nama Yayasan</span>
+                    <span class="w-40 text-sm text-gray-500">Nama Lembaga</span>
                     <span>:</span>
-                    <span class="font-semibold">{{ $dapur->nama_yayasan }}</span>
+                    <span class="font-semibold">{{ $dapur->nama_lembaga }}</span>
                 </div>
 
                 <div class="flex items-center gap-2">
@@ -55,7 +55,8 @@
                 </thead>
                 <tbody class="text-sm divide-y">
 
-                    @forelse($transaksis as $transaksi)
+                    {{-- Perbaikan: Mengubah penampung loop menjadi $item agar tidak menimpa variabel utama --}}
+                    @forelse($transaksi as $item)
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
 
                         <td class="px-3 py-3 text-center">
@@ -63,31 +64,31 @@
                         </td>
 
                         <td class="px-3 py-3">
-                            {{ \Carbon\Carbon::parse($transaksi->tanggal)->format('d M Y') }}
+                            {{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}
                         </td>
 
                         <td class="px-3 py-3">
-                            {{ $transaksi->no_bukti }}
+                            {{ $item->no_bukti }}
                         </td>
 
                         <td class="px-3 py-3">
-                            {{ $transaksi->uraian }}
+                            {{ $item->uraian }}
                         </td>
 
                         <td class="px-3 py-3 text-right text-green-600 font-semibold">
-                            Rp {{ number_format($transaksi->debet,0,',','.') }}
+                            Rp {{ number_format($item->debet,0,',','.') }}
                         </td>
 
                         <td class="px-3 py-3 text-right text-red-500">
-                            Rp {{ number_format($transaksi->kredit,0,',','.') }}
+                            Rp {{ number_format($item->kredit,0,',','.') }}
                         </td>
 
                         <td class="px-3 py-3">
-                            {{ $transaksi->akun->nama_akun ?? '-' }}
+                            {{ $item->akun->nama_akun ?? '-' }}
                         </td>
 
                         <td class="px-3 py-3">
-                            {{ $transaksi->keterangan }}
+                            {{ $item->keterangan }}
                         </td>
 
                         <td class="px-3 py-3">
@@ -96,14 +97,14 @@
                                 {{-- EDIT --}}
                                 <button
                                     @click='openEdit({
-                                        id: {{ $transaksi->id }},
-                                        tanggal: "{{ $transaksi->tanggal }}",
-                                        no_bukti: "{{ $transaksi->no_bukti }}",
-                                        uraian: "{{ $transaksi->uraian }}",
-                                        debet: {{ $transaksi->debet }},
-                                        kredit: {{ $transaksi->kredit }},
-                                        akun_id: {{ $transaksi->akun_id }},
-                                        keterangan: "{{ $transaksi->keterangan }}"
+                                        id: {{ $item->id }},
+                                        tanggal: "{{ $item->tanggal }}",
+                                        no_bukti: "{{ $item->no_bukti }}",
+                                        uraian: "{{ addslashes($item->uraian) }}",
+                                        debet: {{ $item->debet }},
+                                        kredit: {{ $item->kredit }},
+                                        akun_id: "{{ $item->akun_id }}",
+                                        keterangan: "{{ $item->keterangan }}"
                                     })'
                                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs font-medium">
                                     Edit
@@ -112,7 +113,7 @@
                                 {{-- HAPUS --}}
                                 <button
                                     type="button"
-                                    @click="openHapus({{ $transaksi->id }})"
+                                    @click="openHapus({{ $item->id }})"
                                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-50 text-red-600 hover:bg-red-100 text-xs font-medium">
                                     Hapus
                                 </button>
@@ -132,7 +133,7 @@
 
                     @endforelse
 
-                    </tbody>
+                </tbody>
             </table>
         </div>
     </div>
@@ -143,6 +144,7 @@
     @include('admin.transaksi.modal-hapus')
 
 </div>
+
 <script>
 window.transaksiHandler = function () {
     return {
@@ -157,23 +159,25 @@ window.transaksiHandler = function () {
             uraian: '',
             debet: '',
             kredit: '',
-            jenis: '',
+            akun_id: '',
             keterangan: ''
         },
 
         formEdit: {
+            id: null,
             tanggal: '',
             no_bukti: '',
             uraian: '',
             debet: '',
             kredit: '',
-            jenis: '',
+            akun_id: '',
             keterangan: ''
         },
 
         openTambah() {
             this.resetForm();
-            this.generateNoBukti();
+            // Menaruh nomor bukti otomatis dari backend controller
+            this.form.no_bukti = "{{ $nextKwt ?? '' }}"; 
             this.form.tanggal = new Date().toISOString().split('T')[0];
             this.showTambah = true;
         },
@@ -202,33 +206,11 @@ window.transaksiHandler = function () {
                 uraian: '',
                 debet: '',
                 kredit: '',
-                jenis: '',
+                akun_id: '',
                 keterangan: ''
             };
-        },
-
-        generateNoBukti() {
-            const now = new Date();
-            const random = Math.floor(Math.random() * 1000);
-            this.form.no_bukti = 'TRX-' + now.getTime() + '-' + random;
-        },
-
-        submitForm() {
-            console.log('DATA TAMBAH:', this.form);
-            this.closeModal();
-        },
-
-        updateData() {
-            console.log('DATA EDIT:', this.formEdit);
-            this.closeModal();
-        }, // <-- koma di sini
-
-        deleteData() {
-            console.log('Hapus ID:', this.selectedId);
-            this.closeModal();
         }
     }
 }
 </script>
-
 @endsection
