@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 use App\Models\Periode;
+use Illuminate\Support\Facades\DB;
+
 
 class DaftarNominatifController extends Controller
 {
@@ -72,92 +74,91 @@ class DaftarNominatifController extends Controller
         ]);
     }
 
+    // ================= CREATE =================
     public function store(Request $request)
-    {
-        $request->validate([
-            'anggota_id' => 'required|exists:anggota,id',
-            'tanggal' => 'required|date',
-            'no_bukti' => 'required|string|max:100',
-            'honor' => 'required|numeric|min:0',
-            'dana_sehat' => 'nullable|numeric|min:0',
-            'transport' => 'nullable|numeric|min:0',
-            'pajak' => 'nullable|numeric|min:0',
-        ]);
+{
+    try {
+        // Logika simpan data
+        $totalHonor = $request->honor_harian * count($request->tanggal_hadir);
+        $totalAkhir = $totalHonor + ($request->dana_sehat ?? 0) + ($request->transport ?? 0) - ($request->pajak ?? 0);
 
-        $total =
-            ($request->honor ?? 0) +
-            ($request->dana_sehat ?? 0) +
-            ($request->transport ?? 0) -
-            ($request->pajak ?? 0);
-
-        DaftarNominatif::create([
-            'dapur_id' => Auth::user()->dapur_id,
+        $nominatif = DaftarNominatif::create([
+            'dapur_id'   => Auth::user()->dapur_id,
             'anggota_id' => $request->anggota_id,
-            'tanggal' => $request->tanggal,
-            'no_bukti' => $request->no_bukti,
-            'honor' => $request->honor,
+            'no_bukti'   => $request->no_bukti,
+            'tanggal'    => now(), 
+            'honor'      => $totalHonor,
             'dana_sehat' => $request->dana_sehat ?? 0,
-            'transport' => $request->transport ?? 0,
-            'pajak' => $request->pajak ?? 0,
-            'total' => $total,
+            'transport'  => $request->transport ?? 0,
+            'pajak'      => $request->pajak ?? 0,
+            'total'      => $totalAkhir,
+            'status'     => 'pending',
         ]);
 
-        return redirect()
-            ->route('admin.daftar-nominatif.index')
-            ->with('success', 'Data nominatif berhasil ditambahkan.');
+        foreach ($request->tanggal_hadir as $tgl) {
+            KehadiranNominatif::create([
+                'daftar_nominatif_id' => $nominatif->id,
+                'tanggal' => $tgl,
+                'honor_harian' => $request->honor_harian,
+            ]);
+        }
+
+        return back()->with('success', 'Data berhasil disimpan!');
+
+    } catch (\Exception $e) {
+        // JIKA GAGAL, KITA AKAN TAHU KENAPA
+        return back()->with('error', 'Gagal Simpan: ' . $e->getMessage());
     }
-
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'anggota_id' => 'required|exists:anggota,id',
-            'tanggal' => 'required|date',
-            'no_bukti' => 'required|string|max:100',
-            'honor' => 'required|numeric|min:0',
-            'dana_sehat' => 'nullable|numeric|min:0',
-            'transport' => 'nullable|numeric|min:0',
-            'pajak' => 'nullable|numeric|min:0',
-        ]);
-
-        $nominatif = DaftarNominatif::findOrFail($id);
+}
 
 
-        $total =
-            ($request->honor ?? 0) +
-            ($request->dana_sehat ?? 0) +
-            ($request->transport ?? 0) -
-            ($request->pajak ?? 0);
+
+public function update(Request $request, $id)
+{
+    $nominatif = DaftarNominatif::findOrFail($id);
+
+    $request->validate([
+        'anggota_id' => 'required|exists:anggota,id',
+        'honor_harian' => 'required|numeric|min:0',
+        'tanggal_hadir' => 'required|array|min:1',
+    ]);
+
+    DB::transaction(function () use ($request, $nominatif) {
+        $totalHonor = $request->honor_harian * count($request->tanggal_hadir);
+        // Hitung ulang total dengan mempertahankan data lama atau input baru
+        $totalAkhir = $totalHonor + $nominatif->dana_sehat + $nominatif->transport - $nominatif->pajak;
 
         $nominatif->update([
             'anggota_id' => $request->anggota_id,
-            'tanggal' => $request->tanggal,
-            'no_bukti' => $request->no_bukti,
-            'honor' => $request->honor,
-            'dana_sehat' => $request->dana_sehat ?? 0,
-            'transport' => $request->transport ?? 0,
-            'pajak' => $request->pajak ?? 0,
-            'total' => $total,
+            'honor' => $totalHonor,
+            'total' => $totalAkhir,
         ]);
 
-        return redirect()
-            ->route('admin.daftar-nominatif.index')
-            ->with('success', 'Data nominatif berhasil diperbarui.');
-    }
+        // Re-sync kehadiran
+        $nominatif->kehadiranNominatif()->delete();
+        
+        foreach ($request->tanggal_hadir as $tgl) {
+            $nominatif->kehadiranNominatif()->create([
+                'tanggal' => $tgl,
+                'honor_harian' => $request->honor_harian,
+            ]);
+        }
+    });
+
+    return back()->with('success', 'Data berhasil diperbarui.');
+}
 
     public function destroy($id)
     {
         $nominatif = DaftarNominatif::findOrFail($id);
-
-        KehadiranNominatif::where(
-            'daftar_nominatif_id',
-            $nominatif->id
-        )->delete();
-
+        
+        // Hapus detail dulu karena foreign key cascadeOnDelete sudah aktif
+        // Tapi kita hapus manual untuk memastikan konsistensi
+        KehadiranNominatif::where('daftar_nominatif_id', $id)->delete();
         $nominatif->delete();
 
-        return redirect()
-            ->route('admin.daftar-nominatif.index')
-            ->with('success', 'Data nominatif berhasil dihapus.');
+        return redirect()->route('admin.daftar-nominatif.index')
+            ->with('success', 'Data berhasil dihapus.');
     }
 
     public function exportExcel()

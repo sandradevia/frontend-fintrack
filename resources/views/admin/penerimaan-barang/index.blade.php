@@ -16,20 +16,21 @@
         </div>
 
         <div class="flex justify-between items-center">
-        <div>
-            <h2 class="text-lg font-semibold">
-                Data Pembelian Barang
-            </h2>
-            <p class="text-sm text-gray-500">
-                Klik tombol tambah untuk input pembelian baru
-            </p>
-        </div>
+            <div>
+                <h2 class="text-lg font-semibold">
+                    Data Pembelian Barang
+                </h2>
+                <p class="text-sm text-gray-500">
+                    Klik tombol tambah untuk input pembelian baru
+                </p>
+            </div>
 
-        <button
-            onclick="openCreateModal()"
-            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow">
-            + Tambah Pembelian
-        </button>
+            <button
+                onclick="openCreateModal()"
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow">
+                + Tambah Pembelian
+            </button>
+        </div>
     </div>
 
     {{-- ===================== MODAL TAMBAH ===================== --}}
@@ -66,13 +67,14 @@
                         value="{{ date('Y-m-d') }}">
                 </div>
 
-                {{-- Supplier
+                {{-- Supplier --}}
                 <div class="md:col-span-2">
                     <label class="text-sm text-gray-600">Supplier</label>
                     <input type="text"
                         name="supplier"
-                        class="w-full border rounded-lg px-3 py-2">
-                </div> --}}
+                        class="w-full border rounded-lg px-3 py-2"
+                        placeholder="Nama supplier / toko">
+                </div>
 
                 {{-- Barang --}}
                 <div class="md:col-span-2">
@@ -184,7 +186,7 @@
                     <tr>
                         <th class="border px-3 py-2 text-center">No</th>
                         <th class="border px-3 py-2">Tanggal</th>
-                        {{-- <th class="border px-3 py-2">Supplier</th> --}}
+                        <th class="border px-3 py-2">Supplier</th>
                         <th class="border px-3 py-2">Nama Barang</th>
                         <th class="border px-3 py-2 text-center">Satuan</th>
                         <th class="border px-3 py-2 text-center">Vol</th>
@@ -205,14 +207,13 @@
 
                             <td class="border px-3 py-2">{{ $item->tanggal_masuk }}</td>
 
-                            {{-- <td class="border px-3 py-2">{{ $item->barang->supplier ?? 'N/A' }}</td> --}}
+                            <td class="border px-3 py-2">{{ $item->barang->supplier ?? '—' }}</td>
 
                             <td class="border px-3 py-2">{{ $item->barang->nama_barang ?? 'N/A' }}</td>
 
                             <td class="border px-3 py-2 text-center">{{ $item->barang->satuan ?? 'N/A' }}</td>
 
                             <td class="border px-3 py-2 text-center">{{ $item->jumlah }}</td>
-                            
 
                             <td class="border px-3 py-2 text-right">
                                 {{ number_format($item->harga_beli, 0, ',', '.') }}
@@ -225,7 +226,7 @@
                             {{-- Kolom Bukti Foto --}}
                             <td class="border px-3 py-2 text-center">
                                 @if ($item->gambar)
-                                    <button onclick="lihatFoto('{{ $item->gambar_url }}')"
+                                    <button onclick="lihatFoto('{{ asset('storage/' . $item->gambar) }}')"
                                         class="text-blue-500 hover:underline text-xs flex items-center gap-1 mx-auto">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -241,7 +242,7 @@
                             {{-- Kolom Status --}}
                             <td class="border px-3 py-2 text-center">
                                 @php
-                                    $status = $item->status_acc ?? 'menunggu';
+                                    $status = $item->status ?? 'pending';
                                 @endphp
                                 <span id="status-{{ $item->id }}"
                                     class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium
@@ -298,11 +299,11 @@
                 class="w-full border p-2 rounded focus:ring focus:ring-blue-200">
         </div>
 
-        {{-- <div>
+        <div>
             <label class="block text-sm text-gray-600 mb-1">Supplier</label>
             <input type="text" name="supplier"
                 class="w-full border p-2 rounded focus:ring focus:ring-blue-200">
-        </div> --}}
+        </div>
 
         <div>
             <label class="block text-sm text-gray-600 mb-1">Nama Barang</label>
@@ -390,173 +391,115 @@ document.addEventListener('DOMContentLoaded', function () {
     const fotoBukti = document.getElementById('fotoBukti');
 
     // ── HITUNG TOTAL ──────────────────────────────────────
-    function hitungTotal() {
-        let v = parseFloat(volume.value) || 0;
-        let h = parseFloat(harga.value) || 0;
-        total.value = (v * h).toLocaleString('id-ID');
+    if (volume && harga && total) {
+        function hitungTotal() {
+            let v = parseFloat(volume.value) || 0;
+            let h = parseFloat(harga.value) || 0;
+            total.value = (v * h).toLocaleString('id-ID');
+        }
+        volume.addEventListener('input', hitungTotal);
+        harga.addEventListener('input', hitungTotal);
     }
 
-    volume.addEventListener('input', hitungTotal);
-    harga.addEventListener('input', hitungTotal);
-
     // ── PREVIEW FOTO (FORM CREATE) ────────────────────────
-    fotoBukti.addEventListener('change', function () {
-        const file = this.files[0];
-        if (!file) return;
+    if (fotoBukti) {
+        fotoBukti.addEventListener('change', function () {
+            const file = this.files[0];
+            if (!file) return;
 
-        const preview   = document.getElementById('previewFoto');
-        const placeholder = document.getElementById('dropPlaceholder');
-        const namaFile  = document.getElementById('namaFileFoto');
+            const preview   = document.getElementById('previewFoto');
+            const placeholder = document.getElementById('dropPlaceholder');
+            const namaFile  = document.getElementById('namaFileFoto');
 
-        const reader = new FileReader();
-        reader.onload = e => {
-            preview.src = e.target.result;
-            preview.classList.remove('hidden');
-            placeholder.classList.add('hidden');
-            namaFile.textContent = file.name;
-            namaFile.classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
-    });
-
-    // ── RESET FOTO PREVIEW saat form di-reset ─────────────
-    document.getElementById('btnReset').addEventListener('click', function () {
-        document.getElementById('previewFoto').classList.add('hidden');
-        document.getElementById('previewFoto').src = '#';
-        document.getElementById('dropPlaceholder').classList.remove('hidden');
-        document.getElementById('namaFileFoto').classList.add('hidden');
-    });
+            const reader = new FileReader();
+            reader.onload = e => {
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+                namaFile.textContent = file.name;
+                namaFile.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
     // ── PREVIEW FOTO (FORM EDIT) ───────────────────────────
-    document.getElementById('editFotoBukti').addEventListener('change', function () {
-        const file = this.files[0];
-        if (!file) return;
+    const editFotoBukti = document.getElementById('editFotoBukti');
+    if (editFotoBukti) {
+        editFotoBukti.addEventListener('change', function () {
+            const file = this.files[0];
+            if (!file) return;
 
-        const preview     = document.getElementById('editPreviewFoto');
-        const placeholder = document.getElementById('editDropPlaceholder');
-        const namaFile    = document.getElementById('editNamaFile');
+            const preview     = document.getElementById('editPreviewFoto');
+            const placeholder = document.getElementById('editDropPlaceholder');
+            const namaFile    = document.getElementById('editNamaFile');
 
-        const reader = new FileReader();
-        reader.onload = e => {
-            preview.src = e.target.result;
-            preview.classList.remove('hidden');
-            placeholder.classList.add('hidden');
-            namaFile.textContent = file.name;
-            namaFile.classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
-    });
+            const reader = new FileReader();
+            reader.onload = e => {
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+                namaFile.textContent = file.name;
+                namaFile.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 
     // ── SUBMIT FORM CREATE ────────────────────────────────
-    form.addEventListener('submit', function (e) {
-        e.preventDefault();
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
 
-        let data = new FormData(form);
+            let data = new FormData(form);
 
-        fetch(`{{ route('admin.penerimaan-barang.store') }}`, {
-            method: 'POST',
-            body: data,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(res => res.json())
-        .then(res => {
+            fetch(`{{ route('admin.penerimaan-barang.store') }}`, {
+                method: 'POST',
+                body: data,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status !== 'success') {
+                    Swal.fire({ icon: 'error', title: 'Gagal!', text: res.message || 'Gagal menyimpan data' });
+                    return;
+                }
 
-            if (res.status !== 'success') {
-                Swal.fire({ icon: 'error', title: 'Gagal!', text: res.message || 'Gagal menyimpan data' });
-                return;
-            }
+                // Reset field & view state di dalam modal
+                form.reset();
+                document.getElementById('previewFoto').classList.add('hidden');
+                document.getElementById('previewFoto').src = '#';
+                document.getElementById('dropPlaceholder').classList.remove('hidden');
+                document.getElementById('namaFileFoto').classList.add('hidden');
+                if (total) total.value = '';
 
-            let item     = res.item;
-            let namaBarang = item.barang?.nama_barang ?? '-';
-            let satuan   = item.barang?.satuan ?? '-';
-            // let supplier = item.barang?.supplier ?? '-';
-            let fotoUrl  = item.gambar_url ?? null;
-            let status   = item.status_acc ?? 'menunggu';
+                // Tutup modal create langsung
+                closeCreateModal();
 
-            let row = document.createElement('tr');
-            row.id = `row-${item.id}`;
-            row.className = 'hover:bg-gray-50';
-
-            row.innerHTML = `
-                <td class="border px-3 py-2 text-center">${tbody.children.length + 1}</td>
-                <td class="border px-3 py-2">${item.tanggal_masuk}</td>
-                
-                <td class="border px-3 py-2">${namaBarang}</td>
-                <td class="border px-3 py-2 text-center">${satuan}</td>
-                <td class="border px-3 py-2 text-center">${item.jumlah}</td>
-                <td class="border px-3 py-2 text-right">${Number(item.harga_beli).toLocaleString('id-ID')}</td>
-                <td class="border px-3 py-2 text-right">${Number(item.jumlah * item.harga_beli).toLocaleString('id-ID')}</td>
-                <td class="border px-3 py-2 text-center">${renderFotoBtn(fotoUrl, item.id)}</td>
-                <td class="border px-3 py-2 text-center">${renderStatusBadge(status, item.id)}</td>
-                <td class="border px-3 py-2 text-center space-x-1">
-                    <button onclick="editItem(${item.id})" class="text-blue-500 hover:underline text-xs">Edit</button>
-                    <span class="text-gray-300">|</span>
-                    <button onclick="deleteItem(${item.id})" class="text-red-500 hover:underline text-xs">Hapus</button>
-                </td>
-            `;
-
-            tbody.appendChild(row);
-
-            form.reset();
-            document.getElementById('previewFoto').classList.add('hidden');
-            document.getElementById('previewFoto').src = '#';
-            document.getElementById('dropPlaceholder').classList.remove('hidden');
-            document.getElementById('namaFileFoto').classList.add('hidden');
-            if (total) total.value = '';
-
-            Swal.fire({ icon: 'success', title: 'Tersimpan!', timer: 1200, showConfirmButton: false });
-        })
-        .catch(err => console.error(err));
-    });
-
+                // Munculkan notifikasi sukses, lalu reload halaman agar kembali ke blade awal
+                Swal.fire({ 
+                    icon: 'success', 
+                    title: 'Tersimpan!', 
+                    text: 'Data pembelian baru berhasil disimpan.',
+                    timer: 1500, 
+                    showConfirmButton: false 
+                }).then(() => {
+                    location.reload();
+                });
+            })
+            .catch(err => console.error(err));
+        });
+    }
 });
 
 function openCreateModal() {
-    document.getElementById('createModal')
-        .classList.remove('hidden');
-
-    document.getElementById('createModal')
-        .classList.add('flex');
+    document.getElementById('createModal').classList.remove('hidden');
+    document.getElementById('createModal').classList.add('flex');
 }
 
 function closeCreateModal() {
-    document.getElementById('createModal')
-        .classList.add('hidden');
-
-    document.getElementById('createModal')
-        .classList.remove('flex');
-}
-
-// ── HELPER: render badge status ──────────────────────────────
-function renderStatusBadge(status, id) {
-    let cls, label;
-    if (status === 'disetujui') {
-        cls   = 'bg-green-100 text-green-700';
-        label = '✅ Disetujui';
-    } else if (status === 'ditolak') {
-        cls   = 'bg-red-100 text-red-700';
-        label = '❌ Ditolak';
-    } else {
-        cls   = 'bg-yellow-100 text-yellow-700';
-        label = '⏳ Menunggu';
-    }
-    return `<span id="status-${id}" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${cls}">${label}</span>`;
-}
-
-// ── HELPER: render tombol lihat foto ─────────────────────────
-function renderFotoBtn(url, id) {
-    if (!url) return '<span class="text-gray-400 text-xs">—</span>';
-    return `
-        <button onclick="lihatFoto('${url}')"
-            class="text-blue-500 hover:underline text-xs flex items-center gap-1 mx-auto">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
-            Lihat
-        </button>`;
+    document.getElementById('createModal').classList.add('hidden');
+    document.getElementById('createModal').classList.remove('flex');
 }
 
 // ── MODAL FOTO ───────────────────────────────────────────────
@@ -603,7 +546,7 @@ window.editItem = function (id) {
             };
 
             setVal('tanggal_masuk', item.tanggal_masuk);
-            // setVal('supplier',      item.barang?.supplier);
+            setVal('supplier',      item.barang?.supplier);
             setVal('nama_barang',   item.barang?.nama_barang);
             setVal('jumlah',        item.jumlah);
             setVal('harga_beli',    item.harga_beli);
@@ -613,8 +556,8 @@ window.editItem = function (id) {
             const fotoLamaWrap = document.getElementById('editFotoLama');
             const fotoLamaImg  = document.getElementById('editFotoLamaImg');
 
-            if (item.gambar_url) {
-                fotoLamaImg.src = item.gambar_url;
+            if (item.gambar) {
+                fotoLamaImg.src = `/storage/${item.gambar}`;
                 fotoLamaWrap.classList.remove('hidden');
             } else {
                 fotoLamaWrap.classList.add('hidden');
@@ -651,23 +594,19 @@ document.getElementById('editForm').addEventListener('submit', function (e) {
             return;
         }
 
-        let item = res.item;
-        let row  = document.getElementById(`row-${editId}`);
-
-        if (!row) return;
-
-        row.children[1].innerText = item.tanggal_masuk;
-        // row.children[2].innerText = item.barang?.supplier  ?? '-';
-        row.children[3].innerText = item.barang?.nama_barang ?? '-';
-        row.children[4].innerText = item.barang?.satuan    ?? '-';
-        row.children[5].innerText = item.jumlah;
-        row.children[6].innerText = Number(item.harga_beli).toLocaleString('id-ID');
-        row.children[7].innerText = Number(item.jumlah * item.harga_beli).toLocaleString('id-ID');
-        row.children[8].innerHTML = renderFotoBtn(item.gambar_url ?? null, item.id);
-
+        // Tutup modal edit langsung
         closeEditModal();
 
-        Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Data berhasil diupdate', timer: 1500, showConfirmButton: false });
+        // Munculkan notifikasi sukses, lalu reload halaman agar data tersinkron sempurna
+        Swal.fire({ 
+            icon: 'success', 
+            title: 'Berhasil!', 
+            text: 'Data berhasil diupdate', 
+            timer: 1500, 
+            showConfirmButton: false 
+        }).then(() => {
+            location.reload();
+        });
     });
 });
 

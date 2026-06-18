@@ -18,6 +18,10 @@ class DaftarNominatif extends Model
         'transport',
         'pajak',
         'total',
+        'status',
+        'verified_by',
+        'verified_at',
+        'catatan_status'
     ];
 
     public function dapur()

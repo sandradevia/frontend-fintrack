@@ -245,17 +245,14 @@
         <div class="w-full min-w-0 p-1">
         <div class="nom-scroll">
             <table class="nom-table w-full">
-
                 <thead>
                     <tr>
                         <th rowspan="2">No</th>
-                        <th rowspan="2">Jenis</th>
+                        <th rowspan="2">Jenis Pekerjaan</th>
                         <th rowspan="2">Nama</th>
-
-                        <th colspan="{{ count($tanggalKerja) }}" class="day-header">
+                        <th colspan="{{ count($tanggalKerja) }}" class="text-center">
                             {{ $bulan }} {{ $tahun }}
                         </th>
-
                         <th rowspan="2">Honor</th>
                         <th rowspan="2">Dana Sehat</th>
                         <th rowspan="2">TK</th>
@@ -263,157 +260,70 @@
                         <th rowspan="2">Total</th>
                         <th rowspan="2">Aksi</th>
                     </tr>
-
                     <tr>
                         @foreach($tanggalKerja as $tanggal)
-                            <th class="text-center">
+                            <th class="text-xs text-center border-b">
                                 {{ \Carbon\Carbon::parse($tanggal)->format('d') }}
                             </th>
                         @endforeach
                     </tr>
-                </thead>
 
-                <tbody>
+                                <tbody>
+                    @forelse($nominatifs as $item)
+                        <tr data-json="{{ json_encode($item) }}">
+                            <td class="text-center">{{ $loop->iteration }}</td>
+                            <td>{{ $item->anggota->pekerjaan->nama_pekerjaan ?? '-' }}</td>
+                            <td>{{ $item->anggota->nama ?? '-' }}</td>
+                            
+                            {{-- Loop Tanggal (Sesuai dengan colspan di baris kedua header) --}}
+                            @foreach($tanggalKerja as $tanggal)
+                                @php $kehadiran = $item->kehadiranNominatif->where('tanggal', $tanggal)->first(); @endphp
+                                <td class="text-center text-xs">
+                                    {{ $kehadiran ? '✓' : '-' }} 
+                                </td>
+                            @endforeach
 
-                @forelse($nominatifs as $item)
-
-                    <tr>
-
-                        <td class="text-center">
-                            {{ $loop->iteration }}
-                        </td>
-
-                        <td>
-                            {{ $item->anggota->pekerjaan->nama_pekerjaan ?? '-' }}
-                        </td>
-
-                        <td>
-                            {{ $item->anggota->nama ?? '-' }}
-                        </td>
-
-                        @foreach($tanggalKerja as $tanggal)
-
-                            @php
-                                $kehadiran = $item->kehadiranNominatif
-                                    ->where('tanggal', $tanggal)
-                                    ->first();
-                            @endphp
-
-                            <td class="text-center text-xs">
-
-                                @if($kehadiran)
-
-                                    Rp {{ number_format($kehadiran->honor_harian,0,',','.') }}
-
-                                @else
-
-                                    -
-
-                                @endif
-
+                            <td class="text-right">Rp {{ number_format($item->honor,0,',','.') }}</td>
+                            <td class="text-right">Rp {{ number_format($item->dana_sehat,0,',','.') }}</td>
+                            <td class="text-right">Rp {{ number_format($item->transport,0,',','.') }}</td>
+                            <td class="text-right">Rp {{ number_format($item->pajak,0,',','.') }}</td>
+                            <td class="text-right font-bold text-blue-600">Rp {{ number_format($item->total,0,',','.') }}</td>
+                            <td>
+                                <div class="flex gap-1 justify-center">
+                                    <button type="button" onclick="editRow(this)" class="px-2 py-1 text-xs bg-amber-100 text-amber-700 rounded">Edit</button>
+                                    <form action="{{ route('admin.daftar-nominatif.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Yakin hapus?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded">Hapus</button>
+                                    </form>
+                                </div>
                             </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="{{ 9 + count($tanggalKerja) }}" class="text-center py-6">Belum ada data</td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                    <tfoot>
+    <tr class="bg-blue-50 font-bold text-sm">
+        {{-- 
+           colspan 3 berasal dari kolom: No, Jenis, Nama.
+           Kemudian ditambah jumlah kolom tanggal yang dinamis.
+        --}}
+        <td colspan="{{ 3 + count($tanggalKerja) }}" class="text-center">
+            TOTAL KESELURUHAN
+        </td>
 
-                        @endforeach
-
-                        <td class="text-right">
-                            Rp {{ number_format($item->honor,0,',','.') }}
-                        </td>
-
-                        <td class="text-right">
-                            Rp {{ number_format($item->dana_sehat,0,',','.') }}
-                        </td>
-
-                        <td class="text-right">
-                            Rp {{ number_format($item->transport,0,',','.') }}
-                        </td>
-
-                        <td class="text-right">
-                            Rp {{ number_format($item->pajak,0,',','.') }}
-                        </td>
-
-                        <td class="text-right font-semibold text-blue-600">
-                            Rp {{ number_format($item->total,0,',','.') }}
-                        </td>
-
-                        <td>
-
-                            <div class="flex gap-2 justify-center">
-
-                                <button
-                                    onclick="editRow({{ $item->id }})"
-                                    class="px-2 py-1 text-xs bg-amber-100 text-amber-700 rounded-lg">
-                                    Edit
-                                </button>
-
-                                <form
-                                    action="{{ route('admin.nominatif.destroy',$item->id) }}"
-                                    method="POST"
-                                    onsubmit="return confirm('Yakin hapus data?')">
-
-                                    @csrf
-                                    @method('DELETE')
-
-                                    <button
-                                        class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-lg">
-                                        Hapus
-                                    </button>
-
-                                </form>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                @empty
-
-                    <tr>
-                        <td colspan="{{ count($tanggalKerja)+8 }}"
-                            class="text-center py-6 text-gray-500">
-
-                            Belum ada data nominatif
-
-                        </td>
-                    </tr>
-
-                @endforelse
-
-                </tbody>
-
-                <tfoot>
-
-                    <tr class="bg-blue-50 font-semibold">
-
-                        <td colspan="{{ count($tanggalKerja)+4 }}">
-                            TOTAL
-                        </td>
-
-                        <td class="text-right">
-                            Rp {{ number_format($nominatifs->sum('honor'),0,',','.') }}
-                        </td>
-
-                        <td class="text-right">
-                            Rp {{ number_format($nominatifs->sum('dana_sehat'),0,',','.') }}
-                        </td>
-
-                        <td class="text-right">
-                            Rp {{ number_format($nominatifs->sum('transport'),0,',','.') }}
-                        </td>
-
-                        <td class="text-right">
-                            Rp {{ number_format($nominatifs->sum('pajak'),0,',','.') }}
-                        </td>
-
-                        <td class="text-right text-blue-700">
-                            Rp {{ number_format($nominatifs->sum('total'),0,',','.') }}
-                        </td>
-
-                        <td></td>
-
-                    </tr>
-
-                </tfoot>
+        <td class="text-right">Rp {{ number_format($nominatifs->sum('honor'), 0, ',', '.') }}</td>
+        <td class="text-right">Rp {{ number_format($nominatifs->sum('dana_sehat'), 0, ',', '.') }}</td>
+        <td class="text-right">Rp {{ number_format($nominatifs->sum('transport'), 0, ',', '.') }}</td>
+        <td class="text-right">Rp {{ number_format($nominatifs->sum('pajak'), 0, ',', '.') }}</td>
+        <td class="text-right text-blue-700">Rp {{ number_format($nominatifs->sum('total'), 0, ',', '.') }}</td>
+        
+        {{-- Kolom Aksi di pojok kanan bawah yang kosong --}}
+        <td></td>
+    </tr>
+</tfoot>
 
             </table>
         </div>
@@ -431,145 +341,77 @@
 </div>
 
 
-{{-- ═══════════════════════════════════════════
-     MODAL: TAMBAH / EDIT ENTRI
-═══════════════════════════════════════════ --}}
 <div id="nomModal" class="fixed inset-0 z-50 hidden">
-    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm nom-backdrop" onclick="closeModal()"></div>
-
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeModal()"></div>
     <div class="relative flex items-center justify-center min-h-screen p-4">
-        <div class="nom-card bg-white dark:bg-gray-900 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden">
-
-            {{-- Header --}}
-            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 id="modalTitle" class="text-base font-bold text-gray-800 dark:text-gray-100">Tambah Entri</h2>
-                        <p class="text-xs text-gray-400">Data pembayaran upah sukarelawan</p>
-                    </div>
-                </div>
-                <button onclick="closeModal()" class="w-8 h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center text-gray-400 hover:text-gray-600 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+        <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
+                <h2 id="modalTitle" class="text-lg font-bold text-gray-800">Tambah Entri</h2>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-black">✕</button>
             </div>
-
-            {{-- Form --}}
-            <form id="nomForm" method="POST" action="#">
+            
+            <form id="nomForm" method="POST" action="">
                 @csrf
-                <input type="hidden" name="id" id="nomId">
+                <div id="methodContainer"></div>
+                
+                {{-- No Bukti Hidden (Sesuai Controller) --}}
+                <input type="hidden" name="no_bukti" value="NB-{{ date('YmdHis') }}">
 
-                <div class="px-6 py-5 max-h-[72vh] overflow-y-auto space-y-6">
-
-                    {{-- Identitas --}}
+                <div class="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
+                    {{-- Anggota --}}
                     <div>
-                        <p class="nom-section-title">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 20c0-4 3.582-7 8-7s8 3 8 7"/></svg>
-                            Identitas Personil
-                        </p>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="sm:col-span-2">
-                                <label class="nom-label" for="f_nama">Nama Lengkap <span class="text-red-400">*</span></label>
-                                <select name="anggota_id" id="nomMethod" class="nom-input">
-                                    <option value="">-- Pilih Anggota --</option>
-
-                                    @foreach($anggotas as $anggota)
-                                        <option value="{{ $anggota->id }}">
-                                            {{ $anggota->nama }} - {{ $anggota->jabatan }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label class="nom-label" for="f_jenis">
-                                    Jenis / Kategori <span class="text-red-400">*</span>
-                                </label>
-
-                                <select name="jenis" id="f_jenis" class="nom-input">
-                                    <option value="">-- Pilih Kategori --</option>
-                                    @foreach($pekerjaans as $pekerjaan)
-                                        <option value="{{ $pekerjaan->pekerjaan_id }}">
-                                            {{ $pekerjaan->nama_pekerjaan }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label class="nom-label" for="f_honor_harian">Honor Harian (Rp) <span class="text-red-400">*</span></label>
-                                <input type="number" name="honor_harian" id="f_honor_harian" class="nom-input" placeholder="cth. 200000" min="0" oninput="hitungTotal()">
-                            </div>
-                        </div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Anggota</label>
+                        <select name="anggota_id" id="f_anggota_id" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            @foreach($anggotas as $anggota)
+                                <option value="{{ $anggota->id }}">{{ $anggota->nama }}</option>
+                            @endforeach
+                        </select>
                     </div>
 
-                    {{-- Hari Kerja --}}
+                    {{-- Honor Harian --}}
                     <div>
-                        <p class="nom-section-title">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            Kehadiran Harian
-                        </p>
-                        <p class="text-xs text-gray-400 mb-3">Centang hari yang hadir (otomatis menghitung honor)</p>
-                        <div class="grid grid-cols-5 sm:grid-cols-10 gap-2">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Honor Harian</label>
+                        <input type="number" name="honor_harian" id="f_honor_harian" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="0" oninput="hitungTotal()">
+                    </div>
+
+                    {{-- Checkbox Hari --}}
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Tanggal Hadir (Pilih Hari)</label>
+                        <div class="grid grid-cols-5 gap-2">
                             @for ($i=1; $i<=10; $i++)
-                            <label class="flex flex-col items-center gap-1 cursor-pointer group">
-                                <span class="text-xs font-semibold text-gray-500 group-has-[:checked]:text-blue-600">{{ $i }}</span>
-                                <input type="checkbox" name="hari[]" value="{{ $i }}" class="w-4 h-4 rounded accent-blue-600" onchange="hitungTotal()">
-                            </label>
+                                <label class="flex flex-col items-center p-2 border rounded-lg cursor-pointer hover:bg-blue-50">
+                                    <input type="checkbox" name="tanggal_hadir[]" value="{{ date('Y-m-') . str_pad($i, 2, '0', STR_PAD_LEFT) }}" onchange="hitungTotal()">
+                                    <span class="text-xs mt-1">{{ $i }}</span>
+                                </label>
                             @endfor
                         </div>
                     </div>
 
-                    {{-- Tunjangan & Potongan --}}
-                    <div>
-                        <p class="nom-section-title">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            Tunjangan & Potongan
-                        </p>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div>
-                                <label class="nom-label" for="f_kesehatan">Tunjangan Kesehatan</label>
-                                <input type="number" name="kesehatan" id="f_kesehatan" class="nom-input" placeholder="0" min="0" oninput="hitungTotal()">
-                            </div>
-                            <div>
-                                <label class="nom-label" for="f_tk">TK (Tunjangan Kinerja)</label>
-                                <input type="number" name="tk" id="f_tk" class="nom-input" placeholder="0" min="0" oninput="hitungTotal()">
-                            </div>
-                            <div>
-                                <label class="nom-label" for="f_pj">PJ (Potongan Pajak)</label>
-                                <input type="number" name="pj" id="f_pj" class="nom-input" placeholder="0" min="0" oninput="hitungTotal()">
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Preview Total --}}
-                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-4 flex items-center justify-between">
+                    {{-- Grid Input Tunjangan & Potongan --}}
+                    <div class="grid grid-cols-3 gap-3">
                         <div>
-                            <p class="text-xs text-blue-100 font-medium">Estimasi Total Pembayaran</p>
-                            <p id="previewTotal" class="text-2xl font-bold text-white mt-0.5">Rp 0</p>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Kesehatan</label>
+                            <input type="number" name="dana_sehat" id="f_kesehatan" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="0" oninput="hitungTotal()">
                         </div>
-                        <div class="text-right">
-                            <p class="text-xs text-blue-100">Hari Hadir</p>
-                            <p id="previewHari" class="text-lg font-bold text-white">0 hari</p>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Transport</label>
+                            <input type="number" name="transport" id="f_tk" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="0" oninput="hitungTotal()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Pajak (PJ)</label>
+                            <input type="number" name="pajak" id="f_pj" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="0" oninput="hitungTotal()">
                         </div>
                     </div>
 
+                    {{-- Total --}}
+                    <div class="bg-blue-600 text-white p-3 rounded-lg text-center">
+                        <span class="text-xs uppercase opacity-80">Total Estimasi</span>
+                        <div id="previewTotal" class="text-lg font-bold">Rp 0</div>
+                    </div>
                 </div>
-
-                {{-- Footer --}}
-                <div class="flex items-center justify-end gap-2.5 px-6 py-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/40">
-                    <button type="button" onclick="closeModal()"
-                        class="px-5 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                        Batal
-                    </button>
-                    <button type="submit"
-                        class="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm shadow-blue-200 dark:shadow-none transition active:scale-95">
-                        Simpan Data
-                    </button>
+                
+                <div class="px-6 py-4 border-t bg-gray-50 flex justify-end">
+                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700">Simpan Data</button>
                 </div>
             </form>
         </div>
@@ -577,47 +419,64 @@
 </div>
 
 <script>
-    /* ── Format currency ── */
-    function fmt(n) {
-        return 'Rp ' + Number(n).toLocaleString('id-ID');
-    }
+    // 1. Format Rupiah
+    function fmt(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
 
-    /* ── Hitung preview total ── */
+    // 2. Logika Hitung Total (Vanilla JS)
     function hitungTotal() {
-        const harian   = parseFloat(document.getElementById('f_honor_harian').value) || 0;
-        const hadir    = document.querySelectorAll('input[name="hari[]"]:checked').length;
-        const sehat    = parseFloat(document.getElementById('f_kesehatan').value) || 0;
-        const tk       = parseFloat(document.getElementById('f_tk').value) || 0;
-        const pj       = parseFloat(document.getElementById('f_pj').value) || 0;
-        const honor    = harian * hadir;
-        const total    = honor + sehat + tk - pj;
+    // Tambahkan baris ini untuk debug
+    console.log("Checkbox diklik, sedang menghitung...");
 
-        document.getElementById('previewTotal').innerText = fmt(total < 0 ? 0 : total);
-        document.getElementById('previewHari').innerText  = hadir + ' hari';
-    }
+    const harian = parseFloat(document.getElementById('f_honor_harian').value) || 0;
+    
+    // Pastikan selector ini sama dengan name di checkbox Anda
+    const checks = document.querySelectorAll('input[name="tanggal_hadir[]"]:checked').length;
+    
+    const sehat  = parseFloat(document.getElementById('f_kesehatan').value) || 0;
+    const tk     = parseFloat(document.getElementById('f_tk').value) || 0;
+    const pj     = parseFloat(document.getElementById('f_pj').value) || 0;
+    
+    const total = (harian * checks) + sehat + tk - pj;
+    
+    console.log("Total yang dihitung: " + total); // Cek apakah total muncul di console
+    
+    document.getElementById('previewTotal').innerText = 'Rp ' + total.toLocaleString('id-ID');
+}   
 
-    /* ── Modal ── */
+    // 3. Fungsi Buka Modal (Tambah)
     function openModal() {
         document.getElementById('modalTitle').innerText = 'Tambah Entri';
-        document.getElementById('nomMethod').value = 'POST';
+        document.getElementById('nomForm').action = "{{ route('admin.daftar-nominatif.store') }}";
+        document.getElementById('methodContainer').innerHTML = ''; // Pastikan bersih
         document.getElementById('nomForm').reset();
-        document.getElementById('previewTotal').innerText = 'Rp 0';
-        document.getElementById('previewHari').innerText  = '0 hari';
-        showModal();
+        document.getElementById('nomModal').classList.remove('hidden');
     }
 
-    function editRow(id) {
-        document.getElementById('modalTitle').innerText = 'Edit Entri';
-        document.getElementById('nomMethod').value = 'PUT';
-        // TODO: fetch row data by id and populate fields
-        showModal();
-    }
+    // 4. Fungsi Edit (Ambil data dari data-json di tr)
+    function editRow(btn) {
+    const row = btn.closest('tr');
+    const data = JSON.parse(row.getAttribute('data-json'));
+    
+    document.getElementById('modalTitle').innerText = 'Edit Entri';
+    document.getElementById('nomForm').action = `/admin/daftar-nominatif/${data.id}`;
+    document.getElementById('methodContainer').innerHTML = '@method("PUT")';
+    
+    document.getElementById('f_anggota_id').value = data.anggota_id;
+    document.getElementById('f_honor_harian').value = data.honor_harian;
+    document.getElementById('f_kesehatan').value = data.kesehatan;
+    document.getElementById('f_tk').value = data.transport; // Sesuaikan dengan key di data-json
+    document.getElementById('f_pj').value = data.pajak;     // Sesuaikan dengan key di data-json
 
-    function deleteRow(id) {
-        if (confirm('Yakin ingin menghapus data personil ini?')) {
-            // TODO: submit delete form
-        }
-    }
+    // PERBAIKAN: Gunakan name="tanggal_hadir[]" agar sinkron dengan HTML
+    document.querySelectorAll('input[name="tanggal_hadir[]"]').forEach(cb => {
+        // Sesuaikan 'h.tanggal' dengan format yang ada di database/data-json Anda
+        cb.checked = data.kehadiran_nominatif?.some(h => h.tanggal === cb.value);
+    });
+    
+    hitungTotal();
+    document.getElementById('nomModal').classList.remove('hidden');
+}
+    function closeModal() { document.getElementById('nomModal').classList.add('hidden'); }
 
     function showModal() {
         document.getElementById('nomModal').classList.remove('hidden');

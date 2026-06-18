@@ -62,7 +62,6 @@ class PengeluaranBarangController extends Controller
         DB::beginTransaction();
 
         try {
-
             $user = Auth::user();
 
             // 🔥 CEK STOK (WAJIB FILTER DAPUR)
@@ -78,9 +77,8 @@ class PengeluaranBarangController extends Controller
                 ], 422);
             }
 
-            // 🔥 KURANGI STOK
+            // 🔥 KURANGI STOK (Baris last_update dihapus karena kolomnya tidak ada di DB)
             $stok->stok -= $request->jumlah;
-            $stok->last_update = now();
             $stok->save();
 
             // 🔥 SIMPAN PENGELUARAN
@@ -99,7 +97,6 @@ class PengeluaranBarangController extends Controller
             ]);
 
         } catch (\Exception $e) {
-
             DB::rollBack();
 
             return response()->json([
@@ -134,7 +131,6 @@ class PengeluaranBarangController extends Controller
         DB::beginTransaction();
 
         try {
-
             $user = Auth::user();
             $item = PengeluaranBarang::findOrFail($id);
 
@@ -178,7 +174,6 @@ class PengeluaranBarangController extends Controller
             ]);
 
         } catch (\Exception $e) {
-
             DB::rollBack();
 
             return response()->json([
@@ -194,7 +189,6 @@ class PengeluaranBarangController extends Controller
         DB::beginTransaction();
 
         try {
-
             $user = Auth::user();
             $item = PengeluaranBarang::findOrFail($id);
 
@@ -217,7 +211,6 @@ class PengeluaranBarangController extends Controller
             ]);
 
         } catch (\Exception $e) {
-
             DB::rollBack();
 
             return response()->json([
