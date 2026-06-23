@@ -162,4 +162,54 @@ class TransaksiController extends Controller
             })
         );
     }
+    public function superIndex(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(403, 'User tidak ditemukan');
+        }
+
+        $dapurId = $request->get('dapur_id'); // untuk filter/search
+
+        // base query transaksi
+        $query = Transaksi::with(['akun', 'dapur'])
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('id', 'desc');
+
+        // 🔥 role-based access
+        if ($user->role !== 'super_admin') {
+            $query->where('dapur_id', $user->dapur_id);
+        } else {
+            // super admin bisa filter per dapur
+            if ($dapurId) {
+                $query->where('dapur_id', $dapurId);
+            }
+        }
+
+        $transaksi = $query->get();
+
+        $akun = Akun::orderBy('nama_akun')->get();
+        $dapurList = Dapur::orderBy('nama_lembaga')->get();
+
+        $periodeAwal = now()->startOfMonth()->format('d F Y');
+        $periodeAkhir = now()->format('d F Y');
+
+        $nextRk = $this->generateNextNoBukti('RK');
+        $nextKwt = $this->generateNextNoBukti('Kwt');
+
+        return view('super.transaksi.index', [
+            'title' => 'Transaksi',
+            'user' => $user,
+            'transaksi' => $transaksi,
+            'akun' => $akun,
+            'dapurList' => $dapurList,   // untuk dropdown filter super admin
+            'periodeAwal' => $periodeAwal,
+            'periodeAkhir' => $periodeAkhir,
+            'dapur' => Dapur::first(),
+            'nextRk' => $nextRk,
+            'nextKwt' => $nextKwt,
+            'selectedDapur' => $dapurId, // biar UI bisa retain filter
+        ]);
+    }
 }

@@ -15,9 +15,10 @@ class User extends Authenticatable
     protected $guard_name = 'web';
 
     protected $fillable = [
-        'username',
-        'password',
-        'role',
+    'username',
+    'password',
+    'role',
+    'dapur_id',  // Tambahkan ini (agar relasi ke dapur tersimpan)
     ];
 
     protected $hidden = [

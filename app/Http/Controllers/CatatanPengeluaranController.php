@@ -94,6 +94,132 @@ class CatatanPengeluaranController extends Controller
         ]);
     }
 
+    public function superIndex(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(403, 'User tidak ditemukan');
+        }
+
+        $dapurId = $request->dapur_id;
+
+        $dapurList = Dapur::orderBy('nama_lembaga')->get();
+
+        $dapur = $dapurId
+            ? Dapur::find($dapurId)
+            : null;
+
+        $awalBulan = Carbon::now()->startOfMonth();
+
+        /*
+        |--------------------------------------------------------------------------
+        | BASE QUERY (FILTER DAPUR)
+        |--------------------------------------------------------------------------
+        */
+        $query = Transaksi::query();
+
+        if ($dapurId) {
+            $query->where('dapur_id', $dapurId);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | SALDO / DANA MASUK
+        |--------------------------------------------------------------------------
+        */
+        $sisaDanaSebelumnya =
+            (clone $query)->where('tanggal', '<', $awalBulan)->sum('debet')
+            -
+            (clone $query)->where('tanggal', '<', $awalBulan)->sum('kredit');
+
+        $danaMasuk = (clone $query)
+            ->whereMonth('tanggal', now()->month)
+            ->whereYear('tanggal', now()->year)
+            ->sum('debet');
+
+        /*
+        |--------------------------------------------------------------------------
+        | PENGELUARAN PER KATEGORI
+        |--------------------------------------------------------------------------
+        */
+        $bahanBaku = (clone $query)
+            ->whereHas('akun', function ($q) {
+                $q->where('nama_akun', 'Biaya Bahan Baku');
+            })
+            ->sum('kredit');
+
+        $operasional = (clone $query)
+            ->whereHas('akun', function ($q) {
+                $q->where('nama_akun', 'Biaya Operasional');
+            })
+            ->sum('kredit');
+
+        $insentifFasilitas = (clone $query)
+            ->whereHas('akun', function ($q) {
+                $q->where('nama_akun', 'Biaya Insentif Fasilitas');
+            })
+            ->sum('kredit');
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL & SISA DANA
+        |--------------------------------------------------------------------------
+        */
+        $totalDana = $sisaDanaSebelumnya + $danaMasuk;
+
+        $totalPengeluaran =
+            $bahanBaku +
+            $operasional +
+            $insentifFasilitas;
+
+        $sisaDana = $totalDana - $totalPengeluaran;
+
+        /*
+        |--------------------------------------------------------------------------
+        | TRANSAKSI DETAIL
+        |--------------------------------------------------------------------------
+        */
+        $transaksis = Transaksi::with('akun')
+            ->when($dapurId, function ($q) use ($dapurId) {
+                $q->where('dapur_id', $dapurId);
+            })
+            ->orderBy('tanggal', 'asc')
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | PERIODE TEXT
+        |--------------------------------------------------------------------------
+        */
+        $periodeAwal = now()->startOfMonth()->format('d F Y');
+        $periodeAkhir = now()->format('d F Y');
+
+        return view('super.catatan-pengeluaran.index', [
+            'title' => 'Catatan Pengeluaran',
+            'user' => $user,
+
+            'dapurList' => $dapurList,
+            'selectedDapur' => $dapurId,
+            'dapur' => $dapur,
+
+            'periodeAwal' => $periodeAwal,
+            'periodeAkhir' => $periodeAkhir,
+
+            'danaMasuk' => $danaMasuk,
+            'sisaDana' => $sisaDana,
+
+            'bahanBaku' => $bahanBaku,
+            'operasional' => $operasional,
+            'insentifFasilitas' => $insentifFasilitas,
+
+            'totalPengeluaran' => $totalPengeluaran,
+            'totalDana' => $totalDana,
+
+            'transaksis' => $transaksis,
+        ]);
+    }
+
     public function export()
     {
         $user = Auth::user();

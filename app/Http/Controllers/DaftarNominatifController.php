@@ -6,6 +6,7 @@ use App\Models\DaftarNominatif;
 use App\Models\KehadiranNominatif;
 use App\Models\Anggota;
 use App\Models\Pekerjaan;
+use App\Models\Dapur;
 use App\Exports\DaftarNominatifExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -70,6 +71,92 @@ class DaftarNominatifController extends Controller
             'bulan' => $bulan,
             'tahun' => $tahun,
             'tanggalKerja' => $tanggalKerja,
+            'periodeAktif' => $periodeAktif,
+        ]);
+    }
+
+    public function superIndex(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(403, 'User tidak ditemukan');
+        }
+
+        $dapurId = $request->dapur_id;
+
+        $anggotas = Anggota::with('pekerjaan')
+            ->when($dapurId, function ($q) use ($dapurId) {
+                $q->where('dapur_id', $dapurId);
+            })
+            ->orderBy('nama')
+            ->get();
+
+        $periodeAktif = Periode::where('is_active', true)
+            ->when($dapurId, function ($q) use ($dapurId) {
+                $q->where('dapur_id', $dapurId);
+            })
+            ->first();
+
+        $pekerjaans = Pekerjaan::orderBy('nama_pekerjaan')->get();
+
+        $nominatifs = DaftarNominatif::with([
+                'anggota.pekerjaan',
+                'kehadiranNominatif'
+            ])
+            ->when($dapurId, function ($q) use ($dapurId) {
+                $q->where('dapur_id', $dapurId);
+            })
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | KEHADIRAN GLOBAL / PER DAPUR
+        |--------------------------------------------------------------------------
+        */
+        $kehadiranQuery = KehadiranNominatif::query()
+            ->whereMonth('tanggal', now()->month)
+            ->whereYear('tanggal', now()->year);
+
+        if ($dapurId) {
+            $kehadiranQuery->whereHas('daftarNominatif', function ($q) use ($dapurId) {
+                $q->where('dapur_id', $dapurId);
+            });
+        }
+
+        $hariKerjaBerjalan = min(
+            (clone $kehadiranQuery)->distinct('tanggal')->count('tanggal'),
+            25
+        );
+
+        $bulan = Carbon::now()->translatedFormat('F');
+        $tahun = Carbon::now()->year;
+
+        $tanggalKerja = (clone $kehadiranQuery)
+            ->select('tanggal')
+            ->distinct()
+            ->orderBy('tanggal')
+            ->pluck('tanggal');
+
+        $dapurList = Dapur::orderBy('nama_lembaga')->get();
+
+        return view('super.daftar-nominatif.index', [
+            'title' => 'Daftar Nominatif',
+            'user' => $user,
+
+            'dapurList' => $dapurList,
+            'selectedDapur' => $dapurId,
+
+            'anggotas' => $anggotas,
+            'pekerjaans' => $pekerjaans,
+            'nominatifs' => $nominatifs,
+
+            'hariKerjaBerjalan' => $hariKerjaBerjalan,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'tanggalKerja' => $tanggalKerja,
+
             'periodeAktif' => $periodeAktif,
         ]);
     }

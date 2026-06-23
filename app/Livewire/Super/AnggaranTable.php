@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\Super;
 
 use Livewire\Component;
 use Livewire\Attributes\Url;
@@ -312,7 +312,7 @@ class AnggaranTable extends Component
             ? AnggaranBahan::latest()->get()
             : AnggaranBahan::where('dapur_id', $user->dapur_id)->latest()->get();
     
-        return view('livewire.admin.anggaran-table', [
+        return view('livewire.super.anggaran-table', [
             'items'             => $this->getData(),
             'summary'           => $this->getSummary(),
             'totalGlobalRab'    => $this->getSummary()['bahan']['total']

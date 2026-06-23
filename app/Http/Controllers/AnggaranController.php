@@ -32,4 +32,25 @@ class AnggaranController extends Controller
             'title' => 'Setup Anggaran',
         ]);
     }
+
+    public function superBahan()
+    {
+        return view('super.anggaran.index', [
+            'title' => 'Setup Anggaran',
+        ]);
+    }
+
+    public function superOperasional()
+    {
+        return view('super.anggaran.operasional', [
+            'title' => 'Setup Anggaran',
+        ]);
+    }
+
+    public function superInsentif()
+    {
+        return view('super.anggaran.insentif', [
+            'title' => 'Setup Anggaran',
+        ]);
+    }
 }

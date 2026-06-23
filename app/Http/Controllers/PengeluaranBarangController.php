@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\PengeluaranBarang;
+use App\Models\Dapur;
 use App\Models\Barang;
 use App\Models\Anggota;
 use App\Models\StokBarang;
@@ -44,6 +45,76 @@ class PengeluaranBarangController extends Controller
             ->get(),
 
             'anggota' => Anggota::where('dapur_id', $user->dapur_id)->get(),
+        ]);
+    }
+
+    public function superIndex(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(403, 'User tidak ditemukan');
+        }
+
+        $dapurId = $request->dapur_id;
+
+        $dapurList = Dapur::orderBy('nama_lembaga')->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | BASE QUERY
+        |--------------------------------------------------------------------------
+        */
+        $query = PengeluaranBarang::with(['barang.stok', 'anggota'])
+            ->when($dapurId, function ($q) use ($dapurId) {
+                $q->whereHas('barang', function ($q2) use ($dapurId) {
+                    $q2->where('dapur_id', $dapurId);
+                });
+            })
+            ->latest();
+
+        /*
+        |--------------------------------------------------------------------------
+        | PAGINATION
+        |--------------------------------------------------------------------------
+        */
+        $items = $query->paginate(20)->withQueryString();
+
+        /*
+        |--------------------------------------------------------------------------
+        | DROPDOWN BARANG (FILTER BY DAPUR)
+        |--------------------------------------------------------------------------
+        */
+        $barang = Barang::when($dapurId, function ($q) use ($dapurId) {
+                $q->where('dapur_id', $dapurId);
+            })
+            ->orderBy('nama_barang')
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | ANGGOTA (FILTER BY DAPUR JUGA)
+        |--------------------------------------------------------------------------
+        */
+        $anggota = Anggota::when($dapurId, function ($q) use ($dapurId) {
+                $q->where('dapur_id', $dapurId);
+            })
+            ->orderBy('nama')
+            ->get();
+
+        return view('super.pengeluaran-barang.index', [
+            'title'         => 'Pengeluaran Barang',
+            'user'          => $user,
+
+            'dapurList'     => $dapurList,
+            'selectedDapur' => $dapurId,
+
+            'periodeAwal'   => now()->startOfMonth()->format('d F Y'),
+            'periodeAkhir'  => now()->format('d F Y'),
+
+            'items'         => $items,
+            'barang'        => $barang,
+            'anggota'       => $anggota,
         ]);
     }
 

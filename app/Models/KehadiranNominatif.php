@@ -18,4 +18,8 @@ class KehadiranNominatif extends Model
     {
         return $this->belongsTo(DaftarNominatif::class, 'daftar_nominatif_id');
     }
+    public function daftarNominatif()
+    {
+        return $this->belongsTo(DaftarNominatif::class, 'daftar_nominatif_id');
+    }
 }

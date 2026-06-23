@@ -182,26 +182,27 @@
             {{-- KANAN: PELAPORAN & AKUN --}}
             <div class="lg:col-span-4 space-y-6">
                 
+                
                 {{-- AKUN PENGGUNA --}}
-                <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm border-t-4 border-t-indigo-500">
-                    <div class="section-header-form">
-                        <div class="icon-wrapper !text-indigo-600"><i class="ph-bold ph-lock-key"></i></div>
-                        <span class="section-title-text">Akses Akun</span>
-                        <div class="section-line"></div>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="dapur-label">Username</label>
-                            <input name="username" value="{{ old('username', $user->username ?? '') }}" class="dapur-input bg-gray-50" placeholder="Username login">
-                        </div>
-                        <div>
-                            <label class="dapur-label">Password Baru</label>
-                            <input type="password" name="password" class="dapur-input" placeholder="Kosongkan jika tidak ganti">
-                            <p class="text-[10px] text-gray-400 mt-1 italic">*Minimal 8 karakter jika ingin diubah</p>
-                        </div>
-                    </div>
-                </div>
+<div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm border-t-4 border-t-indigo-500">
+    <div class="section-header-form">
+        <div class="icon-wrapper !text-indigo-600"><i class="ph-bold ph-lock-key"></i></div>
+        <span class="section-title-text">Akses Pengelola</span>
+        <div class="section-line"></div>
+    </div>
+    
+    <div class="space-y-4">
+        <div>
+            <label class="dapur-label">Username Pengelola</label>
+            <input name="username" value="{{ old('username', $user->username ?? '') }}" class="dapur-input bg-gray-50" placeholder="Masukkan username pengelola">
+        </div>
+        <div>
+            <label class="dapur-label">Password Akun</label>
+            <input type="password" name="password" class="dapur-input" placeholder="Masukkan password baru untuk pengelola">
+            <p class="text-[10px] text-gray-400 mt-1 italic">*Biarkan kosong jika tidak ingin mengubah password</p>
+        </div>
+    </div>
+</div>
 
                 {{-- PELAPORAN
                 <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm">

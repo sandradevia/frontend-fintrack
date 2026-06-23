@@ -138,6 +138,144 @@ class BpOperasionalController extends Controller
         ]);
     }
 
+    public function superIndex(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(403, 'User tidak ditemukan');
+        }
+
+        $dapurId = $request->dapur_id;
+
+        $dapurList = Dapur::orderBy('nama_lembaga')->get();
+
+        $dapur = $dapurId
+            ? Dapur::find($dapurId)
+            : null;
+
+        $awalBulan = Carbon::now()->startOfMonth();
+
+        /*
+        |--------------------------------------------------------------------------
+        | BASE FILTER (SUPER ADMIN / FILTER DAPUR)
+        |--------------------------------------------------------------------------
+        */
+        $baseQuery = Transaksi::where('tanggal', '<', $awalBulan);
+        $periodeQuery = Transaksi::query();
+
+        if ($dapurId) {
+            $baseQuery->where('dapur_id', $dapurId);
+            $periodeQuery->where('dapur_id', $dapurId);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | SALDO AWAL
+        |--------------------------------------------------------------------------
+        */
+        $danaOperasionalSebelumnya = (clone $baseQuery)
+            ->whereHas('akun', function ($q) {
+                $q->where('nama_akun', 'Dana Operasional');
+            })
+            ->sum('debet');
+
+        $pengeluaranOperasionalSebelumnya = (clone $baseQuery)
+            ->whereHas('akun', function ($q) {
+                $q->where('nama_akun', 'Biaya Operasional');
+            })
+            ->sum('kredit');
+
+        $saldoAwal = $danaOperasionalSebelumnya - $pengeluaranOperasionalSebelumnya;
+
+        /*
+        |--------------------------------------------------------------------------
+        | DANA MASUK BULAN INI
+        |--------------------------------------------------------------------------
+        */
+        $danaMasuk = (clone $periodeQuery)
+            ->whereMonth('tanggal', now()->month)
+            ->whereYear('tanggal', now()->year)
+            ->whereHas('akun', function ($q) {
+                $q->where('nama_akun', 'Dana Operasional');
+            })
+            ->sum('debet');
+
+        /*
+        |--------------------------------------------------------------------------
+        | PENGELUARAN BULAN INI
+        |--------------------------------------------------------------------------
+        */
+        $totalPengeluaran = (clone $periodeQuery)
+            ->whereMonth('tanggal', now()->month)
+            ->whereYear('tanggal', now()->year)
+            ->whereHas('akun', function ($q) {
+                $q->where('nama_akun', 'Biaya Operasional');
+            })
+            ->sum('kredit');
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA TRANSAKSI
+        |--------------------------------------------------------------------------
+        */
+        $transaksiRaw = Transaksi::with('akun')
+            ->when($dapurId, function ($q) use ($dapurId) {
+                $q->where('dapur_id', $dapurId);
+            })
+            ->whereHas('akun', function ($q) {
+                $q->whereIn('nama_akun', [
+                    'Dana Operasional',
+                    'Biaya Operasional'
+                ]);
+            })
+            ->orderBy('tanggal')
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | SALDO BERJALAN
+        |--------------------------------------------------------------------------
+        */
+        $saldoBerjalan = $saldoAwal;
+
+        $transaksis = [];
+
+        foreach ($transaksiRaw as $trx) {
+
+            $debet = $trx->debet ?? 0;
+            $kredit = $trx->kredit ?? 0;
+
+            $saldoBerjalan += ($debet - $kredit);
+
+            $transaksis[] = [
+                'tanggal' => $trx->tanggal,
+                'no_bukti' => $trx->no_bukti,
+                'uraian' => $trx->uraian,
+                'debet' => $debet,
+                'kredit' => $kredit,
+                'saldo' => $saldoBerjalan,
+            ];
+        }
+
+        $saldoAkhir = $saldoBerjalan;
+
+        return view('super.bp-operasional.index', [
+            'title' => 'Buku Pembantu Dana Operasional',
+            'user' => $user,
+            'dapur' => $dapur,
+            'dapurList' => $dapurList,
+            'selectedDapur' => $dapurId,
+
+            'saldoAwal' => $saldoAwal,
+            'danaMasuk' => $danaMasuk,
+            'totalPengeluaran' => $totalPengeluaran,
+            'saldoAkhir' => $saldoAkhir,
+
+            'transaksis' => $transaksis,
+        ]);
+    }
+
     public function export()
     {
         return Excel::download(new BpOperasionalExport, 'buku_pembantu_dana_operasional.xlsx');

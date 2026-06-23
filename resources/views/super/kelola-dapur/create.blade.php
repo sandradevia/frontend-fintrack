@@ -54,19 +54,10 @@
     }
 </style>
 
-<div class="dapur-wrap space-y-6">
-
-    <x-common.page-breadcrumb 
-        pageTitle="Tambah Dapur"
-        parentTitle="Dapur"
-        :parentUrl="route('super.kelola-dapur.index')"
-    />
-
-    <form action="{{ route('super.kelola-dapur.store') }}" method="POST">
-        @csrf
+   <form action="{{ route('super.kelola-dapur.store') }}" method="POST" id="dapurForm">
+    @csrf
 
         <div class="bg-white rounded-2xl border p-6 space-y-6">
-
             @if($errors->any())
                 <div class="p-3 bg-red-50 text-red-600 rounded-lg text-sm">
                     @foreach($errors->all() as $error)
@@ -78,14 +69,12 @@
             {{-- LEMBAGA --}}
             <div>
                 <p class="section-title">Informasi Lembaga</p>
-
                 <div class="space-y-4">
-                    <input name="nama_lembaga" class="dapur-input" placeholder="Nama Lembaga *" required>
-                    <textarea name="alamat" class="dapur-input" placeholder="Alamat *" required></textarea>
-
+                    <input name="nama_lembaga" value="{{ old('nama_lembaga') }}" class="dapur-input" placeholder="Nama Lembaga *" required>
+                    <textarea name="alamat" class="dapur-input" placeholder="Alamat *" required>{{ old('alamat') }}</textarea>
                     <div class="grid grid-cols-2 gap-4">
-                        <input name="nama_yayasan" class="dapur-input" placeholder="Nama Yayasan">
-                        <input name="ketua_yayasan" class="dapur-input" placeholder="Ketua Yayasan">
+                        <input name="nama_yayasan" value="{{ old('nama_yayasan') }}" class="dapur-input" placeholder="Nama Yayasan">
+                        <input name="ketua_yayasan" value="{{ old('ketua_yayasan') }}" class="dapur-input" placeholder="Ketua Yayasan">
                     </div>
                 </div>
             </div>
@@ -93,73 +82,39 @@
             {{-- PENGELOLA --}}
             <div>
                 <p class="section-title">Pengelola</p>
-
                 <div class="grid grid-cols-2 gap-4">
-                    <input name="nama_kepala_sppg" class="dapur-input" placeholder="Kepala SPPG *" required>
-                    <input name="nama_akuntan" class="dapur-input" placeholder="Akuntan">
-                    <input name="nomor_rekening" class="dapur-input" placeholder="Nomor Rekening">
-                </div>
-            </div>
-
-            <div>
-                <p class="section-title">Periode</p>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm mb-1">Tahun Anggaran</label>
-                        <input
-                            type="number"
-                            name="tahun_anggaran"
-                            class="dapur-input"
-                            placeholder="2026">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm mb-1">Tanggal Pelaporan</label>
-                        <input
-                            type="date"
-                            name="tanggal_pelaporan"
-                            class="dapur-input">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm mb-1">Tanggal Mulai Periode</label>
-                        <input
-                            type="date"
-                            name="tanggal_mulai"
-                            class="dapur-input">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm mb-1">Tanggal Selesai Periode</label>
-                        <input
-                            type="date"
-                            name="tanggal_selesai"
-                            class="dapur-input">
-                    </div>
+                    <input name="nama_kepala_sppg" value="{{ old('nama_kepala_sppg') }}" class="dapur-input" placeholder="Kepala SPPG *" required>
+                    <input name="nama_akuntan" value="{{ old('nama_akuntan') }}" class="dapur-input" placeholder="Akuntan">
+                    <input name="nomor_rekening" value="{{ old('nomor_rekening') }}" class="dapur-input" placeholder="Nomor Rekening">
+                    <input name="tempat_pelaporan" value="{{ old('tempat_pelaporan') }}" class="dapur-input" placeholder="Tempat Pelaporan">
                 </div>
             </div>
 
             {{-- AKUN (WAJIB LOGIN) --}}
             <div>
                 <p class="section-title">Akun Login</p>
-
                 <div class="grid grid-cols-2 gap-4">
-                    <input name="username" class="dapur-input" placeholder="Username *" required>
-                    <input type="password" name="password" class="dapur-input" placeholder="Password *" required>
+                    <input name="username" value="{{ old('username') }}" class="dapur-input" placeholder="Username *" required>
+                    <input type="password" name="password" class="dapur-input" placeholder="Password (Min. 8 karakter) *" required>
                 </div>
             </div>
 
             {{-- BUTTON --}}
             <div class="flex justify-end pt-4 border-t">
-                <button class="px-6 py-2 bg-blue-600 text-white rounded-lg">
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                     Simpan Data
                 </button>
             </div>
-
         </div>
     </form>
-
 </div>
 
+<script>
+    document.getElementById('dapurForm').addEventListener('submit', function(e) {
+        // Hapus baris di bawah ini jika Anda ingin form tetap berjalan normal
+        // e.preventDefault(); 
+        
+        console.log('Form sedang dikirim...');
+    });
+</script>
 @endsection

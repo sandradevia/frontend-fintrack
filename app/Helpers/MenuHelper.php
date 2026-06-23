@@ -7,113 +7,188 @@ use Illuminate\Support\Facades\Auth;
 class MenuHelper
 {
     public static function getMenu()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        $isSuperAdmin = self::userHasRole($user, 'super_admin');
-        $isAdmin = self::userHasRole($user, ['admin_dapur', 'super_admin']);
+    if (!$user) {
+        return [];
+    }
 
-        $items = [
+    $isSuperAdmin = self::userHasRole($user, 'super_admin');
+    $isAdmin = self::userHasRole($user, 'admin_dapur');
 
-            [
-                'icon' => 'dashboard',
-                'name' => 'Dashboard',
-                'route' => $isSuperAdmin
-                    ? 'super.dashboard'
-                    : 'admin.dashboard',
-            ],
+    $items = [
 
-            [
-                'name' => 'Menu Input',
-                'icon' => 'forms',
-                'subItems' => [
+        [
+            'icon' => 'dashboard',
+            'name' => 'Dashboard',
+            'route' => $isSuperAdmin
+                ? 'super.dashboard'
+                : 'admin.dashboard',
+        ],
 
-                    [
-                        'icon' => 'user-profile',
-                        'name' => 'Profile',
-                        'route' => 'admin.profile.profile',
-                    ],
+        [
+            'name' => 'Menu Input',
+            'icon' => 'forms',
+            'subItems' => array_values(array_filter([
 
-                    [
-                        'name' => 'Saldo Awal Buku',
-                        'route' => 'admin.awal-buku.saldo',
-                    ],
+                $isAdmin ? [
+                    'icon' => 'user-profile',
+                    'name' => 'Profile',
+                    'route' => 'admin.profile.profile',
+                ] : null,
 
-                    [
-                        'name' => 'Anggaran',
-                        'route' => 'admin.anggaran.bahan',
-                    ],
+                [
+                    'name' => 'Saldo Awal Buku',
+                    'route' => $isSuperAdmin
+                        ? 'super.awal-buku.index'
+                        : 'admin.awal-buku.saldo',
+                ],
 
-                    [
-                        'name' => 'Transaksi',
-                        'route' => 'admin.transaksi.transaksi',
-                    ],
+                [
+                    'name' => 'Anggaran',
+                    'route' => $isSuperAdmin
+                        ? 'super.anggaran.index'
+                        : 'admin.anggaran.bahan',
+                ],
+
+                [
+                    'name' => 'Transaksi',
+                    'route' => $isSuperAdmin
+                        ? 'super.transaksi.index'
+                        : 'admin.transaksi.transaksi',
+                ],
+            ])),
+        ],
+
+        $isAdmin ? [
+            'name' => 'Cetak Buku',
+            'icon' => 'tables',
+            'subItems' => [
+                [
+                    'name' => 'BKU',
+                    'route' => 'admin.bku.index',
+                ],
+                [
+                    'name' => 'BP Kas',
+                    'route' => 'admin.bp-kas.index',
+                ],
+                [
+                    'name' => 'BP Operasional',
+                    'route' => 'admin.bp-operasional.index',
+                ],
+                [
+                    'name' => 'BP Insentif',
+                    'route' => 'admin.bp-insentif.index',
                 ],
             ],
+        ] : null,
 
-            [
-                'name' => 'Cetak Buku',
-                'icon' => 'tables',
-                'subItems' => [
-                    ['name' => 'BKU', 'route' => 'admin.bku.index'],
-                    ['name' => 'BP Kas', 'route' => 'admin.bp-kas.index'],
-                    // ['name' => 'BP Bahan', 'route' => 'admin.bp-bahan.index'],
-                    ['name' => 'BP Operasional', 'route' => 'admin.bp-operasional.index'],
-                    ['name' => 'BP Insentif', 'route' => 'admin.bp-insentif.index'],
+        [
+            'name' => 'Cetak Laporan',
+            'icon' => 'pages',
+            'subItems' => array_values(array_filter([
+
+                $isAdmin ? [
+                    'name' => 'LP Anggaran',
+                    'route' => 'admin.lp-anggaran.index',
+                ] : null,
+
+                $isAdmin ? [
+                    'name' => 'SP Tanggung Jawab',
+                    'route' => 'admin.sp-tanggungjawab.index',
+                ] : null,
+
+                $isAdmin ? [
+                    'name' => 'BAP Sisa Dana',
+                    'route' => 'admin.bap-sisadana.index',
+                ] : null,
+
+                [
+                    'name' => 'Daftar Kominatif',
+                    'route' => $isSuperAdmin
+                        ? 'super.daftar-nominatif.index'
+                        : 'admin.daftar-nominatif.index',
                 ],
-            ],
 
-            [
-                'name' => 'Cetak Laporan',
-                'icon' => 'pages',
-                'subItems' => [
-                    ['name' => 'LP Anggaran', 'route' => 'admin.lp-anggaran.index'],
-                    ['name' => 'SP Tanggung Jawab', 'route' => 'admin.sp-tanggungjawab.index'],
-                    ['name' => 'BAP Sisa Dana', 'route' => 'admin.bap-sisadana.index'],
-                    ['name' => 'Daftar Kominatif', 'route' => 'admin.daftar-nominatif.index'],
-                    ['name' => 'Catatan Pengeluaran', 'route' => 'admin.catatan-pengeluaran.index'],
+                [
+                    'name' => 'Catatan Pengeluaran',
+                    'route' => $isSuperAdmin
+                        ? 'super.catatan-pengeluaran.index'
+                        : 'admin.catatan-pengeluaran.index',
                 ],
-            ],
+            ])),
+        ],
 
-            [
-                'name' => 'Barang Persediaan',
-                'icon' => 'ecommerce',
-                'subItems' => [
-                    ['name' => 'Input Barang', 'route' => 'admin.input-barang.index'],
-                    ['name' => 'Penerimaan Barang', 'route' => 'admin.penerimaan-barang.index'],
-                    ['name' => 'Pengeluaran Barang', 'route' => 'admin.pengeluaran-barang.index'],
-                    ['name' => 'Laporan Stok Barang', 'route' => 'admin.laporan-stock.index'],
+        [
+            'name' => 'Barang Persediaan',
+            'icon' => 'ecommerce',
+            'subItems' => array_values(array_filter([
+
+                $isAdmin ? [
+                'name' => 'Input Barang',
+                'route' => 'admin.input-barang.index',
+            ] : null,
+
+                [
+                    'name' => 'Penerimaan Barang',
+                    'route' => $isSuperAdmin
+                        ? 'super.penerimaan-barang.index'
+                        : 'admin.penerimaan-barang.index',
                 ],
-            ],
-            [
-                'icon' => 'calendar',
-                'name' => 'Periode Akuntansi',
-                'route' => 'admin.periode.index',
-            ],
-            [
-                'icon' => 'user-profile',
-                'name' => 'Petugas',
-                'route' => 'admin.petugas.index',
-            ],
 
-        ];
+                [
+                    'name' => 'Pengeluaran Barang',
+                    'route' => $isSuperAdmin
+                        ? 'super.pengeluaran-barang.index'
+                        : 'admin.pengeluaran-barang.index',
+                ],
 
-        // 🔥 KHUSUS SUPER ADMIN
-        if ($isSuperAdmin) {
-            $items[] = [
-                'icon' => 'dapur',
-                'name' => 'Dapur',
-                'route' => 'super.kelola-dapur.index',
-            ];
-        }
+                [
+                    'name' => 'Laporan Stok Barang',
+                    'route' => $isSuperAdmin
+                        ? 'super.laporan-stock.index'
+                        : 'admin.laporan-stock.index',
+                ],
+            ])),
+        ],
 
-        return [
-            [
-                'title' => 'Menu',
-                'items' => $items,
-            ],
+        ! $isSuperAdmin ? [
+            'icon' => 'calendar',
+            'name' => 'Periode Akuntansi',
+            'route' => 'admin.periode.index',
+        ] : null,
+
+        [
+            'icon' => 'user-profile',
+            'name' => 'Petugas',
+            'route' => $isSuperAdmin
+                ? 'super.petugas.index'
+                : 'admin.petugas.index',
+        ],
+    ];
+
+    // filter null top-level menu
+    $items = array_values(array_filter($items));
+
+    if ($isSuperAdmin) {
+        $items[] = [
+            'icon' => 'dapur',
+            'name' => 'Dapur',
+            'route' => 'super.kelola-dapur.index',
         ];
     }
+
+    return [
+        [
+            'title' => 'Menu',
+            'items' => $items,
+        ],
+    ];
+}
+
+
+
     public static function getIconSvg($iconName)
     {
         $icons = [
@@ -148,8 +223,7 @@ class MenuHelper
             'email' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.5 8.187V17.25C3.5 17.6642 3.83579 18 4.25 18H19.75C20.1642 18 20.5 17.6642 20.5 17.25V8.18747L13.2873 13.2171C12.5141 13.7563 11.4866 13.7563 10.7134 13.2171L3.5 8.187ZM20.5 6.2286C20.5 6.23039 20.5 6.23218 20.5 6.23398V6.24336C20.4976 6.31753 20.4604 6.38643 20.3992 6.42905L12.4293 11.9867C12.1716 12.1664 11.8291 12.1664 11.5713 11.9867L3.60116 6.42885C3.538 6.38481 3.50035 6.31268 3.50032 6.23568C3.50028 6.10553 3.60577 6 3.73592 6H20.2644C20.3922 6 20.4963 6.10171 20.5 6.2286ZM22 6.25648V17.25C22 18.4926 20.9926 19.5 19.75 19.5H4.25C3.00736 19.5 2 18.4926 2 17.25V6.23398C2 6.22371 2.00021 6.2135 2.00061 6.20333C2.01781 5.25971 2.78812 4.5 3.73592 4.5H20.2644C21.2229 4.5 22 5.27697 22.0001 6.23549C22.0001 6.24249 22.0001 6.24949 22 6.25648Z" fill="currentColor"></path></svg>',
             
             'dapur' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"> <path d="M3 10L12 3L21 10V20H3V10Z" fill="currentColor"/> <path d="M9 20V12H15V20" fill="white"/> </svg>',
-
-            ];
+        ];
 
         return $icons[$iconName] ?? '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg>';
     }

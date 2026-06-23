@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
+use App\Models\Dapur;
 use App\Models\PenerimaanBarang;
 use App\Models\Barang;
 use App\Models\StokBarang;
@@ -38,6 +38,8 @@ class PenerimaanBarangController extends Controller
         $periodeAwal = now()->startOfMonth()->format('d F Y');
         $periodeAkhir = now()->format('d F Y');
 
+        $hal = PenerimaanBarang::paginate(10);
+
         return view('admin.penerimaan-barang.index', [
             'title'        => 'Penerimaan Barang',
             'user'         => $user,
@@ -46,6 +48,7 @@ class PenerimaanBarangController extends Controller
             'dapur'        => $dapur,
             'periodeAwal'  => $periodeAwal,
             'periodeAkhir' => $periodeAkhir,
+            'hal'          => $hal,
         ]);
     }
 
@@ -147,6 +150,46 @@ class PenerimaanBarangController extends Controller
             ], 500);
         }
     }
+
+    public function superIndex(Request $request)
+{
+    $user = Auth::user();
+    if (!$user) abort(403, 'User tidak ditemukan');
+
+    $dapurId = $request->dapur_id;
+    $dapurList = Dapur::orderBy('nama_lembaga')->get();
+
+    // 1. Buat Query Utama (Gunakan satu variabel saja)
+    $query = PenerimaanBarang::with('barang')
+        ->when($dapurId, function ($q) use ($dapurId) {
+            $q->whereHas('barang', function ($q2) use ($dapurId) {
+                $q2->where('dapur_id', $dapurId);
+            });
+        })
+        ->latest();
+
+    // 2. Lakukan Paginasi (Hasilnya adalah Paginator)
+    $hal = $query->paginate(20);
+
+    // 3. Dropdown Barang tetap menggunakan get()
+    $barang = Barang::when($dapurId, function ($q) use ($dapurId) {
+            $q->where('dapur_id', $dapurId);
+        })
+        ->orderBy('nama_barang')
+        ->get();
+
+    return view('super.penerimaan-barang.index', [
+        'title'        => 'Penerimaan Barang',
+        'user'         => $user,
+        'dapurList'    => $dapurList,
+        'selectedDapur'=> $dapurId,
+        'items'        => $hal, // Gunakan hasil paginate untuk $items
+        'barang'       => $barang,
+        'periodeAwal'  => now()->startOfMonth()->format('d F Y'),
+        'periodeAkhir' => now()->format('d F Y'),
+        'hal'          => $hal, 
+    ]);
+}
 
     public function edit($id)
     {

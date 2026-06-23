@@ -65,8 +65,7 @@ Route::middleware(['auth', 'role:admin_dapur|super_admin'])
         Route::get('/anggaran/insentif', [AnggaranController::class, 'insentif'])->name('anggaran.insentif');
 
         Route::get('/awal-buku', [AwalBukuController::class, 'index'])->name('awal-buku.saldo');
-        // Ubah baris ini agar menerima request POST maupun fallback GET saat redirect
-Route::any('/awal-buku/update', [AwalBukuController::class, 'updateSaldo'])->name('awal-buku.update');
+        Route::any('/awal-buku/update', [AwalBukuController::class, 'updateSaldo'])->name('awal-buku.update');
 
         // Modul Manajemen Periode
         Route::get('/periode', [PeriodeController::class, 'index'])->name('periode.index');
@@ -92,11 +91,9 @@ Route::any('/awal-buku/update', [AwalBukuController::class, 'updateSaldo'])->nam
 
         // LP ANGGARAN
         Route::get('/lp-anggaran', [LpAnggaranController::class, 'index'])->name('lp-anggaran.index');
-        Route::get('/lp-anggaran/export/pdf', [LpAnggaranController::class, 'exportPdf'])
-            ->name('lp-anggaran.pdf');
+        Route::get('/lp-anggaran/export/pdf', [LpAnggaranController::class, 'exportPdf'])->name('lp-anggaran.pdf');
 
-        Route::get('/lp-anggaran/export/word', [LpAnggaranController::class, 'exportWord'])
-            ->name('lp-anggaran.word');
+        Route::get('/lp-anggaran/export/word', [LpAnggaranController::class, 'exportWord'])->name('lp-anggaran.word');
 
         // SP TANGGUNG JAWAB
         Route::get('/sp-tanggungjawab', [SpTanggungjawabController::class, 'index'])->name('sp-tanggungjawab.index');
@@ -203,6 +200,82 @@ Route::middleware(['auth', 'role:super_admin'])
         // DELETE
         Route::delete('/kelola-dapur/{id}', [KelolaDapurController::class, 'destroy'])
             ->name('kelola-dapur.destroy');
+
+        Route::get('/awal-buku', [AwalBukuController::class, 'superIndex'])->name('awal-buku.index');
+        Route::any('/awal-buku/update', [AwalBukuController::class, 'updateSaldo'])->name('awal-buku.update');
+
+        Route::get('/anggaran/bahan', [AnggaranController::class, 'SuperBahan'])->name('anggaran.index');
+
+        // BP OPERASIONAL
+        Route::get('/bp-operasional', [BpOperasionalController::class, 'superIndex'])->name('bp-operasional.index');
+        Route::get('/bp-operasional/export', [BpOperasionalController::class, 'export'])->name('bp-operasional.export');
+
+        // BP INSENTIF
+        Route::get('/bp-insentif', [BpInsentifController::class, 'superIndex'])->name('bp-insentif.index');
+        Route::get('/bp-insentif/export', [BpInsentifController::class, 'export'])->name('bp-insentif.export');
+
+        // LP ANGGARAN
+        Route::get('/lp-anggaran', [LpAnggaranController::class, 'superIndex'])->name('lp-anggaran.index');
+        Route::get('/lp-anggaran/export/pdf', [LpAnggaranController::class, 'exportPdf'])->name('lp-anggaran.pdf');
+
+        Route::get('/lp-anggaran/export/word', [LpAnggaranController::class, 'exportWord'])->name('lp-anggaran.word');
+
+        Route::get('/transaksi', [TransaksiController::class, 'superIndex'])->name('transaksi.index');
+        Route::post('/transaksi/store', [TransaksiController::class, 'store'])->name('transaksi.store');
+        Route::put('/transaksi/update/{id}', [TransaksiController::class, 'update'])->name('transaksi.update');
+        Route::get('/transaksi/search-akun', [TransaksiController::class, 'searchAkun'])->name('transaksi.search-akun');
+
+        //bku
+        Route::get('/bku', [BkuController::class, 'superIndex'])->name('bku.index');
+        Route::get('/admin/bku/export-excel', [BkuController::class, 'exportExcel'])->name('bku.export.excel');
+
+        Route::get('/bpkas', [BpkasController::class, 'superIndex'])->name('bp-kas.index');
+
+        // DAFTAR NOMINATIF
+        Route::get('/daftar-nominatif', [DaftarNominatifController::class, 'superIndex'])->name('daftar-nominatif.index');
+
+        // CATATAN PENGELUARAN
+        Route::get('/catatan-pengeluaran', [CatatanPengeluaranController::class, 'superIndex'])->name('catatan-pengeluaran.index');
+        Route::get('/catatan-pengeluaran/export', [CatatanPengeluaranController::class, 'export'])->name('catatan-pengeluaran.export');
+
+        // PENERIMAAN BARANG
+        Route::prefix('penerimaan-barang')->name('penerimaan-barang.')->group(function () {
+
+            Route::get('/', [PenerimaanBarangController::class, 'superIndex'])->name('index');
+            Route::post('/', [PenerimaanBarangController::class, 'store'])->name('store');
+
+            Route::get('/{id}/edit', [PenerimaanBarangController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [PenerimaanBarangController::class, 'update'])->name('update');
+            Route::delete('/{id}', [PenerimaanBarangController::class, 'destroy'])->name('destroy');
+
+        });
+
+        Route::prefix('pengeluaran-barang')->name('pengeluaran-barang.')->group(function () {
+            Route::get('/', [PengeluaranBarangController::class, 'superIndex'])->name('index');
+            Route::post('/', [PengeluaranBarangController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [PengeluaranBarangController::class, 'edit'])->name('edit');
+            Route::get('/stok/{barang_id}', [PengeluaranBarangController::class, 'getStok']);
+            Route::put('/{id}', [PengeluaranBarangController::class, 'update'])->name('update');
+            Route::delete('/{id}', [PengeluaranBarangController::class, 'destroy'])->name('destroy');
+        });
+
+        // LAPORAN STOCK
+        Route::get('/laporan-stock', [LaporanStockController::class, 'superIndex'])->name('laporan-stock.index');
+        Route::get('/laporan-stock/export', [LaporanStockController::class, 'exportStok'])->name('laporan.stock.export');
+
+        // LIST ANGGOTA
+
+        Route::prefix('petugas')->group(function () {
+
+            Route::get('/', [AnggotaController::class, 'index'])->name('petugas.index');
+
+            Route::post('/store', [AnggotaController::class, 'store'])->name('petugas.store');
+
+            Route::put('/update/{id}', [AnggotaController::class, 'update'])->name('petugas.update');
+
+            Route::delete('/delete/{id}', [AnggotaController::class, 'destroy'])->name('petugas.destroy');
+
+        });
     });
 
 

@@ -88,6 +88,124 @@ class AwalBukuController extends Controller
         ]);
     }
 
+    public function superIndex(Request $request)
+    {
+        $dapurList = Dapur::orderBy('nama_lembaga')->get();
+
+        $dapurId = $request->dapur_id;
+
+        $dapur = null;
+        $periodeAktif = null;
+        $akun = [];
+
+        $statusPeriode = 'tidak_ada';
+        $pesanPeriode = 'Silakan pilih dapur terlebih dahulu.';
+
+        if ($dapurId) {
+
+            $dapur = Dapur::find($dapurId);
+
+            if (!$dapur) {
+                abort(404, 'Data dapur tidak ditemukan.');
+            }
+
+            $periodeAktif = Periode::where('dapur_id', $dapur->id)
+                ->where('is_active', true)
+                ->first();
+
+            $statusPeriode = 'aktif';
+            $pesanPeriode = '';
+
+            $today = now()->format('Y-m-d');
+
+            if (!$periodeAktif) {
+
+                $statusPeriode = 'tidak_ada';
+                $pesanPeriode = 'Belum ada periode akuntansi aktif pada dapur ini.';
+
+            } elseif ($today > $periodeAktif->tanggal_selesai) {
+
+                $statusPeriode = 'kadaluwarsa';
+                $pesanPeriode = 'Periode akuntansi sudah kadaluwarsa.';
+            }
+
+            if ($periodeAktif) {
+
+                $allAkun = Akun::query()
+                    ->with([
+                        'saldoAwalBuku' => function ($q) use ($periodeAktif) {
+                            $q->where('periode_id', $periodeAktif->id);
+                        }
+                    ])
+
+                    ->withSum([
+                        'transaksi as total_debet' => function ($q) use ($dapur, $periodeAktif) {
+                            $q->where('dapur_id', $dapur->id)
+                                ->whereBetween(
+                                    'tanggal',
+                                    [
+                                        $periodeAktif->tanggal_mulai,
+                                        $periodeAktif->tanggal_selesai
+                                    ]
+                                );
+                        }
+                    ], 'debet')
+
+                    ->withSum([
+                        'transaksi as total_kredit' => function ($q) use ($dapur, $periodeAktif) {
+                            $q->where('dapur_id', $dapur->id)
+                                ->whereBetween(
+                                    'tanggal',
+                                    [
+                                        $periodeAktif->tanggal_mulai,
+                                        $periodeAktif->tanggal_selesai
+                                    ]
+                                );
+                        }
+                    ], 'kredit')
+
+                    ->orderBy('kode')
+                    ->get();
+
+                foreach ($allAkun as $item) {
+
+                    $saldoAwalNominal =
+                        $item->saldoAwalBuku->first()->saldo_awal ?? 0;
+
+                    $debet = $item->total_debet ?? 0;
+                    $kredit = $item->total_kredit ?? 0;
+
+                    $saldoAkhirNominal =
+                        $saldoAwalNominal + ($debet - $kredit);
+
+                    $akun[] = [
+                        'id'              => $item->id,
+                        'kode'            => $item->kode,
+                        'nama_akun'       => $item->nama_akun,
+                        'saldo_awal_raw'  => $saldoAwalNominal,
+                        'saldo_akhir_raw' => $saldoAkhirNominal,
+                        'status'          => $saldoAkhirNominal >= 0
+                            ? 'Sesuai'
+                            : 'Tidak Sesuai',
+                        'is_section'      => false,
+                        'is_parent'       => strlen($item->kode) <= 3,
+                        'is_sub'          => strlen($item->kode) > 3,
+                    ];
+                }
+            }
+        }
+
+        return view('super.awal-buku.index', [
+            'title'          => 'Saldo Awal Buku',
+            'dapurList'      => $dapurList,
+            'dapur'          => $dapur,
+            'periode'        => $periodeAktif,
+            'akun'           => $akun,
+            'status_periode' => $statusPeriode,
+            'pesan_periode'  => $pesanPeriode,
+        ]);
+    }
+
     public function updateSaldo(Request $request)
     {
         // JIKA REDIRECT NYASAR MENGGUNAKAN GET, AMANKAN LANGSUNG KE INDEX SALDO
