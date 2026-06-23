@@ -34,7 +34,7 @@ class LaporanStockController extends Controller
         ->get()
         ->map(function ($barang) {
 
-            $stok = $barang->stok->first()?->stok ?? 0;
+            $stok = optional($barang->stok?->first())->stok ?? 0;
 
             $masuk = $barang->penerimaan->sum('jumlah');
             $keluar = $barang->pengeluaran->sum('jumlah');
