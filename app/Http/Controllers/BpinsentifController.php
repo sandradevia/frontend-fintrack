@@ -11,7 +11,7 @@ use Carbon\Carbon;
 use App\Exports\BpInsentifExport;
 use Maatwebsite\Excel\Facades\Excel;
 
-class BpinsentifController extends Controller
+class BpInsentifController extends Controller
 {
     public function index()
     {
