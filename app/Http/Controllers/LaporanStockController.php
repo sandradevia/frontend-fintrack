@@ -94,7 +94,7 @@ class LaporanStockController extends Controller
             ->get()
             ->map(function ($barang) {
 
-                $stok = $barang->stok->first()?->stok ?? 0;
+                $stok = optional($barang->stok?->first())->stok ?? 0;
 
                 $masuk = $barang->penerimaan->sum('jumlah');
                 $keluar = $barang->pengeluaran->sum('jumlah');
@@ -148,26 +148,7 @@ class LaporanStockController extends Controller
             'periodeAkhir' => now()->format('d F Y'),
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | PERIODE
-        |--------------------------------------------------------------------------
-        */
-        $periodeAwal = now()->startOfMonth()->format('d F Y');
-        $periodeAkhir = now()->format('d F Y');
-
-        return view('super.laporan-stock.index', [
-            'title'         => 'Laporan Stock',
-            'user'          => $user,
-
-            'dapurList'     => $dapurList,
-            'selectedDapur' => $dapurId,
-
-            'items'         => $items,
-
-            'periodeAwal'   => $periodeAwal,
-            'periodeAkhir'  => $periodeAkhir,
-        ]);
+        
     }
 
     private function getDataLaporanStok($periodeAwal = null, $periodeAkhir = null)
@@ -185,7 +166,7 @@ class LaporanStockController extends Controller
         ->get()
         ->map(function ($barang) {
 
-            $stok = $barang->stok->first()?->stok ?? 0;
+            $stok = optional($barang->stok?->first())->stok ?? 0;
 
             $masuk = $barang->penerimaan->sum('jumlah');
             $keluar = $barang->pengeluaran->sum('jumlah');
