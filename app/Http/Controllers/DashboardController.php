@@ -10,6 +10,9 @@ use App\Models\BarangMasuk;
 use App\Models\BarangKeluar;
 use App\Models\Dapur;
 use App\Models\Anggota;
+use App\Models\AnggaranBahan;
+use App\Models\AnggaranInsentif;
+use App\Models\AnggaranOperasional;
 
 class DashboardController extends Controller
 {
@@ -39,18 +42,10 @@ class DashboardController extends Controller
     )->count();
 
     // Total anggaran berdasarkan jurnal transaksi dapur
-    $totalAnggaran = Jurnal::join(
-            'transaksi',
-            'jurnal.transaksi_id',
-            '=',
-            'transaksi.id'
-        )
-        ->where(
-            'transaksi.dapur_id',
-            $user->dapur_id
-        )
-        ->selectRaw('COALESCE(SUM(jurnal.debit - jurnal.kredit),0) as total')
-        ->value('total');
+    $totalAnggaran =
+    AnggaranBahan::where('dapur_id', $user->dapur_id)->sum('total_rab')
+    + AnggaranOperasional::where('dapur_id', $user->dapur_id)->sum('total_rab')
+    + AnggaranInsentif::where('dapur_id', $user->dapur_id)->sum('total_rab');
 
     // =====================
     // STOK MASUK

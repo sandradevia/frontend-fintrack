@@ -58,7 +58,6 @@ dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 p-4 rounded-2xl">
                 <div class="h-full bg-blue-500" style="width: 80%"></div>
             </div>
 
-            <p class="text-xs text-emerald-600 mt-2">+12% bulan ini</p>
         </div>
 
         {{-- Anggaran --}}
@@ -75,7 +74,6 @@ dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 p-4 rounded-2xl">
                 <div class="h-full bg-emerald-500" style="width: 75%"></div>
             </div>
 
-            <p class="text-xs text-emerald-600 mt-2">+8% dari target</p>
         </div>
 
         {{-- Karyawan --}}
@@ -90,7 +88,6 @@ dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 p-4 rounded-2xl">
                 <div class="h-full bg-amber-500" style="width: 60%"></div>
             </div>
 
-            <p class="text-xs text-red-500 mt-2">-1 dari bulan lalu</p>
         </div>
 
     </div>
