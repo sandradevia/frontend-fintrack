@@ -33,39 +33,41 @@ class TransaksiController extends Controller
     }
 
     public function index()
-    {
-        $user = Auth::user();
-        $dapur = Dapur::first();
-        $periodeAwal = now()->startOfMonth()->format('d F Y');
-        $periodeAkhir = now()->format('d F Y');
+{
+    $user = Auth::user();
 
-        if (!$user) {
-            abort(403, 'User tidak ditemukan');
-        }
-
-        $transaksi = Transaksi::with('akun')
-            ->orderBy('tanggal', 'desc')
-            ->orderBy('id', 'desc')
-            ->get();
-
-        $akun = Akun::orderBy('nama_akun')->get();
-
-        // Generate nomor bukti otomatis untuk dilempar ke view
-        $nextRk = $this->generateNextNoBukti('RK');   // Untuk Debet (Uang Masuk)
-        $nextKwt = $this->generateNextNoBukti('Kwt'); // Untuk Kredit (Uang Keluar)
-
-        return view('admin.transaksi.transaksi', [
-            'title' => 'Transaksi',
-            'user' => $user,
-            'transaksi' => $transaksi,
-            'akun' => $akun,
-            'periodeAwal' => $periodeAwal,
-            'periodeAkhir' => $periodeAkhir,
-            'dapur' => $dapur,
-            'nextRk' => $nextRk,     // Pastikan ini terkirim
-            'nextKwt' => $nextKwt,   // Pastikan ini terkirim
-        ]);
+    if (!$user) {
+        abort(403, 'User tidak ditemukan');
     }
+
+    $dapur = $user->dapur;
+
+    $periodeAwal = now()->startOfMonth()->format('d F Y');
+    $periodeAkhir = now()->format('d F Y');
+
+    $transaksi = Transaksi::with('akun')
+        ->where('dapur_id', $user->dapur_id)
+        ->orderBy('tanggal', 'desc')
+        ->orderBy('id', 'desc')
+        ->get();
+
+    $akun = Akun::orderBy('nama_akun')->get();
+
+    $nextRk = $this->generateNextNoBukti('RK');
+    $nextKwt = $this->generateNextNoBukti('Kwt');
+
+    return view('admin.transaksi.transaksi', [
+        'title' => 'Transaksi',
+        'user' => $user,
+        'transaksi' => $transaksi,
+        'akun' => $akun,
+        'periodeAwal' => $periodeAwal,
+        'periodeAkhir' => $periodeAkhir,
+        'dapur' => $dapur,
+        'nextRk' => $nextRk,
+        'nextKwt' => $nextKwt,
+    ]);
+}
 
     public function store(Request $request)
     {
