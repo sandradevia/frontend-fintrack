@@ -125,6 +125,25 @@
     </div>
 
     <div class="flex items-center gap-3">
+        <div class="flex justify-end mb-4">
+    <select
+        wire:model.live="periodeId"
+        class="rounded-lg border-gray-300 text-sm"
+    >
+        @foreach($periodeList as $periode)
+            <option value="{{ $periode->id }}">
+                {{ $periode->tahun_anggaran }}
+                ({{ \Carbon\Carbon::parse($periode->tanggal_mulai)->format('d M Y') }}
+                -
+                {{ \Carbon\Carbon::parse($periode->tanggal_selesai)->format('d M Y') }})
+
+                @if($periode->is_active)
+                    - Aktif
+                @endif
+            </option>
+        @endforeach
+    </select>
+</div>
         <button
     wire:click="openTambahModal"
     class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">

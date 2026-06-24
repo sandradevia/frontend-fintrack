@@ -11,12 +11,14 @@ use App\Models\AnggaranBahan;
 use App\Models\AnggaranOperasional;
 use App\Models\AnggaranInsentif;
 use App\Models\DetailAnggaranBahan;
+use App\Models\Periode;
 
 class AnggaranTable extends Component
 {
     // Disinkronkan ke query string ?tab=...
     #[Url(as: 'tab')]
     public $activeTab = 'bahan';
+    public $periodeId;
 
     // Modal
     public $showModalTambah = false;
@@ -244,83 +246,143 @@ class AnggaranTable extends Component
         $this->resetForm();
     }
 
+private function getPeriodeTerpilih()
+{
+    if (!$this->periodeId) {
+        return null;
+    }
+
+    return Periode::find($this->periodeId);
+}
+
+private function applyPeriodeFilter($query)
+{
+    $periode = $this->getPeriodeTerpilih();
+
+    if ($periode) {
+        $query->whereBetween('tanggal', [
+            $periode->tanggal_mulai,
+            $periode->tanggal_selesai,
+        ]);
+    }
+
+    return $query;
+}
+
     /**
      * Ambil data sesuai tab aktif, dengan filter dapur_id
      * untuk role selain admin_yayasan.
      */
     private function getData()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        $query = match ($this->activeTab) {
-            'bahan'       => AnggaranBahan::with(['dapur', 'details.kategoriPenerima']),
-            'operasional' => AnggaranOperasional::with(['dapur']),
-            'insentif'    => AnggaranInsentif::with(['dapur', 'bahan']),
-            default       => null,
-        };
+    $query = match ($this->activeTab) {
+        'bahan'       => AnggaranBahan::with(['dapur', 'details.kategoriPenerima']),
+        'operasional' => AnggaranOperasional::with(['dapur']),
+        'insentif'    => AnggaranInsentif::with(['dapur', 'bahan']),
+        default       => null,
+    };
 
-        if (! $query) {
-            return collect();
-        }
-
-        if ($user->role !== 'super_admin') {
-            $query->where('dapur_id', $user->dapur_id);
-        }
-
-        return $query->latest()->get();
+    if (! $query) {
+        return collect();
     }
+
+    if ($user->role !== 'super_admin') {
+        $query->where('dapur_id', $user->dapur_id);
+    }
+
+    $this->applyPeriodeFilter($query);
+
+    return $query->latest()->get();
+}
 
     /**
      * Ringkasan total per kategori, dengan filter dapur_id
      * yang sama seperti getData(), supaya konsisten.
      */
     private function getSummary()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        $bahanQuery       = AnggaranBahan::query();
-        $operasionalQuery = AnggaranOperasional::query();
-        $insentifQuery    = AnggaranInsentif::query();
+    $bahanQuery       = AnggaranBahan::query();
+    $operasionalQuery = AnggaranOperasional::query();
+    $insentifQuery    = AnggaranInsentif::query();
 
-        if ($user->role !== 'super_admin') {
-            $bahanQuery->where('dapur_id', $user->dapur_id);
-            $operasionalQuery->where('dapur_id', $user->dapur_id);
-            $insentifQuery->where('dapur_id', $user->dapur_id);
-        }
-
-        return [
-            'bahan' => [
-                'count' => $bahanQuery->count(),
-                'total' => $bahanQuery->sum('total_rab'),
-            ],
-            'operasional' => [
-                'count' => $operasionalQuery->count(),
-                'total' => $operasionalQuery->sum('total_rab'),
-            ],
-            'insentif' => [
-                'count' => $insentifQuery->count(),
-                'total' => $insentifQuery->sum('total_rab'),
-            ],
-        ];
+    if ($user->role !== 'super_admin') {
+        $bahanQuery->where('dapur_id', $user->dapur_id);
+        $operasionalQuery->where('dapur_id', $user->dapur_id);
+        $insentifQuery->where('dapur_id', $user->dapur_id);
     }
+
+    $this->applyPeriodeFilter($bahanQuery);
+    $this->applyPeriodeFilter($operasionalQuery);
+    $this->applyPeriodeFilter($insentifQuery);
+
+    return [
+        'bahan' => [
+            'count' => $bahanQuery->count(),
+            'total' => $bahanQuery->sum('total_rab'),
+        ],
+        'operasional' => [
+            'count' => $operasionalQuery->count(),
+            'total' => $operasionalQuery->sum('total_rab'),
+        ],
+        'insentif' => [
+            'count' => $insentifQuery->count(),
+            'total' => $insentifQuery->sum('total_rab'),
+        ],
+    ];
+}
+public function mount()
+{
+    $user = Auth::user();
+
+    $this->periodeId = Periode::query()
+        ->when(
+            $user->role !== 'super_admin',
+            fn ($q) => $q->where('dapur_id', $user->dapur_id)
+        )
+        ->where('is_active', true)
+        ->value('id');
+}
 
     public function render()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        $listAnggaranBahan = $user->role === 'super_admin'
-            ? AnggaranBahan::latest()->get()
-            : AnggaranBahan::where('dapur_id', $user->dapur_id)->latest()->get();
-    
-        return view('livewire.admin.anggaran-table', [
-            'items'             => $this->getData(),
-            'summary'           => $this->getSummary(),
-            'totalGlobalRab'    => $this->getSummary()['bahan']['total']
-                                + $this->getSummary()['operasional']['total']
-                                + $this->getSummary()['insentif']['total'],
-            'listAnggaranBahan' => $listAnggaranBahan,
-            'kategoriPenerima'  => DB::table('kategori_penerima')->get(),
-        ]);
+    $listAnggaranBahan = AnggaranBahan::query();
+
+    if ($user->role !== 'super_admin') {
+        $listAnggaranBahan->where('dapur_id', $user->dapur_id);
     }
+
+    $this->applyPeriodeFilter($listAnggaranBahan);
+
+    $listAnggaranBahan = $listAnggaranBahan
+        ->latest()
+        ->get();
+
+    $summary = $this->getSummary();
+    $periodeList = Periode::query()
+    ->when(
+        $user->role !== 'super_admin',
+        fn ($q) => $q->where('dapur_id', $user->dapur_id)
+    )
+    ->orderByDesc('tahun_anggaran')
+    ->orderByDesc('tanggal_mulai')
+    ->get();
+
+    return view('livewire.admin.anggaran-table', [
+        'items'             => $this->getData(),
+        'summary'           => $summary,
+        'totalGlobalRab'    => $summary['bahan']['total']
+                             + $summary['operasional']['total']
+                             + $summary['insentif']['total'],
+        'listAnggaranBahan' => $listAnggaranBahan,
+        'kategoriPenerima'  => DB::table('kategori_penerima')->get(),
+        'periodeList' => $periodeList,
+    ]);
+}
 
 }
