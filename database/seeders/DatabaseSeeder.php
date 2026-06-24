@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             StokSeeder::class,
             AkunSeeder::class,
             TransaksiSeeder::class,
+            SaldoAwalSeeder::class,
             // JurnalSeeder::class,
             // BkuSeeder::class,
             // AnggaranSeeder::class,
