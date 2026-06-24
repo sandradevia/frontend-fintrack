@@ -14,76 +14,104 @@ use App\Models\Anggota;
 class DashboardController extends Controller
 {
     public function admin()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        if (!$user || !$this->userHasRole($user, ['admin_dapur', 'super_admin'])) {
-            abort(403);
-        }
-
-        // Ambil dapur user login
-        $dapur = $user->dapur;
-
-        // =====================
-        // TOTAL DASHBOARD
-        // =====================
-        $totalTransaksi = Transaksi::count();
-        $totalKaryawan = User::count();
-
-        $totalAnggaran = Jurnal::selectRaw('COALESCE(SUM(debit - kredit),0) as total')
-            ->value('total');
-
-        // =====================
-        // STOK MASUK
-        // =====================
-        $stokMasuk = BarangMasuk::selectRaw("
-                DATE(tanggal_masuk) as hari,
-                SUM(jumlah) as total
-            ")
-            ->where('tanggal_masuk', '>=', now()->subDays(11))
-            ->groupByRaw('DATE(tanggal_masuk)')
-            ->orderBy('hari')
-            ->pluck('total', 'hari');
-
-        // =====================
-        // STOK KELUAR
-        // =====================
-        $stokKeluar = BarangKeluar::selectRaw("
-                DATE(tanggal_keluar) as hari,
-                SUM(jumlah) as total
-            ")
-            ->where('tanggal_keluar', '>=', now()->subDays(11))
-            ->groupByRaw('DATE(tanggal_keluar)')
-            ->orderBy('hari')
-            ->pluck('total', 'hari');
-
-        // =====================
-        // FORMAT DATA GRAFIK
-        // =====================
-        $hari = [];
-        $dataMasuk = [];
-        $dataKeluar = [];
-
-        for ($i = 11; $i >= 0; $i--) {
-
-            $date = now()->subDays($i)->format('Y-m-d');
-
-            $hari[] = now()->subDays($i)->format('d M');
-
-            $dataMasuk[] = $stokMasuk[$date] ?? 0;
-            $dataKeluar[] = $stokKeluar[$date] ?? 0;
-        }
-
-        return view('pages.dashboard.admin', compact(
-            'dapur',
-            'totalTransaksi',
-            'totalKaryawan',
-            'totalAnggaran',
-            'hari',
-            'dataMasuk',
-            'dataKeluar'
-        ));
+    if (!$user || !$this->userHasRole($user, ['admin_dapur'])) {
+        abort(403);
     }
+
+    // Pastikan admin terhubung ke dapur
+    $dapur = $user->dapur;
+
+    if (!$dapur) {
+        abort(403, 'User belum terhubung ke dapur.');
+    }
+
+    // =====================
+    // TOTAL DASHBOARD
+    // =====================
+
+    // Total transaksi dapur login
+    $totalTransaksi = Transaksi::where(
+        'dapur_id',
+        $user->dapur_id
+    )->count();
+
+    // Total user pada dapur login
+    $totalKaryawan = User::where(
+        'dapur_id',
+        $user->dapur_id
+    )->count();
+
+    // Total anggaran berdasarkan jurnal transaksi dapur
+    $totalAnggaran = Jurnal::join(
+            'transaksi',
+            'jurnal.transaksi_id',
+            '=',
+            'transaksi.id'
+        )
+        ->where(
+            'transaksi.dapur_id',
+            $user->dapur_id
+        )
+        ->selectRaw('COALESCE(SUM(jurnal.debit - jurnal.kredit),0) as total')
+        ->value('total');
+
+    // =====================
+    // STOK MASUK
+    // =====================
+
+    $stokMasuk = BarangMasuk::selectRaw("
+            DATE(tanggal_masuk) as hari,
+            SUM(jumlah) as total
+        ")
+        ->where('tanggal_masuk', '>=', now()->subDays(11))
+        ->groupByRaw('DATE(tanggal_masuk)')
+        ->orderBy('hari')
+        ->pluck('total', 'hari');
+
+    // =====================
+    // STOK KELUAR
+    // =====================
+
+    $stokKeluar = BarangKeluar::selectRaw("
+            DATE(tanggal_keluar) as hari,
+            SUM(jumlah) as total
+        ")
+        ->where('tanggal_keluar', '>=', now()->subDays(11))
+        ->groupByRaw('DATE(tanggal_keluar)')
+        ->orderBy('hari')
+        ->pluck('total', 'hari');
+
+    // =====================
+    // FORMAT DATA GRAFIK
+    // =====================
+
+    $hari = [];
+    $dataMasuk = [];
+    $dataKeluar = [];
+
+    for ($i = 11; $i >= 0; $i--) {
+
+        $date = now()->subDays($i)->format('Y-m-d');
+
+        $hari[] = now()->subDays($i)->format('d M');
+
+        $dataMasuk[] = $stokMasuk[$date] ?? 0;
+        $dataKeluar[] = $stokKeluar[$date] ?? 0;
+    }
+
+    return view('pages.dashboard.admin', compact(
+        'dapur',
+        'totalTransaksi',
+        'totalKaryawan',
+        'totalAnggaran',
+        'hari',
+        'dataMasuk',
+        'dataKeluar'
+    ));
+}
 
     private function userHasRole($user, $roles)
     {
