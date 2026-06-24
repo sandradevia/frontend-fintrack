@@ -64,14 +64,6 @@
             </div>
         </form>
     </div>
-    <pre style="background:yellow;padding:10px;position:fixed;top:0;right:0;z-index:9999">
-    Saldo Awal: {{ $saldoAwalBku }}
-    Total Debet: {{ $totalDebet }}
-    Total Kredit: {{ $totalKredit }}
-    Saldo Akhir: {{ $saldoAkhir }}
-    Bulan: {{ $bulan }}
-    Tahun: {{ $tahun }}
-</pre>
 
     {{-- INFO --}}
     <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border p-6">
