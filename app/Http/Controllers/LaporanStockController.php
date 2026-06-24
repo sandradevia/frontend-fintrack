@@ -30,31 +30,33 @@ class LaporanStockController extends Controller
         'stok' => function ($q) use ($user) {
             $q->where('dapur_id', $user->dapur_id);
         },
-        'penerimaan',
+        'penerimaan' => function ($q) {
+            $q->latest(); // penerimaan terbaru di depan
+        },
         'pengeluaran'
     ])
     ->where('dapur_id', $user->dapur_id)
     ->get()
     ->map(function ($barang) {
 
-        // Relasi hasOne => langsung object, bukan collection
         $stokAwal = $barang->stokAwal;
         $stokBarang = $barang->stok;
 
         // Saldo awal dari tabel stok_awal
         $saldoAwal = $stokAwal?->jumlah ?? 0;
 
-        // Total barang masuk
+        // Total masuk & keluar
         $masuk = $barang->penerimaan->sum('jumlah');
-
-        // Total barang keluar
         $keluar = $barang->pengeluaran->sum('jumlah');
 
-        // Saldo akhir dari tabel stok_barang
+        // Stok aktual
         $saldoAkhir = $stokBarang?->stok ?? 0;
 
-        // Harga beli awal dari stok_awal
-        $hargaBeli = $stokAwal?->harga_beli_awal ?? 0;
+        // Harga beli terakhir dari penerimaan
+        // Jika belum ada penerimaan, pakai harga beli awal
+        $hargaBeli = $barang->penerimaan->first()?->harga_beli
+                    ?? $stokAwal?->harga_beli_awal
+                    ?? 0;
 
         return [
             'nama_barang'  => $barang->nama_barang,

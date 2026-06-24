@@ -53,103 +53,138 @@ class PenerimaanBarangController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        if (!$user || !$user->dapur) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'User belum memiliki dapur'
-            ], 403);
-        }
+    if (!$user || !$user->dapur) {
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'User belum memiliki dapur'
+        ], 403);
+    }
 
-        $dapur = $user->dapur;
+    $dapur = $user->dapur;
 
-        $request->validate([
-            'nama_barang'   => 'required|string',
-            'satuan'        => 'required|string',
-            'jumlah'        => 'required|numeric|min:1',
-            'harga_beli'    => 'required|numeric|min:0',
-            'tanggal_masuk' => 'required|date',
-            'supplier'      => 'nullable|string',
-            'gambar'        => 'nullable|image|max:2048',
-            'status'        => 'nullable|in:pending,disetujui,ditolak',
-        ]);
+    $request->validate([
+        'nama_barang'   => 'required|string',
+        'satuan'        => 'required|string',
+        'jumlah'        => 'required|numeric|min:1',
+        'harga_beli'    => 'required|numeric|min:0',
+        'tanggal_masuk' => 'required|date',
+        'supplier'      => 'nullable|string',
+        'gambar'        => 'nullable|image|max:2048',
+        'status'        => 'nullable|in:pending,disetujui,ditolak',
+    ]);
 
-        DB::beginTransaction();
+    DB::beginTransaction();
 
-        try {
-            // 1️⃣ Simpan / ambil barang
-            $barang = Barang::firstOrCreate(
-                [
-                    'nama_barang' => $request->nama_barang,
-                    'dapur_id'    => $dapur->id,
-                ],
-                [
-                    'satuan'   => $request->satuan,
-                    'supplier' => $request->supplier ?? '-',
-                ]
-            );
+    try {
 
-            // 2️⃣ Simpan penerimaan
-            $penerimaan = PenerimaanBarang::create([
-                'barang_id'     => $barang->id,
-                'tanggal_masuk' => $request->tanggal_masuk,
-                'jumlah'        => $request->jumlah,
-                'harga_beli'    => $request->harga_beli,
-                'gambar'        => $request->hasFile('gambar') ? $request->file('gambar')->store('penerimaan_gambar', 'public') : null,
-                'status'        => $request->status ?? 'pending',
+        // ==========================
+        // 1. Cari barang yang sudah ada
+        // ==========================
+        $namaBarang = trim($request->nama_barang);
+
+        $barang = Barang::where('nama_barang', 'ILIKE', $namaBarang)
+            ->where('dapur_id', $dapur->id)
+            ->first();
+
+        // Jika belum ada maka buat barang baru
+        if (!$barang) {
+
+            $barang = Barang::create([
+                'nama_barang' => $namaBarang,
+                'satuan'      => $request->satuan,
+                'supplier'    => $request->supplier ?? '-',
+                'dapur_id'    => $dapur->id,
             ]);
 
-            // 3️⃣ Update stok barang
-            $stok = StokBarang::firstOrCreate(
-                [
-                    'barang_id' => $barang->id,
-                    'dapur_id'  => $dapur->id,
-                ],
-                ['stok' => 0]
-            );
+            // Buat stok awal 0
+            StokBarang::create([
+                'barang_id' => $barang->id,
+                'dapur_id'  => $dapur->id,
+                'stok'      => 0,
+            ]);
+        }
 
-            $stok->increment('stok', $request->jumlah);
+        // ==========================
+        // 2. Simpan penerimaan barang
+        // ==========================
+        $penerimaan = PenerimaanBarang::create([
+            'barang_id'     => $barang->id,
+            'tanggal_masuk' => $request->tanggal_masuk,
+            'jumlah'        => $request->jumlah,
+            'harga_beli'    => $request->harga_beli,
+            'gambar'        => $request->hasFile('gambar')
+                ? $request->file('gambar')->store('penerimaan_gambar', 'public')
+                : null,
+            'status'        => $request->status ?? 'pending',
+        ]);
 
-            // 4️⃣ Hitung total pengeluaran 12 hari terakhir
-            $total12Hari = PenerimaanBarang::whereHas('barang', function ($q) use ($dapur) {
+        // ==========================
+        // 3. Tambah stok
+        // ==========================
+        $stok = StokBarang::firstOrCreate(
+            [
+                'barang_id' => $barang->id,
+                'dapur_id'  => $dapur->id,
+            ],
+            [
+                'stok' => 0,
+            ]
+        );
+
+        $stok->increment('stok', $request->jumlah);
+
+        // ==========================
+        // 4. Monitoring limit pembelian
+        // ==========================
+        $total12Hari = PenerimaanBarang::whereHas('barang', function ($q) use ($dapur) {
                 $q->where('dapur_id', $dapur->id);
             })
             ->where('tanggal_masuk', '>=', now()->subDays(12))
             ->sum(DB::raw('jumlah * harga_beli'));
 
-            $threshold = 5000000;
+        $threshold = 5000000;
 
-            if ($total12Hari >= $threshold) {
-                Notification::create([
-                    'dapur_id' => $dapur->id,
-                    'title'    => 'Limit Pengeluaran',
-                    'message'  => 'Pengeluaran dapur melebihi Rp '.number_format($threshold,0,',','.').' dalam 12 hari',
-                    'type'     => 'warning',
-                    'is_read'  => false,
-                ]);
+        if ($total12Hari >= $threshold) {
 
-                Log::info("🔔 Notifikasi dibuat. Total 12 hari: ".$total12Hari);
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'status' => 'success',
-                'item'   => $penerimaan->load('barang'),
+            Notification::create([
+                'dapur_id' => $dapur->id,
+                'title'    => 'Limit Pengeluaran',
+                'message'  => 'Pengeluaran dapur melebihi Rp '
+                            . number_format($threshold, 0, ',', '.')
+                            . ' dalam 12 hari',
+                'type'     => 'warning',
+                'is_read'  => false,
             ]);
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error("ERROR store PenerimaanBarang: ".$e->getMessage());
-
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
-            ], 500);
+            Log::info(
+                'Notifikasi limit dibuat. Total pembelian 12 hari = ' . $total12Hari
+            );
         }
+
+        DB::commit();
+
+        return response()->json([
+            'status' => 'success',
+            'item'   => $penerimaan->load('barang'),
+        ]);
+
+    } catch (\Exception $e) {
+
+        DB::rollBack();
+
+        Log::error(
+            'ERROR store PenerimaanBarang: ' . $e->getMessage()
+        );
+
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+        ], 500);
     }
+}
 
     public function superIndex(Request $request)
 {
