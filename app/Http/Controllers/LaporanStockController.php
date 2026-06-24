@@ -16,54 +16,72 @@ use Maatwebsite\Excel\Facades\Excel;
 class LaporanStockController extends Controller
 {
     public function index()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        if (!$user) {
-            abort(403, 'User tidak ditemukan');
-        }
-
-        $items = Barang::with([
-            'stok' => function ($q) use ($user) {
-                $q->where('dapur_id', $user->dapur_id);
-            },
-            'penerimaan',
-            'pengeluaran'
-        ])
-        ->where('dapur_id', $user->dapur_id)
-        ->get()
-        ->map(function ($barang) {
-
-            $stok = optional($barang->stok?->first())->stok ?? 0;
-
-            $masuk = $barang->penerimaan->sum('jumlah');
-            $keluar = $barang->pengeluaran->sum('jumlah');
-
-            return [
-                'nama_barang' => $barang->nama_barang,
-                'satuan' => $barang->satuan,
-                'saldo_awal' => ($stok + $keluar) - $masuk, // estimasi awal
-                'masuk' => $masuk,
-                'keluar' => $keluar,
-                'saldo_akhir' => $stok,
-                'harga_beli' => $barang->penerimaan->last()->harga_beli ?? 0,
-                'jumlah_nilai' => $stok * ($barang->penerimaan->last()->harga_beli ?? 0),
-            ];
-        });
-
-        $dapur = $user->dapur;
-        $periodeAwal = now()->startOfMonth()->format('d F Y');
-        $periodeAkhir = now()->format('d F Y');
-
-        return view('admin.laporan-stock.index', [
-            'title' => 'Laporan Stock',
-            'user' => $user,
-            'items' => $items,
-            'dapur' => $dapur,
-            'periodeAwal' => $periodeAwal,
-            'periodeAkhir' => $periodeAkhir,
-        ]);
+    if (!$user) {
+        abort(403, 'User tidak ditemukan');
     }
+
+    $items = Barang::with([
+        'stokAwal' => function ($q) use ($user) {
+            $q->where('dapur_id', $user->dapur_id);
+        },
+        'stok' => function ($q) use ($user) {
+            $q->where('dapur_id', $user->dapur_id);
+        },
+        'penerimaan',
+        'pengeluaran'
+    ])
+    ->where('dapur_id', $user->dapur_id)
+    ->get()
+    ->map(function ($barang) {
+
+        $stokAwal = $barang->stokAwal->first();
+        $stokBarang = $barang->stok->first();
+
+        // Saldo Awal
+        $saldoAwal = $stokAwal?->jumlah ?? 0;
+
+        // Transaksi
+        $masuk = $barang->penerimaan->sum('jumlah');
+        $keluar = $barang->pengeluaran->sum('jumlah');
+
+        // Saldo Akhir (stok aktual)
+        $saldoAkhir = $stokBarang?->stok ?? 0;
+
+        // Harga beli awal
+        $hargaBeli = $stokAwal?->harga_beli_awal ?? 0;
+
+        return [
+            'nama_barang'  => $barang->nama_barang,
+            'satuan'       => $barang->satuan,
+
+            'saldo_awal'   => $saldoAwal,
+            'masuk'        => $masuk,
+            'keluar'       => $keluar,
+            'saldo_akhir'  => $saldoAkhir,
+
+            'harga_beli'   => $hargaBeli,
+
+            'jumlah_nilai' => $saldoAkhir * $hargaBeli,
+        ];
+    });
+
+    $dapur = $user->dapur;
+
+    $periodeAwal = now()->startOfMonth()->format('d F Y');
+    $periodeAkhir = now()->format('d F Y');
+
+    return view('admin.laporan-stock.index', [
+        'title' => 'Laporan Stock',
+        'user' => $user,
+        'items' => $items,
+        'dapur' => $dapur,
+        'periodeAwal' => $periodeAwal,
+        'periodeAkhir' => $periodeAkhir,
+    ]);
+}
 
     public function superIndex(Request $request)
     {

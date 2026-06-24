@@ -22,4 +22,9 @@ class StokAwal extends Model
     {
         return $this->belongsTo(Barang::class);
     }
+
+    public function stok()
+{
+    return $this->hasMany(StokBarang::class, 'barang_id');
+}
 }
