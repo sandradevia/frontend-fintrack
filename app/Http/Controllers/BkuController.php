@@ -16,65 +16,34 @@ class BkuController extends Controller
 {
     $user = Auth::user();
     $dapurId = $user->dapur_id;
-
     $bulan = (int) ($request->bulan ?? date('m'));
     $tahun = (int) ($request->tahun ?? date('Y'));
-
     $awalPeriode = Carbon::createFromDate($tahun, $bulan, 1);
 
-    // ==================================================
-    // AKUN YANG MASUK KE BUKU KAS UMUM (1000)
-    // ==================================================
-    $akunBku = Akun::whereIn('kode', [
-        '1101', // Petty Cash
-        '1102', // Kas di Bank
-        '2110', // Dana Bahan Baku
-        '2120', // Dana Operasional
-        '2130', // Dana Insentif Fasilitas
-    ])->pluck('id');
-
-    // ==================================================
-    // SALDO AWAL BKU (SEBELUM PERIODE)
-    // ==================================================
+    // SALDO AWAL (semua transaksi sebelum periode, filter dapur saja)
     $saldoAwalBku = Transaksi::where('dapur_id', $dapurId)
-        ->whereIn('akun_id', $akunBku)
         ->where('tanggal', '<', $awalPeriode)
         ->sum(DB::raw('debet - kredit'));
 
-    // ==================================================
-    // TRANSAKSI PERIODE BKU
-    // ==================================================
+    // TRANSAKSI PERIODE INI
     $transaksi = Transaksi::where('dapur_id', $dapurId)
-        ->whereIn('akun_id', $akunBku)
         ->whereMonth('tanggal', $bulan)
         ->whereYear('tanggal', $tahun)
         ->orderBy('tanggal')
         ->orderBy('id')
         ->get();
 
-    // ==================================================
     // SALDO BERJALAN
-    // ==================================================
     $saldo = $saldoAwalBku;
-
     foreach ($transaksi as $item) {
         $mutasi = ($item->debet ?? 0) - ($item->kredit ?? 0);
-
         $saldo += $mutasi;
-
         $item->saldo = $saldo;
     }
 
-    // ==================================================
-    // TOTAL PERIODE
-    // ==================================================
-    $totalDebet = $transaksi->sum('debet');
+    $totalDebet  = $transaksi->sum('debet');
     $totalKredit = $transaksi->sum('kredit');
-
-    // ==================================================
-    // SALDO AKHIR BKU (FINAL FIX)
-    // ==================================================
-    $saldoAkhir = $saldo;
+    $saldoAkhir  = $saldo;
 
     return view('admin.bku.index', compact(
         'transaksi',
