@@ -37,20 +37,23 @@ class LaporanStockController extends Controller
     ->get()
     ->map(function ($barang) {
 
-        $stokAwal = $barang->stokAwal->first();
-        $stokBarang = $barang->stok->first();
+        // Relasi hasOne => langsung object, bukan collection
+        $stokAwal = $barang->stokAwal;
+        $stokBarang = $barang->stok;
 
-        // Saldo Awal
+        // Saldo awal dari tabel stok_awal
         $saldoAwal = $stokAwal?->jumlah ?? 0;
 
-        // Transaksi
+        // Total barang masuk
         $masuk = $barang->penerimaan->sum('jumlah');
+
+        // Total barang keluar
         $keluar = $barang->pengeluaran->sum('jumlah');
 
-        // Saldo Akhir (stok aktual)
+        // Saldo akhir dari tabel stok_barang
         $saldoAkhir = $stokBarang?->stok ?? 0;
 
-        // Harga beli awal
+        // Harga beli awal dari stok_awal
         $hargaBeli = $stokAwal?->harga_beli_awal ?? 0;
 
         return [
@@ -74,11 +77,11 @@ class LaporanStockController extends Controller
     $periodeAkhir = now()->format('d F Y');
 
     return view('admin.laporan-stock.index', [
-        'title' => 'Laporan Stock',
-        'user' => $user,
-        'items' => $items,
-        'dapur' => $dapur,
-        'periodeAwal' => $periodeAwal,
+        'title'        => 'Laporan Stock',
+        'user'         => $user,
+        'items'        => $items,
+        'dapur'        => $dapur,
+        'periodeAwal'  => $periodeAwal,
         'periodeAkhir' => $periodeAkhir,
     ]);
 }
