@@ -21,23 +21,21 @@ class BkuController extends Controller
     $awalPeriode = Carbon::createFromDate($tahun, $bulan, 1);
 
     // ==========================
-    // SALDO AWAL PER DAPUR
+    // SALDO AWAL
     // ==========================
-
     $saldoAwal =
-        Transaksi::where('dapur_id', $user->dapur_id)
+        Transaksi::where('dapur_id', $dapurId)
             ->where('tanggal', '<', $awalPeriode)
             ->sum('debet')
         -
-        Transaksi::where('dapur_id', $user->dapur_id)
+        Transaksi::where('dapur_id', $dapurId)
             ->where('tanggal', '<', $awalPeriode)
             ->sum('kredit');
 
     // ==========================
-    // TRANSAKSI PERIODE TERPILIH
+    // TRANSAKSI PERIODE
     // ==========================
-
-    $transaksi = Transaksi::where('dapur_id', $user->dapur_id)
+    $transaksi = Transaksi::where('dapur_id', $dapurId)
         ->whereMonth('tanggal', $bulan)
         ->whereYear('tanggal', $tahun)
         ->orderBy('tanggal')
@@ -47,15 +45,12 @@ class BkuController extends Controller
     // ==========================
     // SALDO BERJALAN
     // ==========================
-
     $saldo = $saldoAwal;
 
     foreach ($transaksi as $item) {
+        $mutasi = ($item->debet ?? 0) - ($item->kredit ?? 0);
 
-        $saldo +=
-            ($item->debet ?? 0)
-            -
-            ($item->kredit ?? 0);
+        $saldo += $mutasi;
 
         $item->saldo = $saldo;
     }
@@ -63,9 +58,12 @@ class BkuController extends Controller
     // ==========================
     // TOTAL
     // ==========================
-
     $totalDebet = $transaksi->sum('debet');
     $totalKredit = $transaksi->sum('kredit');
+
+    // ==========================
+    // SALDO AKHIR (OPSI 1)
+    // ==========================
     $saldoAkhir = $saldo;
 
     return view('admin.bku.index', compact(
