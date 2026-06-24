@@ -38,12 +38,6 @@ class DashboardController extends Controller
         $user->dapur_id
     )->count();
 
-    // Total user pada dapur login
-    $totalKaryawan = User::where(
-        'dapur_id',
-        $user->dapur_id
-    )->count();
-
     // Total anggaran berdasarkan jurnal transaksi dapur
     $totalAnggaran = Jurnal::join(
             'transaksi',
@@ -101,6 +95,8 @@ class DashboardController extends Controller
         $dataMasuk[] = $stokMasuk[$date] ?? 0;
         $dataKeluar[] = $stokKeluar[$date] ?? 0;
     }
+
+    $totalKaryawan = Anggota::where('dapur_id',$user->dapur_id)->count();
 
     return view('pages.dashboard.admin', compact(
         'dapur',
