@@ -74,100 +74,83 @@ class KelolaDapurController extends Controller
 
     public function show($id)
     {
-        $dapur = Dapur::with(['user', 'periode'])->findOrFail($id);
+        $dapur = Dapur::with('user')->findOrFail($id);
 
-        $periode = $dapur->periode()->latest()->first();
 
-        return view('super.kelola-dapur.show', compact('dapur', 'periode'));
+        return view('super.kelola-dapur.show', compact('dapur', ));
     }
 
     public function edit($id)
     {
-        $dapur = Dapur::with(['user', 'periode'])->findOrFail($id);
+        $dapur = Dapur::with('user')->findOrFail($id);
 
-        // AMBIL 1 PERIODE AKTIF / TERBARU
-        $periode = $dapur->periode()->latest()->first();
 
-        return view('super.kelola-dapur.edit', compact('dapur', 'periode'));
+        return view('super.kelola-dapur.edit', compact('dapur'));
     }
 
     public function update(Request $request, $id)
-    {
-        $dapur = Dapur::with('user')->findOrFail($id);
+{
+    $dapur = Dapur::with('user')->findOrFail($id);
 
-        DB::beginTransaction();
+    DB::beginTransaction();
 
-        try {
+    try {
 
-            // USER UPDATE
-            if ($dapur->user) {
-                $dapur->user->update([
-                    'username' => $request->username,
-                    'password' => $request->password
-                        ? Hash::make($request->password)
-                        : $dapur->user->password,
-                ]);
-            }
-
-            // DAPUR UPDATE
-            $dapur->update([
-                'nama_lembaga'     => $request->nama_lembaga,
-                'alamat'           => $request->alamat,
-                'nama_yayasan'     => $request->nama_yayasan,
-                'ketua_yayasan'    => $request->ketua_yayasan,
-                'nama_kepala_sppg' => $request->nama_kepala_sppg,
-                'nama_akuntan'     => $request->nama_akuntan,
-                'nomor_rekening'   => $request->nomor_rekening,
+        if ($dapur->user) {
+            $dapur->user->update([
+                'username' => $request->username,
+                'password' => $request->password
+                    ? Hash::make($request->password)
+                    : $dapur->user->password,
             ]);
-
-            // PERIODE UPDATE (ambil terbaru)
-            $periode = $dapur->periode()->latest()->first();
-
-            if ($periode) {
-                $periode->update([
-                    'tahun_anggaran'    => $request->tahun_anggaran,
-                    'tanggal_pelaporan' => $request->tanggal_pelaporan,
-                ]);
-            } else {
-                Periode::create([
-                    'dapur_id'          => $dapur->id,
-                    'tahun_anggaran'    => $request->tahun_anggaran,
-                    'tanggal_pelaporan' => $request->tanggal_pelaporan,
-                    'tanggal_mulai'     => now(),
-                    'is_active'         => true,
-                ]);
-            }
-
-            DB::commit();
-
-            return redirect()->route('super.kelola-dapur.index')
-                ->with('success', 'Data berhasil diupdate');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', $e->getMessage());
         }
+
+        $dapur->update([
+            'nama_lembaga'     => $request->nama_lembaga,
+            'alamat'           => $request->alamat,
+            'nama_yayasan'     => $request->nama_yayasan,
+            'ketua_yayasan'    => $request->ketua_yayasan,
+            'nama_kepala_sppg' => $request->nama_kepala_sppg,
+            'nama_akuntan'     => $request->nama_akuntan,
+            'nomor_rekening'   => $request->nomor_rekening,
+        ]);
+
+        DB::commit();
+
+        return redirect()
+            ->route('super.kelola-dapur.index')
+            ->with('success', 'Data berhasil diupdate');
+
+    } catch (\Exception $e) {
+
+        DB::rollBack();
+
+        return back()->with('error', $e->getMessage());
     }
+}
 
     public function destroy($id)
-    {
-        $dapur = Dapur::findOrFail($id);
+{
+    $dapur = Dapur::findOrFail($id);
 
-        DB::beginTransaction();
-        try {
+    DB::beginTransaction();
 
-            $dapur->periode()->delete();
-            $dapur->user()->delete();
-            $dapur->delete();
+    try {
 
-            DB::commit();
+        $dapur->user()->delete();
+        $dapur->delete();
 
-            return redirect()->route('super.kelola-dapur.index')
-                ->with('success', 'Berhasil dihapus');
+        DB::commit();
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', $e->getMessage());
-        }
+        return redirect()
+            ->route('super.kelola-dapur.index')
+            ->with('success', 'Berhasil dihapus');
+
+    } catch (\Exception $e) {
+
+        DB::rollBack();
+
+        return back()->with('error', $e->getMessage());
     }
+}
 }
