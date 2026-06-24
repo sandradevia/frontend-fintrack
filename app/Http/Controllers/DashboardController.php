@@ -124,75 +124,91 @@ class DashboardController extends Controller
     }
 
     public function superAdmin()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        if (!$user || !$this->userHasRole($user, 'super_admin')) {
-            abort(403);
-        }
-
-        // =====================
-        // CARD STATISTIK
-        // =====================
-        $totalDapur = Dapur::count();
-        $totalanggota = Anggota::count();
-        $totalTransaksi = Transaksi::count();
-
-        $totalPemasukan = Jurnal::sum('debit');
-        $totalPengeluaran = Jurnal::sum('kredit');
-
-        $saldo = $totalPemasukan - $totalPengeluaran;
-
-        // =====================
-        // GRAFIK 12 BULAN
-        // =====================
-        $bulan = [];
-        $dataPemasukan = [];
-        $dataPengeluaran = [];
-
-        for ($i = 11; $i >= 0; $i--) {
-
-            $tanggal = now()->subMonths($i);
-
-            $bulan[] = $tanggal->format('M');
-
-            $dataPemasukan[] = Jurnal::whereHas('transaksi', function ($query) use ($tanggal) {
-                $query->whereYear('tanggal', $tanggal->year)
-                    ->whereMonth('tanggal', $tanggal->month);
-            })->sum('debit');
-
-            $dataPengeluaran[] = Jurnal::whereHas('transaksi', function ($query) use ($tanggal) {
-                $query->whereYear('tanggal', $tanggal->year)
-                    ->whereMonth('tanggal', $tanggal->month);
-            })->sum('kredit');
-        }
-
-        // =====================
-        // TRANSAKSI TERBARU
-        // =====================
-        $transaksiTerbaru = Transaksi::latest()
-            ->take(5)
-            ->get();
-
-        // =====================
-        // USER TERBARU
-        // =====================
-        $userTerbaru = User::latest()
-            ->take(5)
-            ->get();
-
-        return view('pages.dashboard.super_admin', compact(
-            'totalDapur',
-            'totalanggota',
-            'totalTransaksi',
-            'totalPemasukan',
-            'totalPengeluaran',
-            'saldo',
-            'bulan',
-            'dataPemasukan',
-            'dataPengeluaran',
-            'transaksiTerbaru',
-            'userTerbaru'
-        ));
+    if (!$user || !$this->userHasRole($user, 'super_admin')) {
+        abort(403);
     }
+
+    // =====================
+    // CARD STATISTIK
+    // =====================
+
+    $totalDapur = Dapur::count();
+    $totalanggota = Anggota::count();
+    $totalTransaksi = Transaksi::count();
+
+    // Ambil dari seluruh transaksi semua dapur
+    $totalPemasukan = Transaksi::sum('debet');
+    $totalPengeluaran = Transaksi::sum('kredit');
+
+    $saldo = $totalPemasukan - $totalPengeluaran;
+
+    // =====================
+    // GRAFIK 12 BULAN
+    // =====================
+
+    $bulan = [];
+    $dataPemasukan = [];
+    $dataPengeluaran = [];
+
+    for ($i = 11; $i >= 0; $i--) {
+
+        $tanggal = now()->subMonths($i);
+
+        $bulan[] = $tanggal->format('M');
+
+        $dataPemasukan[] = Transaksi::whereYear(
+                'tanggal',
+                $tanggal->year
+            )
+            ->whereMonth(
+                'tanggal',
+                $tanggal->month
+            )
+            ->sum('debet');
+
+        $dataPengeluaran[] = Transaksi::whereYear(
+                'tanggal',
+                $tanggal->year
+            )
+            ->whereMonth(
+                'tanggal',
+                $tanggal->month
+            )
+            ->sum('kredit');
+    }
+
+    // =====================
+    // TRANSAKSI TERBARU
+    // =====================
+
+    $transaksiTerbaru = Transaksi::with(['dapur'])
+        ->latest()
+        ->take(5)
+        ->get();
+
+    // =====================
+    // USER TERBARU
+    // =====================
+
+    $userTerbaru = User::latest()
+        ->take(5)
+        ->get();
+
+    return view('pages.dashboard.super_admin', compact(
+        'totalDapur',
+        'totalanggota',
+        'totalTransaksi',
+        'totalPemasukan',
+        'totalPengeluaran',
+        'saldo',
+        'bulan',
+        'dataPemasukan',
+        'dataPengeluaran',
+        'transaksiTerbaru',
+        'userTerbaru'
+    ));
+}
 }
