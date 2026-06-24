@@ -11,63 +11,73 @@ use App\Models\Dapur;
 class BkuController extends Controller
 {
     public function index(Request $request)
-    {
-        $bulan = (int) ($request->bulan ?? date('m'));
-        $tahun = (int) ($request->tahun ?? date('Y'));
+{
+    $user = Auth::user();
+    $dapurId = $user->dapur_id;
 
-        // Awal periode
-        $awalPeriode = Carbon::createFromDate($tahun, $bulan, 1);
+    $bulan = (int) ($request->bulan ?? date('m'));
+    $tahun = (int) ($request->tahun ?? date('Y'));
 
-        // ==========================
-        // SALDO AWAL
-        // ==========================
-        $saldoAwal =
-            Transaksi::where('tanggal', '<', $awalPeriode)
-                ->sum('debet')
+    $awalPeriode = Carbon::createFromDate($tahun, $bulan, 1);
+
+    // ==========================
+    // SALDO AWAL PER DAPUR
+    // ==========================
+
+    $saldoAwal =
+        Transaksi::where('dapur_id', $user->dapur_id)
+            ->where('tanggal', '<', $awalPeriode)
+            ->sum('debet')
+        -
+        Transaksi::where('dapur_id', $user->dapur_id)
+            ->where('tanggal', '<', $awalPeriode)
+            ->sum('kredit');
+
+    // ==========================
+    // TRANSAKSI PERIODE TERPILIH
+    // ==========================
+
+    $transaksi = Transaksi::where('dapur_id', $user->dapur_id)
+        ->whereMonth('tanggal', $bulan)
+        ->whereYear('tanggal', $tahun)
+        ->orderBy('tanggal')
+        ->orderBy('id')
+        ->get();
+
+    // ==========================
+    // SALDO BERJALAN
+    // ==========================
+
+    $saldo = $saldoAwal;
+
+    foreach ($transaksi as $item) {
+
+        $saldo +=
+            ($item->debet ?? 0)
             -
-            Transaksi::where('tanggal', '<', $awalPeriode)
-                ->sum('kredit');
+            ($item->kredit ?? 0);
 
-        // ==========================
-        // TRANSAKSI PERIODE TERPILIH
-        // ==========================
-        $transaksi = Transaksi::whereMonth('tanggal', $bulan)
-            ->whereYear('tanggal', $tahun)
-            ->orderBy('tanggal')
-            ->get();
-
-        // ==========================
-        // SALDO BERJALAN
-        // ==========================
-        $saldo = $saldoAwal;
-
-        foreach ($transaksi as $item) {
-
-            $saldo +=
-                ($item->debet ?? 0)
-                -
-                ($item->kredit ?? 0);
-
-            $item->saldo = $saldo;
-        }
-
-        // ==========================
-        // TOTAL
-        // ==========================
-        $totalDebet = $transaksi->sum('debet');
-        $totalKredit = $transaksi->sum('kredit');
-        $saldoAkhir = $saldo;
-
-        return view('admin.bku.index', compact(
-            'transaksi',
-            'saldoAwal',
-            'totalDebet',
-            'totalKredit',
-            'saldoAkhir',
-            'bulan',
-            'tahun'
-        ));
+        $item->saldo = $saldo;
     }
+
+    // ==========================
+    // TOTAL
+    // ==========================
+
+    $totalDebet = $transaksi->sum('debet');
+    $totalKredit = $transaksi->sum('kredit');
+    $saldoAkhir = $saldo;
+
+    return view('admin.bku.index', compact(
+        'transaksi',
+        'saldoAwal',
+        'totalDebet',
+        'totalKredit',
+        'saldoAkhir',
+        'bulan',
+        'tahun'
+    ));
+}
 
     public function superIndex(Request $request)
     {
