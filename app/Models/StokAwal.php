@@ -15,6 +15,7 @@ class StokAwal extends Model
         'barang_id',
         'dapur_id',
         'jumlah',
+        'harga_beli_awal'
     ];
 
     public function barang()
