@@ -159,13 +159,11 @@ class MenuHelper
             'route' => 'admin.periode.index',
         ] : null,
 
-        [
+        ! $isSuperAdmin ? [
             'icon' => 'user-profile',
             'name' => 'Petugas',
-            'route' => $isSuperAdmin
-                ? 'super.petugas.index'
-                : 'admin.petugas.index',
-        ],
+            'route' => 'admin.petugas.index',
+        ] : null,
     ];
 
     // filter null top-level menu

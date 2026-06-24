@@ -54,8 +54,9 @@ class KelolaDapurController extends Controller
             'username' => $request->username,
             'password' => Hash::make($request->password),
             'role'     => 'admin_dapur',
-            'dapur_id' => $dapur->id_dapur, // sesuaikan PK tabel dapur
+            'dapur_id' => $dapur->id, // sesuaikan PK tabel dapur
         ]);
+        $user->assignRole('admin_dapur');
 
         DB::commit();
 
@@ -77,7 +78,7 @@ class KelolaDapurController extends Controller
         $dapur = Dapur::with('user')->findOrFail($id);
 
 
-        return view('super.kelola-dapur.show', compact('dapur', ));
+        return view('super.kelola-dapur.show', compact('dapur'));
     }
 
     public function edit($id)

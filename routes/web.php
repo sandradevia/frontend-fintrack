@@ -263,19 +263,19 @@ Route::middleware(['auth', 'role:super_admin'])
         Route::get('/laporan-stock', [LaporanStockController::class, 'superIndex'])->name('laporan-stock.index');
         Route::get('/laporan-stock/export', [LaporanStockController::class, 'exportStok'])->name('laporan.stock.export');
 
-        // LIST ANGGOTA
+        // // LIST ANGGOTA
 
-        Route::prefix('petugas')->group(function () {
+        // Route::prefix('petugas')->group(function () {
 
-            Route::get('/', [AnggotaController::class, 'index'])->name('petugas.index');
+        //     Route::get('/', [AnggotaController::class, 'index'])->name('petugas.index');
 
-            Route::post('/store', [AnggotaController::class, 'store'])->name('petugas.store');
+        //     Route::post('/store', [AnggotaController::class, 'store'])->name('petugas.store');
 
-            Route::put('/update/{id}', [AnggotaController::class, 'update'])->name('petugas.update');
+        //     Route::put('/update/{id}', [AnggotaController::class, 'update'])->name('petugas.update');
 
-            Route::delete('/delete/{id}', [AnggotaController::class, 'destroy'])->name('petugas.destroy');
+        //     Route::delete('/delete/{id}', [AnggotaController::class, 'destroy'])->name('petugas.destroy');
 
-        });
+        // });
     });
 
 
