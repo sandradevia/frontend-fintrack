@@ -57,7 +57,6 @@ class DapurController extends Controller
     dd($request->all());
 
     User::create([
-        'name' => $validated['nama_lembaga'],
         'username' => $validated['username'],
         'password' => Hash::make($validated['password']),
         'dapur_id' => $dapur->id,
@@ -100,7 +99,6 @@ class DapurController extends Controller
     if ($dapur->user) {
         $userData = [
             'username' => $validated['username'],
-            'name'     => $validated['nama_lembaga'], // Sinkronisasi nama
         ];
 
         // Hanya update password jika diisi
@@ -110,9 +108,7 @@ class DapurController extends Controller
 
         $dapur->user->update($userData);
     } else {
-        // Jika ternyata user belum ada, buat baru
         User::create([
-            'name'     => $validated['nama_lembaga'],
             'username' => $validated['username'],
             'password' => Hash::make($validated['password']),
             'dapur_id' => $dapur->id,

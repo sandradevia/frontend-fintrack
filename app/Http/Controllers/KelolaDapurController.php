@@ -37,16 +37,8 @@ class KelolaDapurController extends Controller
 
     try {
 
-        // 1. USER
-        $user = User::create([
-            'username' => $request->username,
-            'password' => Hash::make($request->password),
-            'role'     => 'dapur',
-        ]);
-
-        // 2. DAPUR
+        // 1. DAPUR
         $dapur = Dapur::create([
-            'user_id'           => $user->id,
             'nama_lembaga'      => $request->nama_lembaga,
             'alamat'            => $request->alamat,
             'nama_yayasan'      => $request->nama_yayasan,
@@ -54,16 +46,15 @@ class KelolaDapurController extends Controller
             'nama_kepala_sppg'  => $request->nama_kepala_sppg,
             'nama_akuntan'      => $request->nama_akuntan,
             'nomor_rekening'    => $request->nomor_rekening,
+            'tempat_pelaporan'  => $request->tempat_pelaporan,
         ]);
 
-        // 3. PERIODE (INI WAJIB ADA KALAU FIELD ADA DI FORM)
-        Periode::create([
-            'dapur_id'         => $dapur->id,
-            'tanggal_pelaporan'=> $request->tanggal_pelaporan,
-            'tahun_anggaran'   => $request->tahun_anggaran,
-            'periode_saat_ini' => $request->periode_saat_ini,
-            'awal_periode_berikutnya' => $request->awal_periode_berikutnya,
-            'tempat_pelaporan' => $request->tempat_pelaporan,
+        // 2. USER
+        $user = User::create([
+            'username' => $request->username,
+            'password' => Hash::make($request->password),
+            'role'     => 'admin_dapur',
+            'dapur_id' => $dapur->id_dapur, // sesuaikan PK tabel dapur
         ]);
 
         DB::commit();
@@ -74,9 +65,10 @@ class KelolaDapurController extends Controller
 
     } catch (\Exception $e) {
 
-        DB::rollback();
+    DB::rollBack();
 
-        return back()->with('error', $e->getMessage());
+    dd($e->getMessage());
+
     }
 }
 
